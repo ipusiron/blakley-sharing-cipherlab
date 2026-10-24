@@ -137,7 +137,10 @@ dialog::backdrop { background: #101a2ab0; }
 .grid-secret { fill: var(--paper); stroke: var(--red); stroke-width: 2; }
 .grid-selected { fill: none; stroke: var(--accent); stroke-width: 2; }
 .grid-candidate-column { fill: var(--accent); opacity: .09; }
-.graph-guide { fill: none; stroke: var(--accent); opacity: .4; stroke-width: 1; stroke-dasharray: 2 4; }
+.graph-guide {
+  fill: none; stroke: var(--accent); opacity: .8; stroke-width: 2;
+  stroke-dasharray: 6 4; stroke-linecap: round; stroke-linejoin: round;
+}
 .real-line { fill: none; stroke: var(--accent); stroke-width: 2; }
 .rule-arrow { stroke: var(--accent); fill: var(--accent); stroke-width: 1.4; }
 .legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; font-size: .875rem; }

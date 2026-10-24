@@ -295,8 +295,8 @@
     for (const [key, value] of Object.entries(attrs)) element.setAttribute(key, String(value));
     return element;
   };
-  const label = (svg, x, y, text, anchor = 'middle') => {
-    const node = S('text', { x, y, 'text-anchor': anchor, class: 'grid-label' });
+  const label = (svg, x, y, text, anchor = 'middle', cls = 'grid-label') => {
+    const node = S('text', { x, y, 'text-anchor': anchor, class: cls });
     node.textContent = text; svg.append(node);
   };
   const fmtPoint = point => '(' + point.join(',') + ')';
@@ -317,12 +317,76 @@
     });
     result.append(head, body); target.replaceChildren(result);
   }
-  function graph(svg, p, series, options = {}) {
-    const width = Math.min(360, svg.parentElement.clientWidth || 260), height = width + 28;
-    const left = 30, right = width - 15, top = 28, bottom = width - 22;
+  function graphScale(width, p) {
+    const height = width + 40, left = 30, right = width - 15, top = 34, bottom = width - 22;
     const dx = (right - left) / (p - 1), dy = (bottom - top) / (p - 1);
-    const X = x => left + x * dx, Y = y => bottom - y * dy;
+    return { width, height, left, right, top, bottom, dx, dy, X: x => left + x * dx, Y: y => bottom - y * dy };
+  }
+  function gridMark(index, attributes) {
+    const polygon = (count, star = false) => {
+      const vertices = Array.from({ length: count }, (_, i) => {
+        const angle = -Math.PI / 2 + i * 2 * Math.PI / count, radius = star && i % 2 ? 2.3 : 5;
+        return [Math.cos(angle) * radius, Math.sin(angle) * radius];
+      });
+      const midpoint = axis => (Math.min(...vertices.map(v => v[axis])) + Math.max(...vertices.map(v => v[axis]))) / 2;
+      const cx = midpoint(0), cy = midpoint(1);
+      return S('polygon', { points: vertices.map(([x, y]) => (x - cx) + ',' + (y - cy)).join(' '), ...attributes });
+    };
+    if (index === 1) return polygon(3);
+    if (index === 2) return S('rect', { x: -4, y: -4, width: 8, height: 8, ...attributes });
+    if (index === 3) return S('polygon', { points: '0,-5 5,0 0,5 -5,0', ...attributes });
+    if (index === 4) return S('path', { d: 'M-1.5-5H1.5V-1.5H5V1.5H1.5V5H-1.5V1.5H-5V-1.5H-1.5Z', ...attributes });
+    if (index === 5) return polygon(10, true);
+    if (index === 6) return polygon(5);
+    if (index === 7) return S('path', {
+      d: 'M-5-3L-3-5 0-2 3-5 5-3 2 0 5 3 3 5 0 2-3 5-5 3-2 0Z', ...attributes
+    });
+    return S('circle', { cx: 0, cy: 0, r: 4, ...attributes });
+  }
+  const gridHoverControllers = new WeakMap();
+  function gridTooltip(svg, p, scale, options) {
+    gridHoverControllers.get(svg)?.abort();
+    const controller = new AbortController(), listener = { signal: controller.signal };
+    gridHoverControllers.set(svg, controller);
+    const { width, height, left, bottom, dx, dy, X, Y } = scale;
+    const axes = options.slice ? ['x₂', 'x₃'] : ['x₁', 'x₂'];
+    const popup = S('g', { class: 'grid-tooltip', visibility: 'hidden', 'aria-hidden': 'true', 'data-axes': axes.join(',') });
+    const ring = S('circle', { r: 6.5, class: 'grid-hover-ring' });
+    const box = S('rect', { rx: 5, height: 52, class: 'grid-tooltip-box' });
+    const heading = S('text', { class: 'grid-tooltip-label' }), coordinate = S('text', { class: 'grid-tooltip-label' });
+    heading.textContent = t('nearestGridPoint');
+    popup.append(ring, box, heading, coordinate); svg.append(popup);
+    const hide = () => popup.setAttribute('visibility', 'hidden');
+    const show = event => {
+      if (event.pointerType === 'touch' || event.buttons) { hide(); return; }
+      const matrix = svg.getScreenCTM();
+      if (!matrix) return;
+      const cursor = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+      const clamp = value => Math.max(0, Math.min(p - 1, Math.round(value)));
+      const x = clamp((cursor.x - left) / dx), y = clamp((bottom - cursor.y) / dy);
+      coordinate.textContent = '(' + axes.join(', ') + ') = (' + x + ', ' + y + ')';
+      popup.dataset.coordinate = x + ',' + y;
+      ring.setAttribute('cx', X(x)); ring.setAttribute('cy', Y(y));
+      const boxWidth = Math.min(width - 16, Math.max(heading.getComputedTextLength(), coordinate.getComputedTextLength()) + 20);
+      const bx = Math.max(8, Math.min(width - boxWidth - 8, X(x) + 12));
+      const by = Math.max(8, Math.min(height - 60, Y(y) - 62));
+      box.setAttribute('x', bx); box.setAttribute('y', by); box.setAttribute('width', boxWidth);
+      heading.setAttribute('x', bx + 10); heading.setAttribute('y', by + 20);
+      coordinate.setAttribute('x', bx + 10); coordinate.setAttribute('y', by + 40);
+      popup.setAttribute('visibility', 'visible');
+    };
+    svg.addEventListener('pointermove', show, listener);
+    svg.addEventListener('pointerleave', hide, listener);
+    svg.addEventListener('pointercancel', hide, listener);
+    svg.addEventListener('pointerdown', hide, listener);
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); }, listener);
+  }
+  function graph(svg, p, series, options = {}) {
+    const scale = graphScale(Math.min(360, svg.parentElement.clientWidth || 260), p);
+    const { width, height, left, right, top, bottom, dx, X, Y } = scale;
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`); svg.replaceChildren();
+    const hover = !!svg.closest('#panel-intersections');
+    if (hover) svg.append(S('rect', { x: 0, y: 0, width, height, class: 'grid-pointer-surface' }));
     if (options.candidate !== undefined) {
       svg.append(S('rect', { x: X(options.candidate) - dx / 2, y: top, width: dx, height: bottom - top, class: 'grid-candidate-column' }));
     }
@@ -332,8 +396,8 @@
       if (i === 0 || i === p - 1 || i % 4 === 0 || i === options.candidate) label(svg, X(i), bottom + 17, i);
       if (i === 0 || i === p - 1 || i % 4 === 0) label(svg, left - 7, Y(i) + 4, i, 'end');
     }
-    label(svg, left, 15, options.axisY || (options.slice ? 'x₃' : t('axisRandom')), 'start');
-    label(svg, width / 2, height - 5, options.axisX || (options.slice ? 'x₂' : t('axisSecret')));
+    label(svg, left, 20, options.axisY || (options.slice ? 'x₃' : t('axisRandom')), 'start', 'grid-axis-label');
+    label(svg, width / 2, height - 10, options.axisX || (options.slice ? 'x₂' : t('axisSecret')), 'middle', 'grid-axis-label');
     const points = new Map();
     for (const item of series) {
       if (options.guides && item.points.length > 1) {
@@ -371,8 +435,10 @@
           S('circle', { cx: X(x), cy: Y(y), r: 3, class: 'grid-overlap' }));
         label(svg, X(x) + 8, Y(y) - 6, shares.length, 'start');
       } else {
-        const node = S('text', { x: X(x), y: Y(y), class: `grid-mark share-${shares[0] + 1}`, ...attributes });
-        node.textContent = marks[shares[0]] || '●'; svg.append(node);
+        svg.append(gridMark(shares[0], {
+          transform: `translate(${X(x)},${Y(y)})`, class: `grid-mark share-${shares[0] + 1}`,
+          'data-mark': shares[0], ...attributes
+        }));
       }
       if (options.candidate === x || options.all) svg.append(S('circle', { cx: X(x), cy: Y(y), r: 7, class: 'grid-selected' }));
     }
@@ -387,6 +453,7 @@
         S('line', { x1: endX, y1: y, x2: endX, y2: endY, class: 'rule-arrow' }),
         S('polygon', { points: `${endX - 3},${endY} ${endX + 3},${endY} ${endX},${endY - 6}`, class: 'rule-arrow' }));
     }
+    if (hover) gridTooltip(svg, p, scale, options);
   }
   function pointsTable(id, p, series) {
     const rows = series.map(item => [marks[item.id] + ' #' + (item.id + 1), item.points.map(fmtPoint).join(' '),
@@ -609,6 +676,7 @@
   }
   function renderIntersections() {
     const example = effective();
+    $('threshold-summary').textContent = t('thresholdSummary', { k: example.k, n: example.n });
     $('k2-view').hidden = example.k !== 2;
     if (example.k === 2) renderIntro(state.example);
     renderPicks(example);
@@ -1277,10 +1345,7 @@
 
   function compareScale(svg, p) {
     const width = Number(svg.getAttribute('viewBox').split(' ')[2]);
-    return {
-      X: x => 30 + x * (width - 45) / (p - 1),
-      Y: y => width - 22 - y * (width - 50) / (p - 1)
-    };
+    return graphScale(width, p);
   }
 
   function renderComparePolynomial(svg, point, candidates) {

@@ -27,9 +27,9 @@ The controls at the top right switch between Japanese and English, and between l
 
 These screenshots use the English interface and light theme. Each caption explains what the displayed state shows.
 
-![Only share #1 is selected, leaving one point in each of 13 columns](assets/en/screenshot.png)
+![Definitions of n and k and four initial equations to distribute](assets/en/screenshot.png)
 
-> *Share #1 alone over GF(13): all 13 secret candidates remain, with exactly one point in each column.*
+> *n is the total share count; k is the recovery threshold. The initial (2,4) example gives one equation to each of four people; any two recover the secret.*
 
 ![Thirteen rows connecting Shamir polynomials to Blakley points](assets/en/screenshot2.png)
 
@@ -56,9 +56,20 @@ For k=2, edit right-hand values or normal components to observe coincident lines
 
 ### Follow intersections
 
+n is the total share count, and k is the number needed for recovery. Correctly generated shares allow recovery from any k.
+The introduction before the graph explains this relationship and shows the current k and n.
+The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.
+
+Combine secret s and random value r into `X=(s,r)`. Each share is a line through that point: `a x₁+b x₂≡c (mod p)`.
+Choose a,b and calculate `c=a s+b r (mod p)`. GF(p) uses 0 through p−1, reducing results to their remainder modulo p.
+All four initial equations are visible before the graph, connecting distribution to geometry. These equations are a fixed teaching example.
+Changing settings updates the current k and n and the graph; k=3 and higher hide the fixed k=2 example.
+
 The initial example uses GF(13), `k=2`, `n=4` and `X=(5,8)`. The secret is its first coordinate, `s=5`.
 Share #1 alone leaves 13 points satisfying `x₁+3x₂≡3 (mod 13)`.
 Step through the candidates to inspect each column; adding #2 determines the single point `(5,8)`.
+Move the mouse over a coordinate graph to display the nearest grid point’s coordinates. Leave the graph or press Escape to clear the display.
+Keyboard users can read the values through “View the figure as a table”. Touch interaction preserves vertical scrolling over graphs.
 
 <!-- example: default-k2 -->
 

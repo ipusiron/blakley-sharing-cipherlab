@@ -6,10 +6,16 @@ Run with an existing Python environment that contains Playwright:
 Results and viewport screenshots are written below .work.
 """
 import argparse
+from contextlib import contextmanager
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from itertools import product
 from datetime import datetime, timedelta, timezone
 import json
+import re
 from pathlib import Path
 import sys
+from threading import Thread
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from playwright.sync_api import sync_playwright
@@ -511,6 +517,377 @@ def test_stage1b(page, width, layouts, language):
     test_dealer(page, width, layouts, vectors, language)
 
 
+
+
+def integers(text):
+    return [int(value) for value in re.findall(r"-?\d+", text)]
+
+
+def compare_table(page, expected):
+    rows = table_rows(page, "compare-table")
+    check(len(rows) == len(expected), ("comparison row count", len(rows), len(expected)))
+    for row, coefficients in zip(rows, expected):
+        check(integers(row[0]) == [coefficients[0]], ("comparison secret", row))
+        check(integers(row[1]) == coefficients, ("comparison coefficients", row, coefficients))
+        check([int(value) for value in row[-2:]] == [11, 8], ("all rows reproduce both shares", row))
+    return rows
+
+
+def compare_selection(page, coefficients):
+    secret = coefficients[0]
+    check(page.locator("#compare-pick-" + str(secret)).get_attribute("aria-pressed") == "true", "selected comparison row")
+    check(page.locator("#compare-rows button[aria-pressed='true']").count() == 1, "one selected comparison row")
+    for identifier in ("compare-poly", "compare-slice"):
+        check(page.locator("#" + identifier).get_attribute("data-candidate") == str(secret), (identifier, secret))
+        check(data_json(page, identifier, "coefficients") == coefficients, (identifier, coefficients))
+    check(data_json(page, "compare-slice", "point") == coefficients[1:], "slice and polynomial select same coefficients")
+    expected = [[x, sum(value * x ** power for power, value in enumerate(coefficients)) % 13] for x in range(13)]
+    check(point_data(page, "compare-poly") == expected, "selected polynomial evaluations")
+    marks = page.locator("#compare-poly .compare-poly-point").evaluate_all(
+        "nodes => nodes.map(node => JSON.parse(node.dataset.point))")
+    check(marks == expected, "all selected polynomial dots are rendered")
+    check(data_json(page, "compare-slice", "intersections") == [coefficients[1:]], "selected slice intersection")
+
+
+def test_compare(page, width, layouts, vectors):
+    page.locator("#tab-compare").click()
+    assert_selected(page, "compare")
+    expected_k2 = vectors["shamir_k2"]["line1"]
+    check(sorted_points(point_data(page, "compare-k2-grid")) == sorted_points(expected_k2), "k2 comparison vector points")
+    initial = int(page.locator("#compare-k2-grid").get_attribute("data-candidate"))
+    check(data_json(page, "compare-k2-grid", "point") == expected_k2[initial], "k2 comparison selected point")
+    page.locator("#compare-k2-next").click()
+    check(int(page.locator("#compare-k2-grid").get_attribute("data-candidate")) == (initial + 1) % 13, "k2 comparison advances")
+    page.locator("#compare-k2-prev").click()
+    check(int(page.locator("#compare-k2-grid").get_attribute("data-candidate")) == initial, "k2 comparison returns")
+    open_ancestors(page.locator("#compare-linear-table"))
+    linear = table_rows(page, "compare-linear-table")
+    check(len(linear) == 13, "13 linear correspondences")
+    for row, point in zip(linear, expected_k2):
+        check(integers(row[0]) == [point[0]], ("linear candidate", row))
+        check(any(integers(cell) == point for cell in row[1:]), ("linear coefficient point", row, point))
+    expected = vectors["shamir"]["line12"]
+    rows = compare_table(page, expected)
+    check(page.locator("#compare-zero-top").is_visible(), "zero leading coefficient is visible")
+    zero = vectors["shamir"]["zeroTop"][0]
+    check(zero == [1, 10, 0], "zero coefficient reference")
+    polynomial = ''.join(rows[zero[0]][2].split()).replace('\uff0b', '+')
+    check('1+10x' in polynomial, ("zero leading coefficient becomes linear", polynomial))
+    for coefficients in expected:
+        page.locator("#compare-pick-" + str(coefficients[0])).click()
+        compare_selection(page, coefficients)
+    feature_layout(page, width, "compare-all-13", layouts,
+                   ("compare-k2-grid", "compare-linear-table", "compare-poly", "compare-table", "compare-slice", "compare-size-table"))
+    boxes = {name: page.locator("#compare-" + name + "-panel").bounding_box() for name in ("poly", "table", "slice")}
+    if width < 720:
+        check(boxes["poly"]["y"] + boxes["poly"]["height"] <= boxes["table"]["y"] + 1, "mobile graph before table")
+        check(boxes["table"]["y"] + boxes["table"]["height"] <= boxes["slice"]["y"] + 1, "mobile table before slice")
+    else:
+        check(abs(boxes["poly"]["y"] - boxes["slice"]["y"]) <= 1, "desktop diagrams in same row")
+        check(boxes["poly"]["x"] + boxes["poly"]["width"] <= boxes["slice"]["x"] + 1, "desktop diagrams in two columns")
+    page.locator("#compare-nonzero").check()
+    filtered = [row for row in expected if all(value != 0 for value in row[1:])]
+    check(len(filtered) == 11 and {row[0] for row in expected} - {row[0] for row in filtered} == {1, 12}, "nonzero restriction reference")
+    compare_table(page, filtered)
+    for secret in (1, 12):
+        check(not page.locator("#compare-pick-" + str(secret)).count(), ("nonzero restriction removes candidate", secret))
+    current = int(page.locator("#compare-poly").get_attribute("data-candidate"))
+    compare_selection(page, next(row for row in filtered if row[0] == current))
+    page.locator("#compare-pick-5").focus()
+    page.keyboard.press("ArrowDown")
+    compare_selection(page, expected[6])
+    page.keyboard.press("Home")
+    compare_selection(page, expected[0])
+    page.keyboard.press("End")
+    compare_selection(page, expected[11])
+    feature_layout(page, width, "compare-nonzero-11", layouts, ("compare-poly", "compare-table", "compare-slice"))
+    page.locator("#compare-nonzero").uncheck()
+    compare_table(page, expected)
+    size_rows = table_rows(page, "compare-size-table")
+    check([[int(value) for value in row[-2:]] for row in size_rows] == [[3, 48], [3, 18], [1, 16]], "share size values")
+    page.locator("#compare-pick-1").click()
+    compare_selection(page, zero)
+    page.locator("#compare-lesson").click()
+    check(page.locator("#help-dialog").is_visible(), "comparison link opens help")
+    check(page.locator("#lesson-8").evaluate("el => el.open"), "comparison link opens requested lesson")
+    check(page.locator("#lesson-8 > summary").evaluate("el => el === document.activeElement"), "comparison lesson gets focus")
+    page.keyboard.press("Escape")
+    check(page.locator("#compare-lesson").evaluate("el => el === document.activeElement"), "comparison help restores opener focus")
+
+
+
+def test_pitfall_b(page, width, layouts, vectors):
+    for k in (2, 3):
+        page.locator("#pit-b-k" + str(k)).click()
+        model = vectors["default_k" + str(k)]
+        prime = model["p"]
+        expected_rows = [[count, prime ** (k - count), prime if count < k else 1] for count in range(k + 1)]
+        check([[int(cell) for cell in row] for row in table_rows(page, "pit-b-table")] == expected_rows,
+              ("whole point versus first coordinate counts", k))
+        for count, whole, secrets in expected_rows:
+            page.locator("#pit-b-count-" + str(count)).click()
+            check(page.locator("#pit-b-count-" + str(count)).get_attribute("aria-pressed") == "true", "whole point count selected")
+            check(integers(page.locator("#pit-b-unsafe").inner_text())[0] == whole, ("selected whole count", whole))
+            check(integers(page.locator("#pit-b-result").inner_text())[-1] == secrets, ("selected secret count", secrets))
+            expected = field_points(model["A"][:count], model["c"][:count], prime, k)
+            check(len(expected) == whole, ("whole point oracle", k, count))
+            if k == 2:
+                check(sorted_points(point_data(page, "pit-b-grid")) == sorted_points(expected), ("whole point rendered set", count))
+            else:
+                figures = page.locator("#pit-b-slices figure")
+                check(figures.count() == prime, "whole point slice figure count")
+                for secret in range(prime):
+                    expected_count = sum(point[0] == secret for point in expected)
+                    figure = figures.nth(secret)
+                    check(figure.get_attribute("data-s") == str(secret), "whole point slice order")
+                    check(figure.get_attribute("data-count") == str(expected_count), ("whole point slice count", count, secret))
+                    check(figure.locator(".slice-dot").count() == expected_count, ("whole point slice rendered dots", count, secret))
+            feature_layout(page, width, "pit-b-k" + str(k) + "-count" + str(count), layouts,
+                           ("pit-b-grid", "pit-b-table", "pit-b-slices"))
+
+
+def test_pitfall_c(page, width, layouts, vectors):
+    model = vectors["default_k2"]
+    page.locator("#pit-c-mode").select_option("integer")
+    for index, row in enumerate(model["A"]):
+        page.locator("#pit-c-share").select_option(str(index))
+        expected = [[x, y] for x, y in product(range(model["p"]), repeat=2)
+                    if row[0] * x + row[1] * y == model["cInt"][index]]
+        check([point[0] for point in expected] == model["integerCandidates"][index], "integer candidate reference")
+        check(sorted_points(point_data(page, "pit-c-grid")) == sorted_points(expected), ("integer points", index))
+        open_ancestors(page.locator("#pit-c-table"))
+        check([[int(cell) for cell in values] for values in table_rows(page, "pit-c-table")] == expected, ("integer point table", index))
+        check(str(model["cInt"][index]) in page.locator("#pit-c-equation").inner_text(), "integer RHS stays unreduced")
+        check(integers(page.locator("#pit-c-unsafe").inner_text()) == [len(expected), *[point[0] for point in expected]],
+              ("integer reported candidates", index))
+        check(integers(page.locator("#pit-c-result").inner_text()) == [13, 13], "full field restores thirteen candidates")
+        feature_layout(page, width, "pit-c-integer" + str(index), layouts, ("pit-c-grid", "pit-c-table"))
+    page.locator("#pit-c-mode").select_option("narrow")
+    expected = [point for point in model["lines"][0] if point[1] <= 3]
+    check(len(expected) == 4, "narrow candidate reference")
+    check(sorted_points(point_data(page, "pit-c-grid")) == sorted_points(expected), "narrow random coordinates")
+    check([[int(cell) for cell in row] for row in table_rows(page, "pit-c-table")] == expected, "narrow point table")
+    check(not page.locator("#pit-c-share").is_visible(), "narrow model uses fixed first share")
+    check(integers(page.locator("#pit-c-unsafe").inner_text()) == [4, *[point[0] for point in expected]], "narrow reported candidates")
+    check(integers(page.locator("#pit-c-result").inner_text()) == [13, 13], "narrow model compared with full field")
+    feature_layout(page, width, "pit-c-narrow", layouts, ("pit-c-grid", "pit-c-table"))
+
+
+def test_pitfall_a(page, width, layouts, vectors):
+    for mode, key in (("vertical", "leak_k2"), ("leak3", "leak_k3"), ("parallel", "parallel_k2"), ("short", None)):
+        page.locator("#pit-a-mode").select_option(mode)
+        model = vectors[key] if key else {
+            "p": 13, "A": vectors["default_k2"]["A"][:1], "c": vectors["default_k2"]["c"][:1]
+        }
+        expected = field_points(model["A"], model["c"], model["p"])
+        secrets = sorted({point[0] for point in expected})
+        check(data_json(page, "pit-a-grid", "secrets") == secrets, ("unchecked secret candidates", mode))
+        check(int(page.locator("#pit-a-grid").get_attribute("data-solution-count")) == len(expected), ("unchecked point count", mode))
+        if key:
+            expected_counts = [sum(point[0] == secret for point in expected) for secret in range(model["p"])]
+            check(expected_counts == model["sCandidates"], ("unchecked count reference", mode))
+            bad = [[value + 1 for value in row] for row in model.get("badI", model.get("checkBadII", [[0]]))]
+            failed = [integers(row[0]) for row in table_rows(page, "pit-a-checks") if '\u2717' in row[-1]]
+            check(failed == bad, ("failed normal subsets", mode, failed, bad))
+        if mode == "leak3":
+            check(page.locator("#pit-a-slices button").count() == model["p"], "leaking slice count")
+            for secret in range(model["p"]):
+                slice_expected = [point[1:] for point in expected if point[0] == secret]
+                check(sorted_points(point_data(page, "pit-a-slice-" + str(secret))) == sorted_points(slice_expected),
+                      ("leaking slice points", secret))
+                page.locator("#pit-a-s").select_option(str(secret))
+                check(page.locator("#pit-a-slice-" + str(secret)).get_attribute("aria-pressed") == "true", "leaking slice selected")
+                marked = page.locator("#pit-a-grid .grid-overlap[data-point]").evaluate_all(
+                    "nodes => nodes.map(node => node.dataset.point.split(',').map(Number))")
+                check(sorted_points(marked) == sorted_points(slice_expected), ("leaking selected slice intersections", secret))
+            page.locator("#pit-a-slice-7").click()
+            check(page.locator("#pit-a-s").input_value() == "7", "slice button and select synchronize")
+        else:
+            check(sorted_points(point_data(page, "pit-a-grid")) == sorted_points(expected), ("unchecked 2D points", mode))
+        if mode in ("parallel", "short"):
+            returned = re.search(r"\((\d+)\s*,\s*(\d+)\)", page.locator("#pit-a-unsafe").inner_text())
+            check(returned is not None, ("unprotected returned point", mode))
+            check([int(value) for value in returned.groups()] == ([0, 0] if mode == "parallel" else [3, 0]),
+                  ("unprotected solver output", mode))
+        check(page.locator("#pit-card-a .real-line").count() == 0, "unchecked models omit real-line diagram")
+        feature_layout(page, width, "pit-a-" + mode, layouts, ("pit-a-grid", "pit-a-slices", "pit-a-checks"))
+
+
+def tamper_rows(page):
+    return [{"T": integers(row[0]), "X": integers(row[1]), "s": int(row[2])} for row in table_rows(page, "pit-d-table")]
+
+
+def test_pitfall_d(page, width, layouts, vectors):
+    model = vectors["default_k2"]
+    page.locator("#pit-d-count").select_option("2")
+    for delta, secret in enumerate(vectors["tamper_linearity"]["sByDelta"]):
+        page.locator("#pit-d-delta").select_option(str(delta))
+        rhs = [model["c"][0], (model["c"][1] + delta) % model["p"]]
+        expected = field_points(model["A"][:2], rhs, model["p"])
+        check(len(expected) == 1 and expected[0][0] == secret, ("tamper linearity reference", delta))
+        check(tamper_rows(page) == [{"T": [1, 2], "X": expected[0], "s": secret}], ("delta restores altered point", delta))
+        check(data_json(page, "pit-d-result", "suspects") == [], "two shares cannot identify alteration")
+    open_ancestors(page.locator("#pit-d-linearity"))
+    check([[int(cell) for cell in row] for row in table_rows(page, "pit-d-linearity")] ==
+          [[delta, secret] for delta, secret in enumerate(vectors["tamper_linearity"]["sByDelta"])], "all delta table")
+    page.locator("#pit-d-delta").select_option("1")
+    for count in (2, 3, 4):
+        page.locator("#pit-d-count").select_option(str(count))
+        expected = [{**pair, "s": pair["X"][0]} for pair in vectors["tamper_k2"]["pairs"] if max(pair["T"]) <= count]
+        rows = tamper_rows(page)
+        check(rows == expected, ("tampered subset intersections", count))
+        check(data_json(page, "pit-d-result", "suspects") == ([1] if count == 4 else []), ("suspect identification threshold", count))
+        if count == 3:
+            check(len({tuple(row["X"]) for row in rows}) == 3, "three different pair intersections")
+        if count == 4:
+            check(sum(row["X"] == model["X"] for row in rows) == 3, "three honest pairs agree")
+        feature_layout(page, width, "pit-d-count" + str(count), layouts, ("pit-d-grid", "pit-d-table", "pit-d-linearity"))
+    page.locator("#pit-d-delta").select_option("0")
+    check(all(row["X"] == model["X"] for row in tamper_rows(page)), "delta zero restores all original intersections")
+    check(data_json(page, "pit-d-result", "suspects") == [], "delta zero has no suspect")
+    check(page.locator("#pit-card-d .real-line").count() == 0, "tampering omits real-line diagram")
+
+
+def test_pitfalls(page, width, layouts, vectors):
+    page.locator("#tab-pitfalls").click()
+    assert_selected(page, "pitfalls")
+    cards = page.locator("#panel-pitfalls > section").evaluate_all("nodes => nodes.map(node => node.id)")
+    check(cards == ["pit-card-b", "pit-card-c", "pit-card-a", "pit-card-d"], "pitfall teaching order")
+    for suffix in ("b", "c", "a", "d"):
+        card = page.locator("#pit-card-" + suffix)
+        check(card.locator("h4").count() == 4, ("four teaching headings", suffix))
+        check('\u2715' in card.locator(".danger-badge").inner_text(), ("deliberately unprotected badge", suffix))
+        border = card.locator(".danger-model").evaluate("el => parseFloat(getComputedStyle(el).borderLeftWidth)")
+        check(border >= 4, ("thick warning border", suffix, border))
+    test_pitfall_b(page, width, layouts, vectors)
+    test_pitfall_c(page, width, layouts, vectors)
+    test_pitfall_a(page, width, layouts, vectors)
+    test_pitfall_d(page, width, layouts, vectors)
+
+
+def test_lessons(page, width, layouts, language):
+    page.locator("#help").click()
+    dialog = page.locator("#help-dialog")
+    check(dialog.is_visible(), "lessons are inside open help")
+    check(dialog.locator("details[id^='lesson-']").count() == 10, "ten lessons")
+    for number in range(1, 11):
+        identifier = "lesson-" + str(number)
+        lesson = page.locator("#" + identifier)
+        show_details(page, identifier)
+        heading = lesson.locator(":scope > summary").inner_text().strip()
+        check(bool(heading), ("lesson heading", number))
+        if language == "en":
+            check(not re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", heading), ("English heading", heading))
+        check(lesson.locator("table").count() >= 1, ("lesson has a table", number))
+        check(lesson.locator("a[href]").count() >= 1, ("lesson has source or tool links", number))
+        for href in lesson.locator("a[href]").evaluate_all("links => links.map(link => link.getAttribute('href'))"):
+            check(href.startswith("https://"), ("lesson HTTPS source", number, href))
+        feature_layout(page, width, "lesson-" + str(number), layouts, (identifier,))
+    check(page.locator("#lesson-10 a[href]").count() >= 4, "four related tools")
+    focusable = dialog.locator("button, a[href], input, select, textarea, summary, [tabindex='0']").filter(visible=True)
+    first = focusable.first
+    last = focusable.last
+    first.focus()
+    page.keyboard.press("Shift+Tab")
+    check(last.evaluate("el => el === document.activeElement"), "help wraps from first to last")
+    page.keyboard.press("Tab")
+    check(first.evaluate("el => el === document.activeElement"), "help wraps from last to first")
+    page.keyboard.press("Escape")
+    check(not dialog.is_visible(), "Escape closes expanded lessons")
+    check(page.locator("#help").evaluate("el => el === document.activeElement"), "expanded lessons restore help focus")
+    public_text = page.locator("main").text_content()
+    forbidden = r"e\u2081|\u5c04\u5f71|\u5f27|\bMDS\b|\bprojection\b|\bspan\b"
+    check(not re.search(forbidden, public_text, re.IGNORECASE), "advanced terminology stays inside lessons")
+
+
+def test_stage1c(page, width, layouts, language):
+    vectors = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))
+    test_compare(page, width, layouts, vectors)
+    test_pitfalls(page, width, layouts, vectors)
+    test_lessons(page, width, layouts, language)
+
+
+
+def field_points(A, c, prime, dimension=None):
+    """Small independent exhaustive oracle; no product code or browser API is called."""
+    dimension = dimension or len(A[0])
+    return [list(point) for point in product(range(prime), repeat=dimension)
+            if all(sum(a * x for a, x in zip(row, point)) % prime == rhs % prime for row, rhs in zip(A, c))]
+
+
+def http_smoke_case(browser, browser_name, url, width, output):
+    context = new_context(browser, browser_name, width, "en", "dark")
+    page = context.new_page()
+    errors = observe(page, url)
+    layouts = []
+    name = browser_name + "-" + str(width) + "-http-smoke"
+    try:
+        page.goto(url, wait_until="load")
+        vectors = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))
+        assert_preference(page, "en", "dark")
+        check(sorted_points(point_data(page, "main-grid")) == sorted_points(vectors["default_k2"]["lines"][0]), "HTTP main graph")
+        assert_layout(page, width, "http-initial", layouts)
+        page.locator("#tab-compare").click()
+        expected = vectors["shamir"]["line12"]
+        compare_table(page, expected)
+        page.locator("#compare-pick-1").click()
+        compare_selection(page, vectors["shamir"]["zeroTop"][0])
+        page.locator("#compare-nonzero").check()
+        compare_table(page, [row for row in expected if all(value != 0 for value in row[1:])])
+        feature_layout(page, width, "http-compare", layouts, ("compare-poly", "compare-table", "compare-slice"))
+        page.locator("#tab-pitfalls").click()
+        page.locator("#pit-d-count").select_option("4")
+        page.locator("#pit-d-delta").select_option("1")
+        check(len(table_rows(page, "pit-d-table")) == 6, "HTTP six pair results")
+        feature_layout(page, width, "http-pitfalls", layouts, ("pit-d-grid", "pit-d-table"))
+        page.locator("#help").click()
+        check(page.locator("#help-dialog details[id^='lesson-']").count() == 10, "HTTP ten lessons")
+        show_details(page, "lesson-10")
+        assert_layout(page, width, "http-help", layouts)
+        page.keyboard.press("Escape")
+        page.locator("#language").click()
+        page.locator("#theme").click()
+        assert_preference(page, "ja", "light")
+        assert_clean(page, errors)
+        page.screenshot(path=str(output / (name + ".png")), full_page=False)
+        return {"case": name, "status": "passed", "url": url, "layouts": layouts}
+    except Exception as error:
+        page.screenshot(path=str(output / (name + "-failed.png")), full_page=False)
+        return {"case": name, "status": "failed", "error": str(error), "errors": errors, "layouts": layouts}
+    finally:
+        context.close()
+
+
+def data_json(page, identifier, name):
+    raw = page.locator("#" + identifier).get_attribute("data-" + name)
+    check(raw is not None, (identifier, name))
+    return json.loads(raw)
+
+
+def table_rows(page, identifier):
+    return page.locator("#" + identifier + " tbody tr").evaluate_all(
+        "rows => rows.map(row => Array.from(row.querySelectorAll('th, td'), cell => cell.textContent.trim()))"
+    )
+
+
+@contextmanager
+def local_http():
+    """Serve the repository on an ephemeral loopback port without installing anything."""
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, *_args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietHandler, directory=str(ROOT)))
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield "http://127.0.0.1:" + str(server.server_address[1]) + "/"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
 def new_context(browser, browser_name, width, language, theme):
     options = {
         "viewport": {"width": width, "height": 900},
@@ -544,8 +921,10 @@ def matrix_case(browser, browser_name, url, width, language, theme, output, stag
         page.screenshot(path=str(output / (case_name + "-initial.png")), full_page=False)
         test_tabs(page, width, layouts)
         test_help(page, width, layouts, output / (case_name + "-help.png"))
-        if stage == "1b":
+        if stage in ("1b", "1c"):
             test_stage1b(page, width, layouts, language)
+        if stage == "1c":
+            test_stage1c(page, width, layouts, language)
         saved = test_preferences_interaction(page, language, theme)
         assert_clean(page, errors)
         return {"case": case_name, "status": "passed", "layouts": layouts, "saved": saved}
@@ -610,7 +989,7 @@ def keyboard_to(page, identifier, key="Tab", limit=100):
     raise AssertionError(("keyboard target unreachable", identifier, path))
 
 
-def keyboard_case(browser, browser_name, url, output):
+def keyboard_case(browser, browser_name, url, output, stage="1b"):
     context = new_context(browser, browser_name, 390, "ja", "light")
     page = context.new_page()
     errors = observe(page, url)
@@ -629,10 +1008,19 @@ def keyboard_case(browser, browser_name, url, output):
         third = keyboard_to(page, "pick-2", key="Shift+Tab")
         page.keyboard.press("Enter")
         check_slices(page, vectors["default_k3"]["slices123"])
-        assert_clean(page, errors)
+        routes = {"one-line-13-columns": first, "k3-start": second, "third-share": third}
         page.screenshot(path=str(output / (browser_name + "-keyboard-k3.png")), full_page=False)
-        return {"case": browser_name + "-keyboard-routes", "status": "passed",
-                "routes": {"one-line-13-columns": first, "k3-start": second, "third-share": third}}
+        if stage == "1c":
+            routes["comparison-tab"] = keyboard_to(page, "tab-intersections", key="Shift+Tab")
+            page.keyboard.press("ArrowRight")
+            assert_selected(page, "compare")
+            routes["comparison-11-and-8"] = keyboard_to(page, "compare-pick-5")
+            page.keyboard.press("Enter")
+            compare_table(page, vectors["shamir"]["line12"])
+            compare_selection(page, vectors["shamir"]["X"])
+            page.screenshot(path=str(output / (browser_name + "-keyboard-compare.png")), full_page=False)
+        assert_clean(page, errors)
+        return {"case": browser_name + "-keyboard-routes", "status": "passed", "routes": routes}
     except Exception as error:
         return {"case": browser_name + "-keyboard-routes", "status": "failed",
                 "error": str(error), "errors": errors}
@@ -713,7 +1101,7 @@ def real_touch_case(browser, width, url, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage", choices=("1a", "1b"), default="1a")
+    parser.add_argument("--stage", choices=("1a", "1b", "1c"), default="1a")
     parser.add_argument("--url", default=(ROOT / "index.html").as_uri())
     parser.add_argument("--browser", choices=("chromium", "firefox"), action="append")
     parser.add_argument("--output", type=Path)
@@ -741,11 +1129,19 @@ def main():
                             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
                         print(result["case"], result["status"], result.get("error", ""), flush=True)
             report["cases"].extend(precedence_cases(browser, browser_name, args.url))
-            if args.stage == "1b":
-                report["cases"].append(keyboard_case(browser, browser_name, args.url, output))
+            if args.stage in ("1b", "1c"):
+                report["cases"].append(keyboard_case(browser, browser_name, args.url, output, args.stage))
                 if browser_name == "chromium":
                     for width in (320, 390):
                         result = real_touch_case(browser, width, args.url, output)
+                        report["cases"].append(result)
+                        (output / (result["case"] + "-result.json")).write_text(
+                            json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+                        print(result["case"], result["status"], result.get("error", ""), flush=True)
+            if args.stage == "1c" and urlsplit(args.url).scheme == "file":
+                with local_http() as smoke_url:
+                    for width in (320, 1280):
+                        result = http_smoke_case(browser, browser_name, smoke_url, width, output)
                         report["cases"].append(result)
                         (output / (result["case"] + "-result.json")).write_text(
                             json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

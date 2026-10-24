@@ -216,7 +216,19 @@
     example: { p: 13, k: 2, n: 4, X: [5, 8], A: [[1, 3], [2, 5], [4, 2], [5, 1]], c: [3, 11, 10, 7] },
     selected: [0], candidate: 0, all: false, busy: false, kind: 'fixed', edits: null, method: 'random',
     editShare: 0, guides: false, failuresOnly: false, matrixStep: 0, matrixCount: 1,
-    yaw: 35, pitch: 25, visible: [true, true, true, true], drag: null, notice: null
+    yaw: 35, pitch: 25, visible: [true, true, true, true], drag: null, notice: null,
+    pitBK: 2,
+    pitBCount: 0,
+    pitCMode: "integer",
+    pitCShare: 0,
+    pitAMode: "vertical",
+    pitASlice: 7,
+    pitDCount: 2,
+    pitDDelta: 1,
+    compareK2Candidate: 0,
+    compareCandidate: 0,
+    compareNonzero: false,
+    compareGuides: true
   };
   const tabs = ['intersections', 'compare', 'pitfalls'];
   const t = (key, values = {}) => (BlakleyMessages[state.language][key] || key)
@@ -233,6 +245,7 @@
     document.documentElement.dataset.theme = state.theme;
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll('[data-label]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.label)); });
+    document.querySelectorAll('[data-cell-label]').forEach(el => { el.dataset.label = t(el.dataset.cellLabel); });
     $('language').textContent = state.language === 'ja' ? 'EN' : '日';
     for (const name of tabs) {
       const selected = name === state.tab;
@@ -241,6 +254,8 @@
       $('panel-' + name).hidden = !selected;
     }
     renderIntersections();
+    renderPitfalls();
+    renderCompare();
     if (focusId && $(focusId)?.getClientRects().length) $(focusId).focus({ preventScroll: true });
   }
   tabs.forEach((name, index) => {
@@ -317,8 +332,8 @@
       if (i === 0 || i === p - 1 || i % 4 === 0 || i === options.candidate) label(svg, X(i), bottom + 17, i);
       if (i === 0 || i === p - 1 || i % 4 === 0) label(svg, left - 7, Y(i) + 4, i, 'end');
     }
-    label(svg, left, 15, options.slice ? 'x₃' : t('axisRandom'), 'start');
-    label(svg, width / 2, height - 5, options.slice ? 'x₂' : t('axisSecret'));
+    label(svg, left, 15, options.axisY || (options.slice ? 'x₃' : t('axisRandom')), 'start');
+    label(svg, width / 2, height - 5, options.axisX || (options.slice ? 'x₂' : t('axisSecret')));
     const points = new Map();
     for (const item of series) {
       if (options.guides && item.points.length > 1) {
@@ -984,6 +999,457 @@
     svg.append(boardLabel);
     return { realSlice, outside, rank: space.rank };
   }
+
+  const PITFIX = {
+  "leak_k2": {
+    "p": 13,
+    "A": [
+      [
+        4,
+        0
+      ]
+    ],
+    "c": [
+      7
+    ],
+    "sCandidates": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      13,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "leak_k3": {
+    "p": 11,
+    "A": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        5,
+        4,
+        6
+      ]
+    ],
+    "c": [
+      5,
+      9
+    ],
+    "sCandidates": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      0,
+      0,
+      0
+    ],
+    "sliceCounts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      0,
+      0,
+      0
+    ],
+    "checkBadII": [
+      [
+        0,
+        1
+      ]
+    ]
+  },
+  "parallel_k2": {
+    "p": 13,
+    "A": [
+      [
+        1,
+        3
+      ],
+      [
+        6,
+        5
+      ]
+    ],
+    "c": [
+      3,
+      5
+    ],
+    "rank": 1,
+    "sCandidates": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "badI": [
+      [
+        0,
+        1
+      ]
+    ]
+  }
+};
+  function pitModel(mode) {
+    const reference = PITFIX[mode === 'vertical' ? 'leak_k2' : mode === 'leak3' ? 'leak_k3' : 'parallel_k2'];
+    const X = mode === 'leak3' ? DEFAULTS[3].X : DEFAULTS[2].X;
+    const values = [...reference.A.flat(), ...X.slice(1)]; let position = 0;
+    return P.uncheckedShares(reference.p, X.length, reference.A.length, X[0],
+      count => Uint8Array.from({ length: count }, () => values[position++]));
+  }
+  function renderPitB() {
+    const example = DEFAULTS[state.pitBK], { p, k, A, c } = example, count = state.pitBCount;
+    $('pit-b-k2').setAttribute('aria-pressed', String(k === 2)); $('pit-b-k3').setAttribute('aria-pressed', String(k === 3));
+    $('pit-b-picks').replaceChildren(...Array.from({ length: k + 1 }, (_, i) => {
+      const button = E('button', t('pitShareCount', { count: i })); button.type = 'button';
+      button.id = 'pit-b-count-' + i; button.dataset.bCount = String(i); button.setAttribute('aria-pressed', String(i === count)); return button;
+    }));
+    const rows = Array.from({ length: k + 1 }, (_, i) => [i, P.pointCandidates(A, c, p, i),
+      G.sCandidates(A.slice(0, i), c.slice(0, i), p, k).filter(Boolean).length]);
+    const whole = count ? P.restoreWholePoint(A.slice(0, count), c.slice(0, count), p) : { count: p ** k, point: null };
+    $('pit-b-input').textContent = `GF(${p}), k=${k}, ` + t('pitShareCount', { count });
+    $('pit-b-unsafe').textContent = t('pitWholeResult', { count: whole.count }) + (whole.point ? ' X=' + fmtPoint(whole.point) : '');
+    $('pit-b-result').textContent = t('pitCoordinateResult', { count: rows[count][2] });
+    table($('pit-b-table'), [t('pitShares'), t('pitWhole'), t('pitFirst')], rows);
+    $('pit-b-grid').hidden = k !== 2; $('pit-b-slices').hidden = k !== 3;
+    if (k === 2) {
+      const points = G.solutionPoints(A.slice(0, count), c.slice(0, count), p, k);
+      graph($('pit-b-grid'), p, [{ id: 0, points }], { secret: whole.point });
+      table($('pit-b-points'), ['s', 'x₂'], points);
+    } else {
+      table($('pit-b-points'), ['s', t('point')], Array.from({ length: p }, (_, s) => [s,
+        G.slicePoints(A.slice(0, count), c.slice(0, count), p, s).map(fmtPoint).join(' ') || t('noPoint')]));
+      $('pit-b-slices').replaceChildren(...Array.from({ length: p }, (_, s) => {
+        const points = G.slicePoints(A.slice(0, count), c.slice(0, count), p, s), figure = E('figure');
+        figure.dataset.s = String(s); figure.dataset.count = String(points.length);
+        figure.append(smallSlice(points, p, false), E('figcaption', `s=${s}: ` + t('pointCount', { count: points.length }))); return figure;
+      }));
+    }
+  }
+  function renderPitC() {
+    const D = DEFAULTS[2], p = D.p, narrow = state.pitCMode === 'narrow', index = narrow ? 0 : state.pitCShare;
+    $('pit-c-mode').value = state.pitCMode; $('pit-c-share').value = String(state.pitCShare); $('pit-c-share-wrap').hidden = narrow;
+    const made = narrow ? P.narrowShares(D.A, p, 0, count => {
+      const bytes = new Uint8Array(count); bytes[0] = 1; return bytes;
+    }) : P.integerShares(D.A, D.X);
+    const a = made.A[index], rhs = made.c[index];
+    let points;
+    if (narrow) points = P.narrowCandidates([a], [rhs], p, 3);
+    else {
+      points = [];
+      for (let x = 0; x < p; x++) for (let y = 0; y < p; y++) if (a[0] * x + a[1] * y === rhs) points.push([x, y]);
+    }
+    const secrets = narrow ? points.map(point => point[0]) : P.integerCandidates(a, rhs, p);
+    $('pit-c-equation').textContent = `${a[0]}x₁+${a[1]}x₂${narrow ? '≡' : '='}${rhs}` + (narrow ? ` (mod ${p})` : '');
+    $('pit-c-input').textContent = t(narrow ? 'pitNarrowInput' : 'pitIntegerInput');
+    $('pit-c-unsafe').textContent = t('pitRestrictedResult', { count: secrets.length, secrets: secrets.join(', ') });
+    const full = G.sCandidates([a], [G.mod(rhs, p)], p, 2).filter(Boolean).length;
+    $('pit-c-result').textContent = t('pitFullResult', { count: full });
+    $('pit-c-lesson').textContent = t(narrow ? 'pitNarrowLesson' : 'pitIntegerLesson');
+    graph($('pit-c-grid'), p, [{ id: index, points }]); table($('pit-c-table'), ['s', 'x₂'], points);
+  }
+  function renderPitA() {
+    const mode = state.pitAMode, is3 = mode === 'leak3', short = mode === 'short';
+    const example = short ? { p: 13, k: 2, A: [DEFAULTS[2].A[0]], c: [DEFAULTS[2].c[0]] } : pitModel(mode);
+    const { p, k, A, c } = example, count = G.solutionSpace(A, c, p, k).count;
+    const secrets = G.sCandidates(A, c, p, k).map((n, s) => n ? s : null).filter(s => s !== null);
+    $('pit-a-mode').value = mode; $('pit-a-s-wrap').hidden = !is3; $('pit-a-s').value = String(state.pitASlice);
+    $('pit-a-input').textContent = A.map((row, i) => `#${i + 1} (${row.join(',')}) · X ≡ ${c[i]}`).join('; ') + ` (mod ${p})`;
+    if (mode === 'parallel') $('pit-a-unsafe').textContent = t('pitCramerResult', { point: fmtPoint(P.cramerUnchecked(A, c, p)) });
+    else if (short) $('pit-a-unsafe').textContent = t('pitFreeZeroResult', { point: fmtPoint(P.freeVariablesZero(A, c, p)) });
+    else $('pit-a-unsafe').textContent = t('pitLeakedResult', { secrets: secrets.join(', '), count });
+    $('pit-a-result').textContent = t(mode === 'parallel' ? 'pitParallelCheck' : short ? 'pitShortCheck' : 'pitLeakCheck');
+    $('pit-a-lesson').textContent = t({ vertical: 'pitVerticalLesson', leak3: 'pitLeak3Lesson', parallel: 'pitParallelLesson', short: 'pitShortLesson' }[mode]);
+    const checks = G.checkRows(A, p);
+    table($('pit-a-checks'), [t('subset'), t('criterion'), t('judgment')], checks.map(row => [
+      '{' + row.T.map(i => i + 1).join(',') + '}', t(row.kind === 'i' ? 'checkI' : 'checkII'), t(row.ok ? 'pass' : 'fail')
+    ]));
+    let series;
+    $('pit-a-slices').hidden = !is3;
+    if (is3) {
+      $('pit-a-slices').replaceChildren(...Array.from({ length: p }, (_, s) => {
+        const points = G.slicePoints(A, c, p, s), button = E('button'); button.type = 'button';
+        button.id = 'pit-a-slice-' + s; button.dataset.aSlice = String(s); button.dataset.points = JSON.stringify(points);
+        button.setAttribute('aria-pressed', String(s === state.pitASlice));
+        button.append(smallSlice(points, p, s === state.pitASlice), E('span', `s=${s}: ` + t('pointCount', { count: points.length }))); return button;
+      }));
+      series = A.map((row, i) => ({ id: i, points: G.slicePoints([row], [c[i]], p, state.pitASlice) }));
+      graph($('pit-a-grid'), p, series, { slice: true, common: G.slicePoints(A, c, p, state.pitASlice) });
+    } else {
+      series = A.map((row, i) => ({ id: i, points: G.linePoints(row, c[i], p) }));
+      graph($('pit-a-grid'), p, series);
+    }
+    pointsTable('pit-a-table', p, series);
+    $('pit-a-grid').dataset.secrets = JSON.stringify(secrets); $('pit-a-grid').dataset.solutionCount = String(count);
+  }
+  function renderPitD() {
+    const D = DEFAULTS[2], p = D.p, count = state.pitDCount, delta = state.pitDDelta;
+    const A = D.A.slice(0, count), c = D.c.slice(0, count); c[1] = G.mod(c[1] + delta, p);
+    $('pit-d-count').value = String(count); $('pit-d-delta').value = String(delta);
+    $('pit-d-input').textContent = t('pitTamperInput', { delta, before: D.c[1], after: c[1], count });
+    const unchecked = P.restoreFirstK(A, c, p), recovery = G.reconstruction(A, c, p);
+    $('pit-d-unsafe').textContent = t('pitFirstKResult', { point: fmtPoint(unchecked), s: unchecked[0] });
+    let key = 'pitTamperK', values = { point: fmtPoint(unchecked), s: unchecked[0] };
+    if (delta === 0) key = 'pitTamperUnchanged';
+    else if (count === 3) key = 'pitTamperK1';
+    else if (count === 4) { key = 'pitTamperK2'; values = { bad: recovery.suspects.map(i => '#' + (i + 1)).join(', ') }; }
+    $('pit-d-result').textContent = t(key, values); $('pit-d-result').dataset.suspects = JSON.stringify(recovery.suspects);
+    const series = A.map((row, i) => ({ id: i, points: G.linePoints(row, c[i], p) }));
+    let secret = count === 2 || delta === 0 ? unchecked : null;
+    if (count === 4 && delta !== 0 && recovery.suspects.length === 1) secret = recovery.groups[0].X;
+    graph($('pit-d-grid'), p, series, { secret }); pointsTable('pit-d-points', p, series);
+    table($('pit-d-table'), [t('subset'), t('point'), 's'], recovery.combinations.map(item => [
+      item.T.map(i => '#' + (i + 1)).join(', '), fmtPoint(item.X), item.X[0]
+    ]));
+    table($('pit-d-linearity'), ['δ', 's'], Array.from({ length: p }, (_, change) => [change,
+      G.solve(D.A.slice(0, 2), [D.c[0], G.mod(D.c[1] + change, p)], p)[0]]));
+  }
+  function renderPitfalls() { renderPitB(); renderPitC(); renderPitA(); renderPitD(); }
+  function bindPitfalls() {
+    for (const k of [2, 3]) $('pit-b-k' + k).addEventListener('click', () => { state.pitBK = k; state.pitBCount = 0; render(); });
+    $('pit-b-picks').addEventListener('click', event => {
+      const button = event.target.closest('[data-b-count]'); if (button) { state.pitBCount = Number(button.dataset.bCount); render(); }
+    });
+    for (const [id, key, numeric] of [['pit-c-mode', 'pitCMode'], ['pit-c-share', 'pitCShare', true], ['pit-a-mode', 'pitAMode'],
+      ['pit-a-s', 'pitASlice', true], ['pit-d-count', 'pitDCount', true], ['pit-d-delta', 'pitDDelta', true]]) {
+      $(id).addEventListener('change', event => { state[key] = numeric ? Number(event.target.value) : event.target.value; render(); });
+    }
+    $('pit-a-slices').addEventListener('click', event => {
+      const button = event.target.closest('[data-a-slice]'); if (button) { state.pitASlice = Number(button.dataset.aSlice); render(); }
+    });
+  }
+
+  const COMPARE_K2 = {
+    p: 13, A: [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]], X: [5, 4], c: [9, 0, 4, 8, 12]
+  };
+  const COMPARE_K3 = {
+    p: 13, A: [[1, 1, 1], [1, 2, 4], [1, 3, 9], [1, 4, 3], [1, 5, 12]], X: [5, 4, 2], c: [11, 8, 9, 1, 10]
+  };
+
+  function comparePolynomial(point) {
+    const terms = [];
+    point.forEach((coefficient, power) => {
+      if (!coefficient) return;
+      if (!power) terms.push(String(coefficient));
+      else terms.push((coefficient === 1 ? '' : coefficient) + (power === 1 ? 'x' : 'x²'));
+    });
+    return 'f(x) = ' + (terms.length ? terms.join(' + ') : '0');
+  }
+
+  function compareValue(point, x, p) {
+    return point.reduceRight((value, coefficient) => G.mod(value * x + coefficient, p), 0);
+  }
+
+  function comparePoints() {
+    const D = COMPARE_K3;
+    return state.compareNonzero ? P.nonzeroCandidates(D.A.slice(0, 2), D.c.slice(0, 2), D.p)
+      : G.solutionPoints(D.A.slice(0, 2), D.c.slice(0, 2), D.p);
+  }
+
+  function compareScale(svg, p) {
+    const width = Number(svg.getAttribute('viewBox').split(' ')[2]);
+    return {
+      X: x => 30 + x * (width - 45) / (p - 1),
+      Y: y => width - 22 - y * (width - 50) / (p - 1)
+    };
+  }
+
+  function renderComparePolynomial(svg, point, candidates) {
+    const p = COMPARE_K3.p;
+    graph(svg, p, [], { axisX: 'x', axisY: 'f(x)' });
+    const { X, Y } = compareScale(svg, p);
+    const background = new Map();
+    for (const candidate of candidates) {
+      for (let x = 0; x < p; x++) {
+        const y = compareValue(candidate, x, p);
+        background.set(x + ',' + y, [x, y]);
+      }
+    }
+    const context = S('g', { class: 'compare-poly-context', 'aria-hidden': 'true' });
+    for (const [x, y] of background.values()) context.append(S('circle', { cx: X(x), cy: Y(y), r: 1.5 }));
+    svg.append(context);
+    const values = Array.from({ length: p }, (_, x) => [x, compareValue(point, x, p)]);
+    if (state.compareGuides) {
+      const segments = values.map(([x, y], i) => {
+        const gap = !i || Math.abs(y - values[i - 1][1]) > p / 2;
+        return (gap ? 'M' : 'L') + X(x) + ',' + Y(y);
+      });
+      svg.append(S('path', { d: segments.join(' '), class: 'compare-poly-guide' }));
+    }
+    for (const [x, y] of values) {
+      svg.append(S('circle', { cx: X(x), cy: Y(y), r: 3, class: 'compare-poly-point', 'data-point': JSON.stringify([x, y]) }));
+    }
+    for (let i = 0; i < 2; i++) {
+      svg.append(S('circle', { cx: X(i + 1), cy: Y(COMPARE_K3.c[i]), r: 6, class: 'compare-observed-ring' }));
+    }
+    svg.dataset.candidate = String(point[0]);
+    svg.dataset.coefficients = JSON.stringify(point);
+    svg.dataset.points = JSON.stringify(values);
+    svg.dataset.observed = JSON.stringify(COMPARE_K3.c.slice(0, 2).map((value, i) => [i + 1, value]));
+  }
+
+  function renderCompareRows(points) {
+    const headings = ['s', t('comparePointHeading'), t('comparePolynomialHeading'), 'x=1', 'x=2'];
+    const tbody = $('compare-rows');
+    tbody.replaceChildren(...points.map(point => {
+      const row = E('tr');
+      row.dataset.secret = String(point[0]);
+      row.dataset.coefficients = JSON.stringify(point);
+      row.dataset.selected = String(point[0] === state.compareCandidate);
+      const first = E('td');
+      const button = E('button', 's=' + point[0]);
+      button.type = 'button';
+      button.id = 'compare-pick-' + point[0];
+      button.dataset.compareCandidate = String(point[0]);
+      button.setAttribute('aria-pressed', String(point[0] === state.compareCandidate));
+      button.setAttribute('aria-label', t('compareChooseRow', { s: point[0] }));
+      first.append(button);
+      const coordinate = E('td', fmtPoint(point));
+      const polynomial = E('td');
+      polynomial.append(E('span', comparePolynomial(point), 'compare-polynomial-text'));
+      if (point[2] === 0) {
+        const badge = E('span', t('compareZeroTopBadge'), 'compare-zero-badge');
+        badge.id = 'compare-zero-top';
+        polynomial.append(badge);
+      }
+      const cells = [first, coordinate, polynomial, E('td', compareValue(point, 1, COMPARE_K3.p)),
+        E('td', compareValue(point, 2, COMPARE_K3.p))];
+      cells.forEach((cell, i) => { cell.dataset.label = headings[i]; row.append(cell); });
+      return row;
+    }));
+    $('compare-table').dataset.candidates = String(points.length);
+    $('compare-table').dataset.nonzero = String(state.compareNonzero);
+  }
+
+  function renderCompare() {
+    const L = COMPARE_K2;
+    const linearPoints = G.linePoints(L.A[0], L.c[0], L.p);
+    const selectedLinear = linearPoints.find(point => point[0] === state.compareK2Candidate) || linearPoints[0];
+    state.compareK2Candidate = selectedLinear[0];
+    $('compare-k2-value').textContent = 's=' + selectedLinear[0];
+    $('compare-k2-caption').textContent = t('compareK2Candidate', {
+      point: fmtPoint(selectedLinear), polynomial: comparePolynomial(selectedLinear), value: compareValue(selectedLinear, 1, L.p)
+    });
+    $('compare-k2-shares').textContent = t('compareShares', { values: L.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    graph($('compare-k2-grid'), L.p, [{ id: 0, points: linearPoints }], {
+      candidate: selectedLinear[0], axisX: 's', axisY: 'a₁'
+    });
+    $('compare-k2-grid').dataset.candidate = String(selectedLinear[0]);
+    $('compare-k2-grid').dataset.point = JSON.stringify(selectedLinear);
+    table($('compare-linear-table'), ['s', '(s,a₁)', t('comparePolynomialHeading'), 'f(1)'], linearPoints.map(point => [
+      point[0], fmtPoint(point), comparePolynomial(point), compareValue(point, 1, L.p)
+    ]));
+    const D = COMPARE_K3;
+    const points = comparePoints();
+    if (!points.some(point => point[0] === state.compareCandidate)) state.compareCandidate = points[0][0];
+    const point = points.find(candidate => candidate[0] === state.compareCandidate);
+    $('compare-nonzero').checked = state.compareNonzero;
+    $('compare-guides').checked = state.compareGuides;
+    $('compare-current').textContent = 's=' + point[0];
+    $('compare-count').textContent = t(state.compareNonzero ? 'compareRestrictedCount' : 'compareCompleteCount', { count: points.length });
+    $('compare-k3-shares').textContent = t('compareShares', { values: D.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    $('compare-fixed-polynomial').textContent = comparePolynomial(D.X) + ' (mod ' + D.p + '), X=' + fmtPoint(D.X);
+    $('compare-poly-caption').textContent = t('compareSelectedPolynomial', { polynomial: comparePolynomial(point) });
+    $('compare-slice-caption').textContent = t('compareSelectedSlice', { s: point[0], point: fmtPoint(point.slice(1)) });
+    renderComparePolynomial($('compare-poly'), point, points);
+    renderCompareRows(points);
+    const series = D.A.slice(0, 2).map((row, i) => ({ id: i, points: G.slicePoints([row], [D.c[i]], D.p, point[0]) }));
+    const slice = G.slicePoints(D.A.slice(0, 2), D.c.slice(0, 2), D.p, point[0]);
+    graph($('compare-slice'), D.p, series, { slice: true, common: slice, axisX: 'a₁', axisY: 'a₂' });
+    $('compare-slice').dataset.candidate = String(point[0]);
+    $('compare-slice').dataset.coefficients = JSON.stringify(point);
+    $('compare-slice').dataset.point = JSON.stringify(point.slice(1));
+    $('compare-slice').dataset.intersections = JSON.stringify(slice);
+    table($('compare-poly-table'), ['x', 'f(x)'], Array.from({ length: D.p }, (_, x) => [x, compareValue(point, x, D.p)]));
+    table($('compare-slice-table'), ['s', '(s,a₁,a₂)', 'f(1)', 'f(2)'], [
+      [point[0], fmtPoint(point), compareValue(point, 1, D.p), compareValue(point, 2, D.p)]
+    ]);
+    const k = D.X.length;
+    table($('compare-size-table'), [t('compareSizeMethod'), t('compareSizeFormula'), 'm=1', 'm=16'], [
+      [t('compareSizeEach'), 'm·k', k, 16 * k],
+      [t('compareSizeReuse'), 'm+k−1', k, 16 + k - 1],
+      [t('compareSizePublic'), 'm', 1, 16]
+    ]);
+    table($('compare-equivalence-table'), [t('compareShamirSide'), t('compareBlakleySide')], [
+      [t('compareObservedPair'), 's + 2a₁ + 4a₂ ≡ 8 (mod 13)'],
+      [t('compareShamirObject'), t('compareBlakleyObject')]
+    ]);
+  }
+
+  function compareMove(delta) {
+    const points = comparePoints();
+    const index = points.findIndex(point => point[0] === state.compareCandidate);
+    state.compareCandidate = points[(index + delta + points.length) % points.length][0];
+    render();
+  }
+
+  function bindCompare() {
+    $('compare-k2-prev').addEventListener('click', () => {
+      state.compareK2Candidate = G.mod(state.compareK2Candidate - 1, COMPARE_K2.p); render();
+    });
+    $('compare-k2-next').addEventListener('click', () => {
+      state.compareK2Candidate = G.mod(state.compareK2Candidate + 1, COMPARE_K2.p); render();
+    });
+    $('compare-prev').addEventListener('click', () => compareMove(-1));
+    $('compare-next').addEventListener('click', () => compareMove(1));
+    $('compare-nonzero').addEventListener('change', event => { state.compareNonzero = event.target.checked; render(); });
+    $('compare-guides').addEventListener('change', event => { state.compareGuides = event.target.checked; render(); });
+    $('compare-rows').addEventListener('click', event => {
+      const button = event.target.closest('[data-compare-candidate]');
+      if (!button) return;
+      state.compareCandidate = Number(button.dataset.compareCandidate); render();
+    });
+    $('compare-rows').addEventListener('keydown', event => {
+      const button = event.target.closest('[data-compare-candidate]');
+      if (!button || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const points = comparePoints();
+      const index = points.findIndex(point => point[0] === Number(button.dataset.compareCandidate));
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1
+        : (index + (event.key === 'ArrowDown' ? 1 : -1) + points.length) % points.length;
+      state.compareCandidate = points[next][0]; render();
+      $('compare-pick-' + state.compareCandidate).focus({ preventScroll: true });
+    });
+    $('compare-lesson').addEventListener('click', () => {
+      $('help-dialog').showModal();
+      const section = $('lesson-8');
+      if (section) {
+        section.open = true; section.scrollIntoView({ block: 'start' });
+        section.querySelector('summary').focus({ preventScroll: true });
+      }
+    });
+  }
   bindIntersections();
+  bindPitfalls();
+  bindCompare();
   render();
 }());

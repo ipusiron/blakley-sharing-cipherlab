@@ -360,9 +360,79 @@ def hover_grid(page, identifier, coordinate, expected, edge=False, axes="x\u2081
     return {"graph": identifier, "input": coordinate, "expected": expected, "edge": edge, "box": bounds}
 
 
+def math_primer_closed(page):
+    primer = page.locator("#math-primer")
+    check(primer.get_attribute("open") is None, "math prerequisite starts collapsed")
+    check(not page.locator("#real-story").is_visible(), "closed prerequisite hides its three graphs")
+    order = primer.evaluate("""el => el.previousElementSibling.tagName === 'H2' &&
+      el.nextElementSibling.id === 'sharing-primer' && el.contains(document.querySelector('#real-story'))""")
+    check(order, "math prerequisite immediately follows h2 and precedes sharing definitions")
+    check(page.locator("#guides").evaluate("""el => !el.closest('#math-primer') &&
+      !!(el.compareDocumentPosition(document.querySelector('#main-grid')) & Node.DOCUMENT_POSITION_FOLLOWING)"""),
+          "main experiment guide control precedes its graph outside prerequisite")
+
+
+def fixed_math_example(page, default):
+    check(page.locator("#math-primer").get_attribute("open") is not None, "fixed prerequisite is open")
+    check(page.locator("#real-story").is_visible(), "fixed prerequisite stays visible for every experiment")
+    page.wait_for_function("""p => ['real-grid','integer-grid','mod-grid'].every(id => {
+      const el=document.getElementById(id), box=el.getBoundingClientRect();
+      return el.querySelectorAll('.grid-line').length === p * 2 && Math.abs(el.viewBox.baseVal.width-box.width)<1;
+    })""", arg=default["p"])
+    expected = default["lines"][0]
+    integers_expected = [point for point in expected if point[0] in default["integerCandidates"][0]]
+    check(page.locator("#real-grid").get_attribute("data-rhs") == str(default["cInt"][0]),
+          "real prerequisite retains the default integer RHS independently of experiment")
+    check(sorted_points(point_data(page, "integer-grid")) == sorted_points(integers_expected),
+          "integer prerequisite retains the four authoritative points")
+    check(sorted_points(point_data(page, "mod-grid")) == sorted_points(expected),
+          "mod prerequisite retains all thirteen authoritative points")
+    check(str(default["cInt"][0]) in page.locator("#integer-explanation").inner_text(), "fixed integer explanation RHS")
+    axes = axis_metrics(page, ("real-grid", "integer-grid", "mod-grid"))
+    check(all([axis["text"] for axis in measured] == ["x\u2082", "x\u2081"] for measured in axes.values()),
+          "mathematical prerequisite axes use coordinate names without introducing secret or randomness")
+    return {"rhs": int(page.locator("#real-grid").get_attribute("data-rhs")),
+            "integer_points": point_data(page, "integer-grid"), "mod_points": point_data(page, "mod-grid"), "axes": axes}
+
+
+def test_math_primer(page, width, layouts, default):
+    math_primer_closed(page)
+    summary = page.locator("#math-primer > summary")
+    summary.focus()
+    page.keyboard.press("Enter")
+    opened = fixed_math_example(page, default)
+    check(summary.evaluate("el => document.activeElement === el"), "Enter opening preserves summary focus")
+    page.keyboard.press("Space")
+    check(page.locator("#math-primer").get_attribute("open") is None, "Space closes math prerequisite")
+    check(summary.evaluate("el => document.activeElement === el"), "Space closing preserves summary focus")
+    alternate_width = 390 if width == 320 else 320
+    page.set_viewport_size({"width": alternate_width, "height": 900})
+    check(page.locator("#math-primer").get_attribute("open") is None, "resize leaves prerequisite closed")
+    page.keyboard.press("Enter")
+    resized = fixed_math_example(page, default)
+    feature_layout(page, alternate_width, "math-closed-resize-open", layouts, ("real-grid", "integer-grid", "mod-grid"))
+    page.set_viewport_size({"width": width, "height": 900})
+    restored = fixed_math_example(page, default)
+    feature_layout(page, width, "math-open-resize", layouts, ("real-grid", "integer-grid", "mod-grid"))
+    toggles = []
+    for math_on, main_on in ((False, False), (True, False), (True, True), (False, True), (False, False)):
+        page.locator("#math-guides").set_checked(math_on)
+        page.locator("#guides").set_checked(main_on)
+        check(page.locator("#math-guides").is_checked() == math_on and page.locator("#guides").is_checked() == main_on,
+              "math and main checkbox states are independent")
+        check(page.locator("#mod-grid .graph-guide").count() == int(math_on), "math guide only changes fixed mod graph")
+        check(page.locator("#main-grid .graph-guide").count() == int(main_on), "main guide only changes selected experiment")
+        fixed_math_example(page, default)
+        check(sorted_points(point_data(page, "main-grid")) == sorted_points(default["lines"][0]),
+              "independent guides preserve experiment points")
+        toggles.append({"math": math_on, "main": main_on})
+    return {"initial_open": opened, "closed_resize_open": resized, "open_resize": restored, "guide_states": toggles}
+
+
 def test_coordinate_ui(page, width, layouts, language):
     vectors = json.loads((ROOT / "test/vectors.json").read_text(encoding="utf-8"))
     default = vectors["default_k2"]
+    math_evidence = test_math_primer(page, width, layouts, default)
     threshold_settings(page, 2, 4)
     order = page.evaluate("""() => {
       const intro=document.querySelector('#intro-grid').getBoundingClientRect();
@@ -375,6 +445,11 @@ def test_coordinate_ui(page, width, layouts, language):
         terms = [("" if a == 1 else str(a)) + "x" + "\u2081\u2082"[j] for j, a in enumerate(coefficients)]
         expected.append(["#" + str(index + 1), "+".join(terms) + "\u2261" + str(rhs) + "(mod13)"])
     check([[r[0], re.sub(r"\s", "", r[1])] for r in rows] == expected, "four initial equations match authoritative vector")
+    explanation = page.locator('[data-i18n="primerEquationDefinition"]').inner_text()
+    compact = re.sub(r"\s", "", explanation)
+    check("a,b" in compact and "c" in compact and "modp" in compact, "distributed equation explains its coefficients and modulus")
+    check(("1\u672c\u306e\u5f0f" if language == "ja" else "one equation") in explanation,
+          "giving coefficients and RHS is explained as giving one equation")
     graphs = ("intro-grid", "real-grid", "integer-grid", "mod-grid", "main-grid")
     axes = axis_metrics(page, graphs)
     check(page.locator("#panel-intersections svg.coordinate-plane[tabindex]").count() == 0, "coordinate plots add no tab stops")
@@ -401,6 +476,7 @@ def test_coordinate_ui(page, width, layouts, language):
     page.locator("#share-count").select_option("8")
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     threshold_settings(page, 2, 8)
+    math_evidence["n8"] = fixed_math_example(page, default)
     click_visible(page, "candidate-all")
     shapes = []
     for index in range(8):
@@ -422,20 +498,30 @@ def test_coordinate_ui(page, width, layouts, language):
     hover.append(hover_grid(page, "main-grid", [1, 0], [6, 6], edge=True))
     actual = point_data(page, "main-grid")[0]
     hover.append(hover_grid(page, "main-grid", actual, actual))
+    math_evidence["p7-generated"] = fixed_math_example(page, default)
+    math_evidence["all_primes"] = {}
+    for prime in page.locator("#prime option").evaluate_all("els => els.map(el => el.value)"):
+        page.locator("#prime").select_option(prime)
+        page.wait_for_function("() => !document.querySelector('#generate').disabled")
+        math_evidence["all_primes"][prime] = fixed_math_example(page, default)
     click_visible(page, "k3-start")
     threshold_settings(page, 3, len(vectors["default_k3"]["A"]))
+    math_evidence["k3"] = fixed_math_example(page, default)
     axes.update(axis_metrics(page, ("slice-grid",)))
     hover.append(hover_grid(page, "slice-grid", [2, 9], [2, 9], axes="x\u2082,x\u2083"))
     for dimension in (4, 5):
         click_visible(page, "k" + str(dimension))
         threshold_settings(page, dimension, len(vectors["default_k" + str(dimension)]["A"]))
+        math_evidence["k" + str(dimension)] = fixed_math_example(page, default)
     click_visible(page, "k2-start")
     for identifier in ("advanced", "dealer"):
         if page.locator("#" + identifier).get_attribute("open") is not None:
             page.locator("#" + identifier + " > summary").click()
     threshold_settings(page, 2, 4)
     feature_layout(page, width, "coordinate-ui-verified", layouts, graphs + ("sharing-primer", "initial-example-primer"))
-    return {"axis_labels": axes, "hover": hover, "eight_shapes": shapes,
+    page.locator("#math-primer > summary").click()
+    math_primer_closed(page)
+    return {"axis_labels": axes, "hover": hover, "eight_shapes": shapes, "math_primer": math_evidence,
             "initial_mark_center_error": max(x["error"] for x in original)}
 
 
@@ -480,6 +566,9 @@ def check_slices(page, expected):
 
 def test_k2(page, width, layouts, vectors, language):
     default = vectors["default_k2"]
+    math_primer_closed(page)
+    show_details(page, "math-primer")
+    fixed_math_example(page, default)
     expected = default["lines"][0]
     check(sorted_points(point_data(page, "intro-grid")) == sorted_points(expected), "intro vector points")
     check(sorted_points(point_data(page, "main-grid")) == sorted_points(expected), "selected line points")
@@ -519,18 +608,20 @@ def test_k2(page, width, layouts, vectors, language):
     before_shift = point_data(page, "main-grid")
     click_visible(page, "shift-plus")
     check(point_data(page, "main-grid") != before_shift, "shift changes drawn copy")
+    fixed_math_example(page, default)
     click_visible(page, "shift-minus")
     check(point_data(page, "main-grid") == before_shift, "opposite shift restores copy")
     check(page.locator("#distribution-table").inner_text() == original_distribution, "editing preserves distributed values")
-    check(not page.locator("#real-story").is_visible(), "edited copies hide real diagram")
+    fixed_math_example(page, default)
     check(page.locator("#edited-real-note").is_visible(), "edited real explanation")
     click_visible(page, "reset-edit")
-    check(page.locator("#real-story").is_visible(), "reset restores real diagram")
+    fixed_math_example(page, default)
     for _ in range(default["A"][0][1]):
         click_visible(page, "direction-minus")
     warning = page.locator("#edit-warning").inner_text()
     expected_warning = "この1本で s が決まる" if language == "ja" else "This one share determines s"
     check(expected_warning in warning, "vertical line warning")
+    fixed_math_example(page, default)
     show_details(page, "advanced")
     inspection = page.locator("#inspection-list")
     open_ancestors(inspection)
@@ -1011,6 +1102,7 @@ def http_smoke_case(browser, browser_name, url, width, output):
         assert_preference(page, "en", "dark")
         check(sorted_points(point_data(page, "main-grid")) == sorted_points(vectors["default_k2"]["lines"][0]), "HTTP main graph")
         assert_layout(page, width, "http-initial", layouts)
+        test_math_primer(page, width, layouts, vectors["default_k2"])
         page.locator("#tab-compare").click()
         expected = vectors["shamir"]["line12"]
         compare_table(page, expected)

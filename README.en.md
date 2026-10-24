@@ -27,9 +27,9 @@ The controls at the top right switch between Japanese and English, and between l
 
 These screenshots use the English interface and light theme. Each caption explains what the displayed state shows.
 
-![Definitions of n and k and four initial equations to distribute](assets/en/screenshot.png)
+![Collapsed mathematical background, n/k definitions and four initial equations](assets/en/screenshot.png)
 
-> *n is the total share count; k is the recovery threshold. The initial (2,4) example gives one equation to each of four people; any two recover the secret.*
+> *The mathematical background starts collapsed. The page explains recovery from any k of n shares and shows the four equations of the initial (2,4) example.*
 
 ![Thirteen rows connecting Shamir polynomials to Blakley points](assets/en/screenshot2.png)
 
@@ -56,14 +56,20 @@ For k=2, edit right-hand values or normal components to observe coincident lines
 
 ### Follow intersections
 
+“Mathematical background” appears first and starts collapsed. It can be opened at any value of k.
+Its fixed GF(13) example compares real numbers, integers and congruences, independently of the experiment settings and edited shares below.
+The integer graph shows four points with coordinates in 0–12 satisfying `x₁+3x₂=29`.
+The modular graph checks all grid points in that range for `x₁+3x₂≡3 (mod 13)`, giving 13 points.
+
 n is the total share count, and k is the number needed for recovery. Correctly generated shares allow recovery from any k.
 The introduction before the graph explains this relationship and shows the current k and n.
 The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.
 
 Combine secret s and random value r into `X=(s,r)`. Each share is a line through that point: `a x₁+b x₂≡c (mod p)`.
-Choose a,b and calculate `c=a s+b r (mod p)`. GF(p) uses 0 through p−1, reducing results to their remainder modulo p.
+Choose a,b and calculate `c=a s+b r (mod p)`. With a common modulus p, giving a,b and the right-hand value c is equivalent to giving one equation.
+GF(p) uses 0 through p−1, reducing results to their remainder modulo p.
 All four initial equations are visible before the graph, connecting distribution to geometry. These equations are a fixed teaching example.
-Changing settings updates the current k and n and the graph; k=3 and higher hide the fixed k=2 example.
+Changing settings updates the current k and n and the graph. At k=3 and higher, the initial (2,4) distribution example for four people is hidden.
 
 The initial example uses GF(13), `k=2`, `n=4` and `X=(5,8)`. The secret is its first coordinate, `s=5`.
 Share #1 alone leaves 13 points satisfying `x₁+3x₂≡3 (mod 13)`.

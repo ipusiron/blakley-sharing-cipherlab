@@ -215,7 +215,7 @@
     tab: 'intersections',
     example: { p: 13, k: 2, n: 4, X: [5, 8], A: [[1, 3], [2, 5], [4, 2], [5, 1]], c: [3, 11, 10, 7] },
     selected: [0], candidate: 0, all: false, busy: false, kind: 'fixed', edits: null, method: 'random',
-    editShare: 0, guides: false, failuresOnly: false, matrixStep: 0, matrixCount: 1,
+    editShare: 0, guides: false, mathGuides: false, failuresOnly: false, matrixStep: 0, matrixCount: 1,
     yaw: 35, pitch: 25, visible: [true, true, true, true], drag: null, notice: null,
     pitBK: 2,
     pitBCount: 0,
@@ -466,23 +466,36 @@
     }));
   }
   function renderIntro(example) {
-    const { p, A, c, X } = example, a = A[0];
+    const { p, A, c } = example, line = G.linePoints(A[0], c[0], p);
+    graph($('intro-grid'), p, [{ id: 0, points: line }]); pointsTable('intro-table', p, [{ id: 0, points: line }]);
+    $('intro-summary').textContent = t('columnCount', { p });
+    $('edited-real-note').hidden = !state.edits;
+  }
+  function renderMathPrimer() {
+    $('math-guides').checked = state.mathGuides;
+    if (!$('math-primer').open || !$('panel-intersections').getClientRects().length) {
+      for (const id of ['real-grid', 'integer-grid', 'mod-grid']) {
+        const svg = $(id);
+        gridHoverControllers.get(svg)?.abort(); gridHoverControllers.delete(svg);
+        svg.querySelector('.grid-tooltip')?.setAttribute('visibility', 'hidden');
+      }
+      return;
+    }
+    const { p, A, c, X } = DEFAULTS[2], a = A[0];
     const line = G.linePoints(a, c[0], p), integerRhs = a[0] * X[0] + a[1] * X[1];
     const integers = [];
     for (let x = 0; x < p; x++) for (let y = 0; y < p; y++) if (a[0] * x + a[1] * y === integerRhs) integers.push([x, y]);
-    graph($('intro-grid'), p, [{ id: 0, points: line }]); pointsTable('intro-table', p, [{ id: 0, points: line }]);
-    $('intro-summary').textContent = t('columnCount', { p });
-    $('real-story').hidden = !!state.edits; $('edited-real-note').hidden = !state.edits;
-    if (!state.edits) {
-      graph($('real-grid'), p, [], { realLine: [...a, integerRhs] });
-      graph($('integer-grid'), p, [{ id: 0, points: integers }]);
-      graph($('mod-grid'), p, [{ id: 0, points: line }], { guides: state.guides, arrow: state.kind === 'fixed' && p === 13 });
-      table($('real-table'), [t('equation')], [[`${a[0]}x₁ + ${a[1]}x₂ = ${integerRhs}`]]);
-      pointsTable('integer-table', p, [{ id: 0, points: integers }]); pointsTable('mod-table', p, [{ id: 0, points: line }]);
-      $('integer-explanation').textContent = t('integerCandidatesText', { rhs: integerRhs, points: integers.map(fmtPoint).join(' '), count: integers.length });
-      $('mod-rule').textContent = a[1] ? t('modRule', { b: G.mod(c[0] * G.inv(a[1], p), p), a: G.mod(-a[0] * G.inv(a[1], p), p), p })
-        : t('verticalWarning');
-    }
+    graph($('real-grid'), p, [], { realLine: [...a, integerRhs], axisX: 'x₁', axisY: 'x₂' });
+    graph($('integer-grid'), p, [{ id: 0, points: integers }], { axisX: 'x₁', axisY: 'x₂' });
+    graph($('mod-grid'), p, [{ id: 0, points: line }], { guides: state.mathGuides, arrow: true, axisX: 'x₁', axisY: 'x₂' });
+    table($('real-table'), [t('equation')], [[`${a[0]}x₁ + ${a[1]}x₂ = ${integerRhs}`]]);
+    pointsTable('integer-table', p, [{ id: 0, points: integers }]); pointsTable('mod-table', p, [{ id: 0, points: line }]);
+    $('integer-explanation').textContent = t('integerCandidatesText', {
+      rhs: integerRhs, points: integers.map(fmtPoint).join(' '), count: integers.length
+    });
+    $('mod-rule').textContent = t('modRule', {
+      b: G.mod(c[0] * G.inv(a[1], p), p), a: G.mod(-a[0] * G.inv(a[1], p), p), p
+    });
   }
   function renderPicks(example) {
     $('share-picks').replaceChildren(...example.A.map((_, i) => {
@@ -677,6 +690,7 @@
   function renderIntersections() {
     const example = effective();
     $('threshold-summary').textContent = t('thresholdSummary', { k: example.k, n: example.n });
+    renderMathPrimer();
     $('k2-view').hidden = example.k !== 2;
     if (example.k === 2) renderIntro(state.example);
     renderPicks(example);
@@ -739,6 +753,8 @@
     $('candidate-next').addEventListener('click', () => { state.candidate = G.mod(state.candidate + 1, state.example.p); render(); });
     $('candidate-all').addEventListener('click', () => { state.all = !state.all; render(); });
     $('guides').addEventListener('change', event => { state.guides = event.target.checked; render(); });
+    $('math-guides').addEventListener('change', event => { state.mathGuides = event.target.checked; renderMathPrimer(); });
+    $('math-primer').addEventListener('toggle', renderMathPrimer);
     $('edit-share').addEventListener('change', event => { state.editShare = Number(event.target.value) - 1; render(); });
     for (const [id, component, delta] of [['shift-minus', 'c', -1], ['shift-plus', 'c', 1], ['direction-minus', 'b', -1], ['direction-plus', 'b', 1]]) {
       $(id).addEventListener('click', () => modify(component, delta));

@@ -105,6 +105,8 @@ dialog::backdrop { background: #101a2ab0; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
+.math-primer { margin-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.math-primer > summary { color: var(--accent); }
 .sharing-primer { padding: .75rem; border-left: 4px solid var(--accent); background: var(--bg); }
 .sharing-primer p { margin: .5rem 0 0; }
 .threshold-flow { margin: 0; }

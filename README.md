@@ -1,0 +1,493 @@
+<!--
+---
+id: day126
+slug: blakley-sharing-cipherlab
+
+title: "BlakleySharing CipherLab"
+subtitle_ja: "超平面の交点と秘密候補で学ぶBlakleyの秘密分散"
+subtitle_en: "Learn Blakley secret sharing through intersections and candidate secrets"
+
+description_ja: "有限体の直線・平面・行列で、Blakleyの秘密分散、Shamirとの対応、乱数と検査の条件を学ぶ教材。"
+description_en: "Explore Blakley secret sharing with finite-field geometry, Shamir comparisons, randomness and validation experiments."
+
+category_ja:
+  - 現代暗号
+  - 情報理論
+category_en:
+  - Modern Cryptography
+  - Information Theory
+
+difficulty: 3
+
+tags:
+  - blakley
+  - secret-sharing
+  - finite-field
+  - linear-algebra
+  - cryptography-education
+
+repo_url: "https://github.com/ipusiron/blakley-sharing-cipherlab"
+demo_url: "https://ipusiron.github.io/blakley-sharing-cipherlab/"
+hub: true
+---
+-->
+
+# BlakleySharing CipherLab - 超平面の交点と秘密候補で学ぶ秘密分散
+
+[English](README.en.md) · 日本語
+
+[![GitHub stars](https://img.shields.io/github/stars/ipusiron/blakley-sharing-cipherlab?style=social)](https://github.com/ipusiron/blakley-sharing-cipherlab/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ipusiron/blakley-sharing-cipherlab?style=social)](https://github.com/ipusiron/blakley-sharing-cipherlab/forks)
+[![Last commit](https://img.shields.io/github/last-commit/ipusiron/blakley-sharing-cipherlab)](https://github.com/ipusiron/blakley-sharing-cipherlab/commits)
+[![License](https://img.shields.io/github/license/ipusiron/blakley-sharing-cipherlab)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://ipusiron.github.io/blakley-sharing-cipherlab/)
+
+> **Day126 - 生成AIで作るセキュリティツール200**
+
+BlakleySharing CipherLabは、有限体の直線・平面の交点から秘密分散の条件を学ぶ教材です。
+シェアを選び、点全体の候補と秘密の第1座標の候補を比べ、Shamirの多項式との対応を追います。
+
+学習用。本物の秘密（パスワード・シード・鍵）は入れないでください。
+実用のバックアップを検討する場合は、[Day124 Scatter Seeds][day124]を参照してください。
+
+## 🌐 デモページ
+
+👉 [BlakleySharing CipherLabを開く](https://ipusiron.github.io/blakley-sharing-cipherlab/)
+
+ブラウザーで利用できます。ダウンロードした`index.html`を`file://`で直接開いても動作し、ビルドは不要です。
+画面右上で日本語・英語とライト・ダークを切り替えられます。
+
+## 📸 スクリーンショット
+
+ライトモードの日本語画面です。各画像の下に、その状態で読み取れる内容を示します。
+
+![シェア#1だけを選び、13列に候補が1点ずつ残る画面](assets/screenshot.png)
+
+> *GF(13)でシェア#1だけを選んだ状態。秘密の候補は13個で、各列に点が1つずつ残ります。*
+
+![Shamirの多項式とBlakleyの点を対応づける13行の表](assets/screenshot2.png)
+
+> *シェア(1,11)と(2,8)に対応する13行の表。すべての行でf(1)=11、f(2)=8となります。*
+
+![検査を外すと秘密が漏れる配置を示すカードA](assets/screenshot3.png)
+
+> *「確かめる」のカードA。検査を外した模型の出力と、入力を検査した結果を並べます。*
+
+## ✨ できること
+
+| 画面 | 操作と読み取れる内容 |
+| --- | --- |
+| 交点で追う | k=2は有限体の座標平面、k=3は実数の3D導入図と有限体の切り口、k=4・5は行列と掃き出しの表で追う |
+| Shamirと並べる | 同じシェアを多項式の値と超平面の式として読み、候補の多項式と点を連動させる |
+| 確かめる | 点全体・整数と狭い乱数・検査なし・改ざんの4つを、わざと無防備な模型で比べる |
+| ヘルプと座学 | 10節の図表と出典から、原論文との違い、完全性、線形秘密分散まで読む |
+
+有限体はGF(7)、GF(11)、GF(13)、しきい値は`2≤k≤5`、シェア数は`k≤n≤min(8,p−1)`です。
+法線は「乱数＋検査」またはヴァンデルモンドで生成します。選ぶシェアは0枚からn枚まで切り替えられます。
+k=2では右辺や法線の成分を変更し、重なる直線や秘密を明かす縦線も観察できます。
+
+## 📖 使い方と固定教材例
+
+### 交点で追う
+
+最初はGF(13)、`k=2`、`n=4`、`X=(5,8)`です。秘密は第1座標の`s=5`です。
+シェア#1だけなら、式`x₁+3x₂≡3 (mod 13)`を満たす13点が残ります。
+候補を送って各列の点を確かめ、#2を加えると`(5,8)`の1点に定まります。
+
+<!-- example: default-k2 -->
+
+| シェア | 法線 (a₁,a₂) | c (mod 13) | 整数の右辺 |
+| --- | --- | --- | --- |
+| #1 | (1,3) | 3 | 29 |
+| #2 | (2,5) | 11 | 50 |
+| #3 | (4,2) | 10 | 36 |
+| #4 | (5,1) | 7 | 33 |
+
+「ディーラーの設定・計算・配布」には答えと生成の設定があります。
+法線の検査はすべての対象の組を調べます。「詳しく」では検査表や高次元の計算を確認できます。
+
+k=3の固定例はGF(11)、`X=(7,2,9)`です。#1・#2では、11個の秘密候補の切り口に各1点が残ります。
+#3を加えると、`s=7`の切り口の`(x₂,x₃)=(2,9)`だけが残ります。
+
+<!-- example: default-k3 -->
+
+| シェア | 法線 (a₁,a₂,a₃) | c (mod 11) |
+| --- | --- | --- |
+| #1 | (1,2,3) | 5 |
+| #2 | (4,1,5) | 9 |
+| #3 | (2,7,1) | 4 |
+| #4 | (3,1,1) | 10 |
+| #5 | (1,1,3) | 3 |
+
+3Dの実数図は導入図です。有限体の切り口とは同じsで連動しますが、交点の座標は一般には一致しません。
+有限体の候補数はGF(p)の切り口と表で読みます。実数図は整数の右辺で描いています。
+
+### Shamirと並べる
+
+k=2は[Day123 ShamirSharing CipherLab][day123]の導入と同じ`f(x)=5+4x (mod 13)`です。
+シェア(1,9)を通る13本の候補の直線が、`s+a₁≡9`を満たす13点`(s,a₁)`に対応します。
+
+<!-- example: shamir-k2 -->
+
+| i | f(i) (mod 13) |
+| --- | --- |
+| 1 | 9 |
+| 2 | 0 |
+| 3 | 4 |
+| 4 | 8 |
+| 5 | 12 |
+
+k=3は`f(x)=5+4x+2x² (mod 13)`、係数の点は`X=(5,4,2)`です。
+シェア(1,11)と(2,8)を固定すると、次の13点と13個の多項式が対応します。
+表のsを選ぶと、左の多項式と右の切り口が同時に切り替わります。
+
+<!-- example: shamir-k3 -->
+
+| s | (s,a₁,a₂) | 候補の多項式 (mod 13) | f(1) | f(2) |
+| --- | --- | --- | --- | --- |
+| 0 | (0,5,6) | `f(x)=5x+6x^2` | 11 | 8 |
+| 1 | (1,10,0) | `f(x)=1+10x` | 11 | 8 |
+| 2 | (2,2,7) | `f(x)=2+2x+7x^2` | 11 | 8 |
+| 3 | (3,7,1) | `f(x)=3+7x+x^2` | 11 | 8 |
+| 4 | (4,12,8) | `f(x)=4+12x+8x^2` | 11 | 8 |
+| 5 | (5,4,2) | `f(x)=5+4x+2x^2` | 11 | 8 |
+| 6 | (6,9,9) | `f(x)=6+9x+9x^2` | 11 | 8 |
+| 7 | (7,1,3) | `f(x)=7+x+3x^2` | 11 | 8 |
+| 8 | (8,6,10) | `f(x)=8+6x+10x^2` | 11 | 8 |
+| 9 | (9,11,4) | `f(x)=9+11x+4x^2` | 11 | 8 |
+| 10 | (10,3,11) | `f(x)=10+3x+11x^2` | 11 | 8 |
+| 11 | (11,8,5) | `f(x)=11+8x+5x^2` | 11 | 8 |
+| 12 | (12,0,12) | `f(x)=12+12x^2` | 11 | 8 |
+
+<!-- example: nonzero -->
+
+`(1,10,0)`は`a₂=0`の1次式`1+10x`です。最高次の係数だけを非零に限ると、この候補が消えます。
+このツールの「乱数の座標を0以外に限る」はa₁とa₂の両方を制限します。
+そのため`s=1`と`s=12`が消え、候補は13個から11個になります。
+有限体の計算点は離散的で、点を結ぶ補助線は並びの目安です。
+
+### 確かめる
+
+カードはB→C→A→Dの順です。「変更した入力」「確認しない場合」「選んだ検査の結果」「わかったこと」を比べます。
+
+- B：点全体を秘密にすると、独立なシェア1枚ごとに候補がp分の1になる
+- C：整数の範囲や狭い乱数から、秘密の候補が減る
+- A：検査を外すと秘密が漏れたり、1点に定まらない式から値を返したりする
+- D：#2の右辺を変え、集める枚数による検出・特定の違いを調べる
+
+整数の例は`X=(5,8)`のまま、座標を0〜12に限り、右辺をmod 13で減らさず配ります。
+
+<!-- example: integer -->
+
+| シェア | 整数の右辺 | 秘密sの候補 |
+| --- | --- | --- |
+| #1 | 29 | {2,5,8,11} |
+| #2 | 50 | {0,5,10} |
+| #3 | 36 | {3,4,5,6,7,8,9} |
+| #4 | 33 | {5,6} |
+
+#1は`s≡2 (mod 3)`という合同式、#4は乱数座標の範囲によって候補が絞られます。
+狭い乱数の例は、`x₂∈{0,1,2,3}`から作った別の固定例です。1枚から残る秘密は次の4候補です。
+
+<!-- example: narrow -->
+
+| 生成したX | 法線 | c (mod 13) | 秘密sの候補 |
+| --- | --- | --- | --- |
+| (0,1) | (1,3) | 3 | {0,3,7,10} |
+
+<!-- example: leak3 -->
+
+Aのk=3の例では、法線`(1,2,3)`と`(5,4,6)`、右辺`c=(5,9)`を使います。
+第2の式から第1の式の2倍を引くと`3s≡10 (mod 11)`となり、`s=7`が確定します。
+点全体は11点残るため、点が一意でないことだけでは秘密の保護を説明できません。
+
+Dでは、最初の教材例の#2の右辺を11から12へ変えます。
+
+<!-- example: tamper -->
+
+| 選ぶ2枚 | 復元されるX | s |
+| --- | --- | --- |
+| #1 + #2 | (8,7) | 8 |
+| #1 + #3 | (5,8) | 5 |
+| #1 + #4 | (5,8) | 5 |
+| #2 + #3 | (0,5) | 0 |
+| #2 + #4 | (1,2) | 1 |
+| #3 + #4 | (5,8) | 5 |
+
+#1・#2の2枚では誤った点`(8,7)`を受理します。#1・#2・#3の3枚では不一致を検出できますが、悪い1枚を特定できません。
+4枚では`(5,8)`が3回現れ、#2だけがその点を通らないとわかります。
+条件は、変更が1枚、正しい法線が検査(i)を満たすこと、全対象の組を調べること、変更した直線が元のXを通らないことです。
+一般に、この独立性のもとで最大t枚の誤りを訂正するには、`k+2t`枚あれば足ります。
+
+<!-- example: linearity -->
+
+#1・#2から秘密を読む係数は`u=(8,3)`で、`s=8c₁+3c₂ (mod 13)`です。
+#2の右辺をδだけ変えると、sは`3δ`だけ変わります。δ=1なら5から8になります。
+このuは、点X全体の変化を表すベクトルではありません。
+Shamirも線形ですが、Blakleyの素朴なシェアには法線も含まれ、その成分を変更する余地があります。
+
+## 🔬 方式の条件と原論文
+
+### 秘密を第1座標に置く条件
+
+点を`X=(s,r₂,…,rₖ)`とし、法線aᵢと右辺`cᵢ=aᵢ·X`をシェアにします。
+このツールでは、生成時に次の2つを検査します。
+
+| 検査 | 条件 | 得られる性質 |
+| --- | --- | --- |
+| (i) | どのk本の法線も独立 | 任意のk枚から点Xを復元できる |
+| (ii) | どのk−1本もe₁=(1,0,…,0)を加えると独立 | 下記の乱数の前提で、k−1枚以下からsの情報が増えない |
+
+x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。
+法線は公開・使い回してよい。使い回してはならないのは x₂…x_k
+
+乱数の座標同士も独立に選びます。法線の選び方は秘密に依存させず、点Xや右辺を見て引き直しません。
+選んだ法線の行空間にe₁が入ればsが求まり、入らなければ各sに同じ数の等確率の解が対応します。
+この説明は[BeimelのClaim 2][beimel]に基づく、このツールでの整理です。
+
+法線`(1,i,…,i^(k−1))`と異なる非零のiを使えば、Shamirのシェアの式になります。
+この具体的なヴァンデルモンドによる対応を明示した一次資料は、今回の調査では見つかっていません。
+ここでは式を展開したこのツールでの整理として説明します。
+
+### 点全体と秘密の候補数
+
+検査(i)(ii)を満たす固定例の候補数です。独立なm枚で点全体は`p^(k−m)`個になります。
+秘密を第1座標だけに置く場合、m<kのあいだはp個すべてが残ります。
+
+<!-- example: whole-point -->
+
+| k | p | 選択枚数 | 点全体の候補数 | 秘密sの候補数 |
+| --- | --- | --- | --- | --- |
+| 2 | 13 | 0 → 1 → 2 | 169 → 13 → 1 | 13 → 13 → 1 |
+| 3 | 11 | 0 → 1 → 2 → 3 | 1331 → 121 → 11 → 1 | 11 → 11 → 11 → 1 |
+
+[Handbook of Applied Cryptography（HAC）][hac]の§12.10 Notes、pp.538–539には、次の記述があります。
+
+> While Shamir's threshold scheme is perfect, Blakley's vector scheme is not (the set of possible values of the shared secret narrows as subsequent shares are added).
+
+これは点全体の版で起きる候補の減少と合います。この対応はこのツールでの読みです。
+HACが参照するのは1979年の射影による方式であり、このツールの第1座標版の条件を述べたものとしては扱いません。
+Wikipediaの「1座標だけなら内部の者は外部の者と同じ」という説明も、検査(ii)なしには成り立ちません。
+
+### 1979年の原文と発展する理論
+
+ShamirとBlakleyは1979年にしきい値法を独立に提案しました。
+[Blakleyの原論文][blakley]は、鍵を無作為な位置の成分に置き、別の無作為な位置の成分を1にしたベクトルを含む、原点を通る超平面を配ります。
+復元するのは原点を通る直線、すなわち射影空間の点です。原文の記号は`k=b+1`、`n=a+b+1`で、空間は`k+1`次元です。
+復元後も鍵の候補を試す前提があり、候補数はp.316で`b+2`、p.317で`(b+1)(b+2)`と一致しません。
+安全性は“unproven but plausible”とする仮定に依存します。
+原文の「第1検査・第2検査」は行列Mの成分や小行列式の検査で、このツールの検査(i)(ii)とは別です。
+原文の方式は座学で紹介するだけで、実装していません。
+
+任意のk行が独立な`[e₁;A]`はMDS符号と関係します。
+pが素数で`2≤k≤p`なら、[Ball 2012][ball]の上限から`n≤p`となります。
+k=2は射影直線の点を数えればわかり、k=3・奇素数pの結果はBose 1947に由来しますが、Boseの本文は未確認です。
+UIの`p−1`はヴァンデルモンドにそろえた選択で、`n=p`が不可能という意味ではありません。
+
+コーシー行列は別の構成法として座学だけで紹介します。
+また、誰がe₁を作れるかを行列で決める線形秘密分散と、モノトーン・スパン・プログラム（MSP）への対応を座学8で説明します。
+
+## 📏 シェアの大きさ
+
+秘密がm個の体の要素からなり、`k=3`の場合です。
+法線を正規化して1の成分を省略する、概念上の体の要素数を比べます。
+
+<!-- example: share-size -->
+
+| 方式 | 体の要素数 | m=1 | m=16 |
+| --- | --- | --- | --- |
+| 秘密の要素ごとに法線を作る | mk | 3 | 48 |
+| 法線1組を再利用する | m+k−1 | 3 | 18 |
+| Shamir（番号は公開） | m | 1 | 16 |
+
+未正規化の1式をそのまま保存するなら、法線k要素と右辺1要素です。
+表では公開の番号と、正規化で1にした成分の位置情報を除きます。保存するバイト数の比較ではありません。
+法線を再利用しても、各秘密要素の乱数の座標は新しく選びます。
+法線を公開の番号から決めれば、配る値は右辺だけになり、Shamirと同じ大きさになります。
+
+## 🎯 ユースケース
+
+このツールならではの使い方
+
+- 線形代数の授業：教員がk=3で2枚から3枚へ切り替え、11個の切り口に各1点ある状態が1点だけになる様子を、階数と自由変数の説明に使う
+- 情報理論の演習：学習者が点候補169→13→1と秘密候補13→13→1を比べ、「解が複数ある」と「秘密の確率が変わらない」の違いを考える
+- 合同式のパズル：出題者が整数の#1から{2,5,8,11}を求める問題と、狭い乱数から{0,3,7,10}を求める問題を並べ、異なる前提を読み解く練習にする
+- 冗長データの検査研修：開発者が2・3・4枚の改ざん例を比べ、不一致の検出と原因の特定が別の条件を要することを学ぶ。実際の送信者認証を代替する例ではない
+- 多項式と幾何学の講義：教員が(1,10,0)と1+10xの対応を示し、非零制限で13行が11行になることから、乱数分布も方式の条件であると説明する
+
+自習ではヘルプの証明と画面の各切り口を交互に確認できます。
+CTFや謎解きの作問では、教材の小さな数を使って問題の期待値を確かめられます。
+実装レビューや調査では、有限体・乱数の範囲・全組の検査・復元時の階数を確認する観点を得られます。
+家庭や勉強会で秘密分散を説明する導入にも使えますが、実際の鍵の分割・印刷・保管は扱いません。
+
+## 🔎 先行例との違い
+
+2026年10月24日の調査で本文を確認した資料との比較です。網羅的な一覧や、唯一の実装という主張ではありません。
+
+| 観点 | 確認した先行例 | このツールで扱う内容 |
+| --- | --- | --- |
+| 図と候補 | [Wikipediaの静的な図と説明][wikipedia] | GF(p)の点と切り口を操作し、残る秘密候補を数える |
+| 一般の位置 | [darrelllongの作者による制限の説明][darrell-theory] | 最初のk枚だけでなく、全対象の組の検査結果を表にする |
+| Shamirとの関係 | [UIC CS594第8回の講義資料][uic]とWikipedia | 同じ固定例の多項式・係数の点・13行の表を連動させる |
+
+WikipediaとUICは理論の説明としては二次資料です。UICはPDFの文字を確認しましたが、数式の抽出には一部不完全さがあり、図の有無は未確認です。
+darrelllongのコードとTHEORY.mdは、作者の実装についての一次資料として確認しました。
+
+狭い乱数の実例は、[pyquorumの作者による公表][pyquorum]を参照しています。
+0.3.0より前の版で、体の幅より狭い乱数からLLLにより復元されたという報告です。
+この教材の4候補の例は原理を示す小さな模型で、LLL攻撃を実装したものでも、現在の版への攻撃結果でもありません。
+
+## 🔗 関連ツール
+
+| ツール | 題材・用途 | Day126との違い・対応 |
+| --- | --- | --- |
+| [Day123 ShamirSharing CipherLab][day123] | GF(p)の座標平面とGF(2⁸)のバイトによる学習 | シェアは多項式上の点。Day126はシェアを超平面、係数を点として読む |
+| [Day070 VisualCryptography CipherLab][day070] | 2枚の画像を重ねる視覚暗号 | 画像を重ねて目で復元する方式。Blakleyの連立方程式による方式とは別 |
+| [Day124 Scatter Seeds][day124] | 紙で分ける実用のバックアップと復元 | 実用のバックアップを検討する場合の別ツール |
+| [Day125 Overlay QR Shares][day125] | 視覚暗号とQRの重ね合わせ | 画像を重ねる復元と、有限体の求解を比べられる |
+
+## 🔒 セキュリティと制約
+
+- 計算と入力の処理はブラウザー内で完結。外部API、CDN、解析用の外部送信は使用しない
+- CSPは`connect-src 'none'`を含み、スクリプトとスタイルは同一配信元のファイルだけを許可
+- 保存するのは言語と明暗の設定だけ。秘密・法線・シェアはlocalStorageに保存しない
+- 乱数生成は`crypto.getRandomValues`を使用し、棄却法で偏りを避ける。生成失敗時は前の例を保持して操作可能な状態に戻す
+- 危ない模型は`pitfalls.js`に分離。検査付きの計算部`gf-core.js`は、この模型を呼び出さない
+- 小さい有限体の学習用。実データの書式・印刷・QR・認証・保管・実用暗号の保証は提供しない
+
+公開ページの読み込みと、参考資料へのリンクを開く操作には通常の通信が発生します。
+入力を送信する機能はありません。原論文の射影形、コーシーによる生成、GF(2⁸)のバイト分割はこのツールの実装範囲外です。
+
+## 🧪 テスト
+
+Node.js 22以上で、依存パッケージを追加せずに実行できます。
+
+```sh
+npm test
+```
+
+- 有限体の逆元・階数・掃き出し、既定の全組の復元、生成の既知値と棄却動作
+- 候補数、整数と狭い乱数、Shamir対応、改ざんとδによる秘密の変化
+- 日英辞書、禁止語、CSP、保存範囲、配色、ソース形式
+- READMEの数値表・YAML・見出し対応・ディレクトリー構造・画像
+
+GitHub Actionsはpushとpull requestで、Node.js 22による構文確認と`npm test`を実行します。
+ブラウザー検査はローカルのPython＋Playwrightで行います。PlaywrightとChromium・Firefoxを用意して実行してください。
+
+```sh
+python test/interface.browser.py --stage 1c
+```
+
+file://とHTTP、幅320・390・1280px、日英、明暗、タブ、キーボード操作、3D回転、比較表、4カード、ヘルプを確認します。
+ローカルのブラウザー検査は46ケースが成功し、乱数生成失敗後の復帰も4ケースを追加確認しています。
+READMEや画像の検査を含むNodeテストの件数は、実行結果で確認できます。
+
+## 📚 出典と確認範囲
+
+本文確認と書誌確認を区別しています。式の対応や有限体の具体例は、記載した文献と参照実装の値からこのツールで整理したものです。
+
+- [G. R. Blakley, “Safeguarding cryptographic keys”][blakley]。
+  AFIPS 1979 NCC, Vol.48, pp.313–317。一次・本文確認。
+  DOIは10.1109/MARK.1979.8817296を使用。10.1109/AFIPS.1979.98も同じ論文を指す
+- [A. Shamir, “How to share a secret”][shamir]。
+  CACM 22(11), pp.612–613, 1979。一次・書誌確認。この調査では原論文本文は未確認
+- [Menezes・van Oorschot・Vanstone, Handbook of Applied Cryptography][hac]。
+  1996、第12章、特に§12.10 Notes、pp.538–539。二次・本文確認
+- [A. Beimel, “Secret-Sharing Schemes: A Survey”][beimel]。
+  IWCC 2011, LNCS 6639, pp.11–46、[DOI][beimel-doi]。二次・Claim 2とRemark 2の本文確認
+- [S. Ball, “On sets of vectors of a finite vector space in which every subset of basis size is a basis”][ball]。
+  JEMS 14(3), pp.733–748, 2012。一次・要旨と冒頭確認、証明本文は未精査
+- R. C. Bose, 1947, Sankhyā 8, pp.107–166。書誌は二次資料で確認、原論文本文は未確認
+- [E. F. Brickell, “Some Ideal Secret Sharing Schemes”][brickell]。
+  EUROCRYPT ’89, LNCS 434, pp.468–475。一次論文の書誌確認、本文未確認
+- [M. Karchmer・A. Wigderson, “On span programs”][kw]。
+  Structure in Complexity Theory 1993, pp.102–111。一次論文の書誌確認、本文未確認
+- [Kothari, “Generalized Linear Threshold Scheme”][kothari]。
+  CRYPTO ’84, LNCS 196, pp.231–241（1985年刊）。書誌確認のみ、本文・要旨とも未確認
+- [Wikipedia “Secret sharing”][wikipedia]（確認版revid 1379678799）、[UIC CS594 Lecture 8][uic]、[darrelllongのREADME][darrell]。
+  Shamirとの関係についての二次資料として本文確認。[Cauchy matrix][cauchy]も二次資料として参照
+- [pyquorumのセキュリティ記録][pyquorum]。一次・作者が公表した本文を確認
+
+## 📁 ディレクトリー構造
+
+```text
+blakley-sharing-cipherlab/  # プロジェクトのルート
+├── .gitattributes                   # 改行とPNGの属性
+├── .github/                         # GitHub用の設定
+├── .github/workflows/               # 継続的検査の定義
+├── .github/workflows/test.yml       # Node.js 22による構文確認とテスト
+├── assets/                          # 日本語の画面画像
+├── assets/screenshot.png            # 日本語の交点画面
+├── assets/screenshot2.png           # 日本語のShamir比較表
+├── assets/screenshot3.png           # 日本語の検査なしカードA
+├── assets/en/                       # 英語の画面画像
+├── assets/en/screenshot.png         # 英語の交点画面
+├── assets/en/screenshot2.png        # 英語のShamir比較表
+├── assets/en/screenshot3.png        # 英語の検査なしカードA
+├── test/                            # 自動テストと固定値
+├── test/contrast.test.js            # 文字と背景の配色検査
+├── test/core.test.js                # 計算・生成・復元・危ない模型の検査
+├── test/format.test.js              # 公開ソースの形式検査
+├── test/i18n.test.js                # 日英辞書と用語の検査
+├── test/interface.browser.py        # ChromiumとFirefoxの画面操作検査
+├── test/readme.test.js              # READMEの数値・構造・画像検査
+├── test/structure.test.js           # 画面構造・CSP・保存範囲の検査
+├── test/vectors.json                # 参照実装から得た固定の期待値
+├── app.js                           # 画面状態・図・表・操作の制御
+├── gf-core.js                       # 有限体・検査・生成・復元の計算
+├── index.html                       # 画面の構造とヘルプの座学
+├── LICENSE                          # MITライセンス
+├── messages.js                      # 日本語と英語の辞書
+├── package.json                     # プロジェクト情報とテストコマンド
+├── pitfalls.js                      # 検査を省いた教材用の模型
+├── README.md                        # 日本語の説明書
+├── README.en.md                     # 英語の説明書
+└── style.css                        # 画面・テーマ・狭い幅のレイアウト
+```
+
+## 💻 動作環境
+
+HTML・CSS・通常のJavaScriptだけで動作します。ビルドツールや実行時の外部ライブラリーは不要です。
+ローカルでは`index.html`を開くか、次のようにHTTPで配信できます。
+
+```sh
+python -m http.server 8000 --bind 127.0.0.1
+```
+
+[ローカルページ](http://127.0.0.1:8000/)を開いてください。
+確認済みブラウザーはChromiumとFirefoxです。JavaScript、SVG、dialog、Web Cryptoを使います。
+Node.jsは自動テスト用、PythonとPlaywrightはローカルのブラウザー検査用で、通常の利用には不要です。
+
+## 📄 ライセンス
+
+[MIT License](LICENSE)。Copyright (c) 2026 ipusiron。
+実行時の外部ライブラリーはありません。図・画面・説明を利用する際は、同ライセンスの条件に従ってください。
+引用した文献・外部資料には、それぞれの権利が適用されます。
+
+## 🛠️ このツールについて
+
+本ツールは、「生成AIで作るセキュリティツール200」プロジェクトの一環として開発されました。
+このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開しています。
+プロジェクトの詳細とほかのツールは、次のページをご覧ください。
+
+[生成AIで作るセキュリティツール200](https://akademeia.info/?page_id=44607)
+
+[blakley]: https://doi.org/10.1109/MARK.1979.8817296
+[shamir]: https://doi.org/10.1145/359168.359176
+[hac]: https://cacr.uwaterloo.ca/hac/about/chap12.pdf
+[beimel]: https://www.cs.bgu.ac.il/~beimel/Papers/Survey.pdf
+[beimel-doi]: https://doi.org/10.1007/978-3-642-20901-7_2
+[ball]: https://doi.org/10.4171/JEMS/316
+[brickell]: https://doi.org/10.1007/3-540-46885-4_45
+[kw]: https://doi.org/10.1109/SCT.1993.336536
+[kothari]: https://doi.org/10.1007/3-540-39568-7_19
+[wikipedia]: https://en.wikipedia.org/wiki/Secret_sharing
+[cauchy]: https://en.wikipedia.org/wiki/Cauchy_matrix
+[uic]: https://www.cs.uic.edu/~block/courses/cs594-spring2026/docs/lecture8.pdf
+[darrell]: https://github.com/darrelllong/secret-sharing
+[darrell-theory]: https://github.com/darrelllong/secret-sharing/blob/main/THEORY.md
+[pyquorum]: https://github.com/svvqt/pyquorum/blob/main/SECURITY_ISSUES_TRACKER.md
+[day123]: https://ipusiron.github.io/shamir-sharing-cipherlab/
+[day070]: https://ipusiron.github.io/visual-cryptography-cipherlab/
+[day124]: https://ipusiron.github.io/scatter-seeds/
+[day125]: https://ipusiron.github.io/overlay-qr-shares/

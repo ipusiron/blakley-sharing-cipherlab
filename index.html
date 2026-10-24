@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Explore Blakley geometric secret sharing through intersections, Shamir and pitfalls. Educational examples only.">
+  <title>BlakleySharing CipherLab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="gf-core.js" defer></script>
+  <script src="pitfalls.js" defer></script>
+  <script src="messages.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="masthead">
+      <h1>BlakleySharing <span>CipherLab</span></h1>
+      <div class="header-tools">
+        <button id="theme" class="icon-button" type="button" data-label="theme">◐</button>
+        <button id="language" class="icon-button" type="button" data-label="language">EN</button>
+        <button id="help" class="icon-button" type="button" data-label="help" aria-haspopup="dialog">?</button>
+      </div>
+    </div>
+    <p class="eyebrow">DAY126 · INTERSECT / COMPARE / PITFALLS</p>
+  </header>
+  <main>
+    <nav class="tabs" role="tablist" data-label="tablist">
+      <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
+        aria-selected="true" tabindex="0" data-i18n="intersections"></button>
+      <button id="tab-compare" role="tab" type="button" aria-controls="panel-compare"
+        aria-selected="false" tabindex="-1" data-i18n="compare"></button>
+      <button id="tab-pitfalls" role="tab" type="button" aria-controls="panel-pitfalls"
+        aria-selected="false" tabindex="-1" data-i18n="pitfalls"></button>
+    </nav>
+    <p class="learning-note"><span data-i18n="educational"></span>
+      <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical"></a></p>
+    <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
+      <div id="k2-view">
+        <h2 data-i18n="intersections"></h2><p data-i18n="intro"></p>
+        <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph"></svg>
+        <details><summary data-i18n="graphTable"></summary><div id="intro-table"></div></details>
+        <p id="intro-summary" class="result"></p>
+        <section id="real-story" class="stage-card">
+          <h3 data-i18n="realToMod"></h3>
+          <div class="three-steps">
+            <figure><figcaption data-i18n="realStep"></figcaption><svg id="real-grid" class="coordinate-plane" role="img" data-label="realStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="real-table"></div></details></figure>
+            <figure><figcaption data-i18n="integerStep"></figcaption><svg id="integer-grid" class="coordinate-plane" role="img" data-label="integerStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="integer-table"></div></details></figure>
+            <figure><figcaption data-i18n="modStep"></figcaption><svg id="mod-grid" class="coordinate-plane" role="img" data-label="modStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="mod-table"></div></details></figure>
+          </div><p id="integer-explanation"></p><p id="mod-rule"></p>
+          <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides"></span></label>
+        </section>
+        <p id="edited-real-note" hidden data-i18n="editedReal"></p>
+      </div>
+      <section class="stage-card" aria-labelledby="explore-title">
+        <h3 id="explore-title" data-i18n="explore"></h3>
+        <div id="share-picks" class="actions" role="group" data-label="chooseShares"></div>
+        <div id="legend" class="legend"></div>
+        <p id="selected-summary"></p>
+        <div id="candidate-controls" class="actions">
+          <button id="candidate-prev" type="button" data-label="previousCandidate">◀</button>
+          <output id="candidate-value"></output>
+          <button id="candidate-next" type="button" data-label="nextCandidate">▶</button>
+          <button id="candidate-all" type="button" aria-pressed="false" data-i18n="allCandidates"></button>
+        </div>
+        <div id="k2-interactive">
+          <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="grid-table"></div></details>
+        </div>
+        <p id="candidate-equation" class="formula"></p><p id="recovery-result" class="result" role="status"></p>
+        <div id="combination-results"></div>
+        <details id="edit-controls"><summary data-i18n="editCopy"></summary>
+          <label><span data-i18n="editShare"></span><select id="edit-share"></select></label>
+          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys">
+            <button id="shift-minus" type="button" data-i18n="shiftMinus"></button>
+            <button id="shift-plus" type="button" data-i18n="shiftPlus"></button>
+            <button id="direction-minus" type="button" data-i18n="directionMinus"></button>
+            <button id="direction-plus" type="button" data-i18n="directionPlus"></button>
+          </div><button id="reset-edit" type="button" data-i18n="undoEdit"></button>
+          <p id="edit-warning" class="danger-text" role="status"></p>
+        </details>
+      </section>
+      <section class="stage-card">
+        <h3 data-i18n="nextDimension"></h3><p data-i18n="columnsToSlices"></p>
+        <div class="actions"><button id="k2-start" type="button" data-i18n="back2"></button>
+          <button id="k3-start" type="button" data-i18n="start3"></button></div>
+        <div id="view-3d" hidden>
+          <h3 data-i18n="real3d"></h3>
+          <svg id="scene" class="scene" role="img" tabindex="0" aria-describedby="camera-description" data-label="sceneLabel"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="scene-table"></div></details>
+          <p id="camera-description"></p>
+          <div class="actions camera-controls">
+            <button id="yaw-left" type="button" data-label="yawLeft">↺</button>
+            <button id="yaw-right" type="button" data-label="yawRight">↻</button>
+            <button id="pitch-up" type="button" data-label="pitchUp">▲</button>
+            <button id="pitch-down" type="button" data-label="pitchDown">▼</button>
+            <button id="camera-reset" type="button" data-i18n="cameraReset"></button>
+          </div><div id="plane-toggles" class="actions"></div>
+          <p data-i18n="real3dNote"></p><p id="real-slice-value"></p>
+          <h3 data-i18n="finiteSlices"></h3>
+          <div id="slices" class="slice-list" role="group" data-label="chooseSlice"></div>
+          <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="slice-table"></div></details>
+          <p id="slice-equation" class="formula"></p><p id="slice-result" class="result" role="status"></p>
+        </div>
+        <div id="matrix-view" hidden>
+          <h3 data-i18n="rowReduction"></h3><p id="matrix-op"></p>
+          <div id="matrix-table" class="matrix-frame"></div>
+          <div class="actions"><button id="matrix-prev" type="button" data-i18n="previousStep"></button>
+            <output id="matrix-step"></output><button id="matrix-next" type="button" data-i18n="nextStep"></button></div>
+          <details><summary data-i18n="allSteps"></summary><div id="matrix-all"></div></details>
+          <div id="matrix-candidates"></div>
+        </div>
+      </section>
+      <details id="dealer"><summary data-i18n="dealer"></summary>
+        <p id="example-kind" class="result"></p>
+        <div class="settings-grid">
+          <label><span>p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
+          <label><span>n</span><select id="share-count"></select></label>
+          <label><span data-i18n="secretLabel"></span><input id="secret" type="number" min="0" max="12" value="5"></label>
+        </div><div id="coordinates" class="settings-grid"></div>
+        <div class="actions"><button id="generate" type="button" data-i18n="generate"></button>
+          <button id="reset-default" type="button" data-i18n="resetDefault"></button></div>
+        <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote"></p>
+        <p data-i18n="premise"></p><p data-i18n="reuse"></p>
+        <div id="distribution-table"></div>
+        <details id="advanced"><summary data-i18n="advanced"></summary>
+          <label><span data-i18n="normalMethod"></span><select id="method">
+            <option value="random" data-i18n="randomMethod"></option><option value="vandermonde" data-i18n="vandermonde"></option>
+          </select></label>
+          <details><summary data-i18n="higherDimensions"></summary><div class="actions">
+            <button id="k4" type="button">k=4</button><button id="k5" type="button">k=5</button></div></details>
+          <h3 data-i18n="checks"></h3><p data-i18n="normalName"></p>
+          <p data-i18n="checkI"></p><p data-i18n="checkII"></p><p id="inspection-summary" class="result"></p>
+          <details><summary data-i18n="inspectionList"></summary>
+            <label class="choice"><input id="failures-only" type="checkbox"><span data-i18n="failuresOnly"></span></label>
+            <div id="inspection-list"></div>
+          </details><p data-i18n="checkPremise"></p>
+        </details>
+      </details>
+      <details id="field-primer"><summary data-i18n="fieldPrimer"></summary>
+        <p data-i18n="fieldText"></p><p data-i18n="inverseText"></p>
+        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer"></a>
+      </details>
+    </section>
+    <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
+      <h2 data-i18n="compare"></h2>
+      <p data-i18n="compareIntro"></p>
+      <div id="compare-equivalence-table"></div>
+      <section class="stage-card" aria-labelledby="compare-k2-title">
+        <h3 id="compare-k2-title" data-i18n="compareK2Title"></h3>
+        <p data-i18n="compareK2Intro"></p>
+        <p id="compare-k2-shares"></p>
+        <p class="formula">s + a₁ ≡ 9 (mod 13)</p>
+        <div class="actions">
+          <button id="compare-k2-prev" type="button" data-label="comparePrevious">◀</button>
+          <output id="compare-k2-value"></output>
+          <button id="compare-k2-next" type="button" data-label="compareNext">▶</button>
+        </div>
+        <svg id="compare-k2-grid" class="coordinate-plane" role="img" data-label="compareK2Graph"></svg>
+        <details><summary data-i18n="graphTable"></summary><div id="compare-linear-table"></div></details>
+        <p id="compare-k2-caption" class="result" role="status"></p>
+        <p data-i18n="compareK2Correspondence"></p>
+      </section>
+      <section class="stage-card" aria-labelledby="compare-k3-title">
+        <h3 id="compare-k3-title" data-i18n="compareK3Title"></h3>
+        <p data-i18n="compareK3Intro"></p>
+        <p id="compare-fixed-polynomial" class="formula"></p>
+        <p id="compare-k3-shares"></p>
+        <p data-i18n="compareVandermonde"></p>
+        <label class="choice">
+          <input id="compare-nonzero" type="checkbox"><span data-i18n="compareNonzero"></span>
+        </label>
+        <p data-i18n="compareNonzeroExplanation"></p>
+        <p id="compare-count" class="result" role="status"></p>
+        <div class="actions">
+          <button id="compare-prev" type="button" data-label="comparePrevious">◀</button>
+          <output id="compare-current"></output>
+          <button id="compare-next" type="button" data-label="compareNext">▶</button>
+        </div>
+        <div id="compare-layout" class="compare-layout">
+          <section id="compare-poly-panel" class="compare-poly-panel" aria-labelledby="compare-poly-title">
+            <h4 id="compare-poly-title" data-i18n="comparePolynomialGraph"></h4>
+            <p id="compare-poly-caption" class="formula"></p>
+            <svg id="compare-poly" class="coordinate-plane" role="img" data-label="comparePolynomialGraph"></svg>
+            <details><summary data-i18n="graphTable"></summary><div id="compare-poly-table"></div></details>
+            <label class="choice">
+              <input id="compare-guides" type="checkbox" checked><span data-i18n="compareGuides"></span>
+            </label>
+            <p class="compare-legend" data-i18n="comparePolynomialLegend"></p>
+            <p data-i18n="compareObservedValues"></p>
+          </section>
+          <section id="compare-table-panel" class="compare-table-panel" aria-labelledby="compare-table-title">
+            <h4 id="compare-table-title" data-i18n="compareTableTitle"></h4>
+            <p data-i18n="compareTableInstruction"></p>
+            <table id="compare-table" class="responsive-table compare-correspondence">
+              <thead><tr>
+                <th scope="col">s</th><th scope="col" data-i18n="comparePointHeading"></th>
+                <th scope="col" data-i18n="comparePolynomialHeading"></th><th scope="col">x=1</th><th scope="col">x=2</th>
+              </tr></thead>
+              <tbody id="compare-rows"></tbody>
+            </table>
+            <p data-i18n="compareZeroTopExplanation"></p>
+          </section>
+          <section id="compare-slice-panel" class="compare-slice-panel" aria-labelledby="compare-slice-title">
+            <h4 id="compare-slice-title" data-i18n="compareSliceGraph"></h4>
+            <p id="compare-slice-caption" class="formula"></p>
+            <svg id="compare-slice" class="coordinate-plane" role="img" data-label="compareSliceGraph"></svg>
+            <details><summary data-i18n="graphTable"></summary><div id="compare-slice-table"></div></details>
+            <p data-i18n="compareSliceExplanation"></p>
+          </section>
+        </div>
+      </section>
+      <section class="stage-card" aria-labelledby="compare-size-title">
+        <h3 id="compare-size-title" data-i18n="compareSizeTitle"></h3>
+        <p data-i18n="compareSizeIntro">秘密がm要素、k=3の場合です。法線を正規化し、1にした成分を省いた体の要素数です。公開の番号と省いた成分の位置情報は数えません。バイト数の比較ではありません。</p><div id="compare-size-table"></div>
+        <p data-i18n="compareSizeNote"></p>
+      </section>
+      <p data-i18n="compareLinearGeneralization"></p>
+      <button id="compare-lesson" type="button" data-i18n="compareLesson"></button>    </section>
+    <section id="panel-pitfalls" class="panel" role="tabpanel" aria-labelledby="tab-pitfalls" hidden>
+      <h2 data-i18n="pitfalls"></h2><p data-i18n="pitfallsIntro"></p>
+      <section id="pit-card-b" class="stage-card" aria-labelledby="pit-b-title">
+        <h3 id="pit-b-title" data-i18n="pitBTitle"></h3>
+        <h4 data-i18n="pitChanged"></h4>
+        <div class="actions" role="group" data-label="pitDimension">
+          <button id="pit-b-k2" type="button" aria-pressed="true">k=2</button><button id="pit-b-k3" type="button" aria-pressed="false">k=3</button>
+        </div><div id="pit-b-picks" class="actions" role="group" data-label="pitShares"></div><p id="pit-b-input"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
+          <h4 data-i18n="pitWithout"></h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout"></p></div>
+        <h4 data-i18n="pitChecked"></h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
+        <svg id="pit-b-grid" class="coordinate-plane" role="img" data-label="pitBGraph"></svg><div id="pit-b-slices" class="slice-list static-slices"></div>
+        <details><summary data-i18n="graphTable"></summary><p data-i18n="pitBTableNote"></p><div id="pit-b-points"></div></details>
+        <h4 data-i18n="pitLesson"></h4><p data-i18n="pitWholeLesson"></p>
+      </section>
+      <section id="pit-card-c" class="stage-card" aria-labelledby="pit-c-title">
+        <h3 id="pit-c-title" data-i18n="pitCTitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <div class="settings-grid"><label><span data-i18n="pitGenerator"></span><select id="pit-c-mode">
+          <option value="integer" data-i18n="pitInteger"></option><option value="narrow" data-i18n="pitNarrow"></option></select></label>
+          <label id="pit-c-share-wrap"><span data-i18n="chooseShares"></span><select id="pit-c-share">
+            <option value="0">#1</option><option value="1">#2</option><option value="2">#3</option><option value="3">#4</option></select></label></div>
+        <p id="pit-c-input"></p><p id="pit-c-equation" class="formula"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
+          <h4 data-i18n="pitWithout"></h4><p id="pit-c-unsafe" role="status"></p>
+          <svg id="pit-c-grid" class="coordinate-plane" role="img" data-label="pitCGraph"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="pit-c-table"></div></details></div>
+        <h4 data-i18n="pitChecked"></h4><p id="pit-c-result" class="result"></p><p data-i18n="premise"></p>
+        <h4 data-i18n="pitLesson"></h4><p id="pit-c-lesson"></p>
+      </section>
+      <section id="pit-card-a" class="stage-card" aria-labelledby="pit-a-title">
+        <h3 id="pit-a-title" data-i18n="pitATitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <label><span data-i18n="pitConfiguration"></span><select id="pit-a-mode">
+          <option value="vertical" data-i18n="pitVertical"></option><option value="leak3" data-i18n="pitLeak3"></option>
+          <option value="parallel" data-i18n="pitParallel"></option><option value="short" data-i18n="pitShort"></option></select></label>
+        <p id="pit-a-input" class="formula"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
+          <h4 data-i18n="pitWithout"></h4><p id="pit-a-unsafe" role="status"></p></div>
+        <h4 data-i18n="pitChecked"></h4><p id="pit-a-result" class="result"></p><div id="pit-a-checks"></div>
+        <label id="pit-a-s-wrap"><span data-i18n="pitChooseSlice"></span><select id="pit-a-s">          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option></select></label>
+        <div id="pit-a-slices" class="slice-list"></div>
+        <svg id="pit-a-grid" class="coordinate-plane" role="img" data-label="pitAGraph"></svg>
+        <details><summary data-i18n="graphTable"></summary><div id="pit-a-table"></div></details>
+        <h4 data-i18n="pitLesson"></h4><p id="pit-a-lesson"></p>
+        <p data-i18n="pitPassRateIntro"></p><table class="responsive-table">
+          <thead><tr><th data-i18n="pitParameters"></th><th data-i18n="pitPassRate"></th></tr></thead><tbody>
+            <tr><td data-cell-label="pitParameters">13, 2, 4</td><td data-cell-label="pitPassRate">0.4362</td></tr>
+            <tr><td data-cell-label="pitParameters">11, 3, 5</td><td data-cell-label="pitPassRate">0.1184</td></tr>
+            <tr><td data-cell-label="pitParameters">13, 3, 8</td><td data-cell-label="pitPassRate" data-i18n="pitRateApprox"></td></tr>
+          </tbody></table>
+      </section>
+      <section id="pit-card-d" class="stage-card" aria-labelledby="pit-d-title">
+        <h3 id="pit-d-title" data-i18n="pitDTitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <div class="settings-grid"><label><span data-i18n="pitShares"></span><select id="pit-d-count">
+          <option value="2">2 (k)</option><option value="3">3 (k+1)</option><option value="4">4 (k+2)</option></select></label>
+          <label><span data-i18n="pitDelta"></span><select id="pit-d-delta">          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option></select></label></div><p id="pit-d-input"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
+          <h4 data-i18n="pitWithout"></h4><p id="pit-d-unsafe" role="status"></p><p data-i18n="pitFirstKOnly"></p></div>
+        <h4 data-i18n="pitChecked"></h4><p id="pit-d-result" class="result"></p><div id="pit-d-table"></div>
+        <svg id="pit-d-grid" class="coordinate-plane" role="img" data-label="pitDGraph"></svg>
+        <details><summary data-i18n="graphTable"></summary><div id="pit-d-points"></div></details>
+        <h4 data-i18n="pitLesson"></h4><p data-i18n="pitTamperConditions">条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。</p><p data-i18n="pitLinearity"></p>
+        <details><summary data-i18n="pitAllDelta"></summary><div id="pit-d-linearity"></div></details>
+      </section>
+    </section>
+    <noscript>JavaScriptを有効にしてください。 / Please enable JavaScript.</noscript>
+  </main>
+  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source"></a></footer>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <header class="help-header"><h2 id="help-title" data-i18n="help"></h2>
+      <button id="close-help" type="button" data-i18n="close"></button></header>
+    <div class="help-body">
+      <p data-i18n="helpIntro"></p>
+      <p data-i18n="premise"></p>
+      <p data-i18n="reuse"></p>
+      <div id="lessons">
+<details id="lesson-1" class="lesson">
+<summary data-i18n="lesson1Title">1. しきい値法と1979年の2つの提案</summary>
+<p data-i18n="lesson1Intro">秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚で秘密を戻せます。</p>
+<p data-i18n="lesson1Privacy">完全な秘密分散では、k枚未満を見ても秘密についての確率は変わりません。候補が複数残るだけでは、この性質を示したことにはなりません。</p>
+<p data-i18n="lesson1History">ShamirとBlakleyは1979年に、しきい値法を独立に提案しました。このツールでは、有限体での超平面の交点を使う形を学びます。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson1TableCaption">秘密とシェアの見せ方</caption>
+<thead><tr>
+<th data-i18n="lesson1TableH1" scope="col">方式</th>
+<th data-i18n="lesson1TableH2" scope="col">学習用の表し方</th>
+<th data-i18n="lesson1TableH3" scope="col">k枚を集めたとき</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson1TableR1C1" data-cell-label="lesson1TableH1">Shamir</td>
+<td data-i18n="lesson1TableR1C2" data-cell-label="lesson1TableH2">秘密は多項式の定数項。シェアは曲線上の点</td>
+<td data-i18n="lesson1TableR1C3" data-cell-label="lesson1TableH3">多項式を定めて定数項を読む</td>
+</tr>
+<tr>
+<td data-i18n="lesson1TableR2C1" data-cell-label="lesson1TableH1">このツールのBlakley</td>
+<td data-i18n="lesson1TableR2C2" data-cell-label="lesson1TableH2">秘密は交点の第1座標。シェアは超平面</td>
+<td data-i18n="lesson1TableR2C3" data-cell-label="lesson1TableH3">交点を定めて第1座標を読む</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson1OriginalNote">Blakleyの1979年の原論文は射影空間を使う形です。このツールの式との違いは第3節で説明します。</p>
+<p data-i18n="lesson1Sources">出典：原論文2件は一次資料です。Blakleyは本文を確認しました。Shamirは書誌確認で、ここでの調査では本文未確認です。独立の提案という位置づけは、HACなどの二次資料でも確認しています。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson1Blakley" href="https://doi.org/10.1109/MARK.1979.8817296" target="_blank" rel="noopener noreferrer">G. R. Blakley, “Safeguarding cryptographic keys”, AFIPS 1979 NCC, Vol.48, pp.313–317（DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson1Shamir" href="https://doi.org/10.1145/359168.359176" target="_blank" rel="noopener noreferrer">A. Shamir, “How to share a secret”, CACM 22(11), pp.612–613, 1979（DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson1Hac" href="https://cacr.uwaterloo.ca/hac/about/chap12.pdf" target="_blank" rel="noopener noreferrer">HAC第12章：しきい値法の歴史（二次・本文確認）</a>
+</li>
+</ul>
+<p data-i18n="lesson1DoiNote">BlakleyのDOI 10.1109/AFIPS.1979.98も同じ論文を指します。ここではDOI 10.1109/MARK.1979.8817296へのリンクを使います。</p>
+</details>
+<details id="lesson-2" class="lesson">
+<summary data-i18n="lesson2Title">2. 第1座標を秘密にする条件</summary>
+<p data-i18n="lesson2Point">F＝GF(p) とし、点をX＝(s,r₂,…,rₖ) とします。秘密はs＝x₁ だけで、シェアiは公開の法線aᵢ と右辺cᵢ＝aᵢ·Xです。</p>
+<p data-i18n="lesson2Premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。法線は公開・使い回してよい。使い回してはならないのは x₂…x_k</p>
+<p data-i18n="lesson2Reuse">乱数の座標同士も独立に選びます。法線の選び方も秘密に依存させません。法線を再利用しても、この前提と次の2つの検査を満たす必要があります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson2ChecksCaption">法線に対する2つの検査</caption>
+<thead><tr>
+<th data-i18n="lesson2ChecksH1" scope="col">検査</th>
+<th data-i18n="lesson2ChecksH2" scope="col">行列で書いた条件</th>
+<th data-i18n="lesson2ChecksH3" scope="col">保証すること</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson2ChecksR1C1" data-cell-label="lesson2ChecksH1">(i)</td>
+<td data-i18n="lesson2ChecksR1C2" data-cell-label="lesson2ChecksH2">どのk本の法線も独立</td>
+<td data-i18n="lesson2ChecksR1C3" data-cell-label="lesson2ChecksH3">どのk枚からもXを1点に定められる</td>
+</tr>
+<tr>
+<td data-i18n="lesson2ChecksR2C1" data-cell-label="lesson2ChecksH1">(ii)</td>
+<td data-i18n="lesson2ChecksR2C2" data-cell-label="lesson2ChecksH2">どのk−1本もe₁＝(1,0,…,0) を加えると独立</td>
+<td data-i18n="lesson2ChecksR2C3" data-cell-label="lesson2ChecksH3">k−1枚以下では、秘密sの確率分布が変わらない</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson2Span">選んだシェアの法線を並べた行列をA_Tとします。e₁ がその行空間に入れば、行の線形結合からsが求まります。入らなければ、sの情報は増えません。</p>
+<p data-i18n="lesson2Proof1">後者ではA_T w＝0、w₁＝1となるwが存在します。秘密sの解Xに (s′−s)wを足すと、同じシェアを持つ秘密s′ の解になります。</p>
+<p data-i18n="lesson2Proof2">この対応は逆にも戻せます。一様な乱数のもとでは、同じシェアが現れる確率はsに依存しません。これが「全部か無か」の理由です。</p>
+<p data-i18n="lesson2Source">証明の筋はBeimel 2011のClaim 2と同じです。サーベイは二次資料・本文確認済みで、このツールの記号への対応づけは、このツールでの整理です。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson2Beimel" href="https://doi.org/10.1007/978-3-642-20901-7_2" target="_blank" rel="noopener noreferrer">A. Beimel, “Secret-Sharing Schemes: A Survey”, IWCC 2011, LNCS 6639, pp.11–46（DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson2BeimelText" href="https://www.cs.bgu.ac.il/~beimel/Papers/Survey.pdf" target="_blank" rel="noopener noreferrer">Beimelサーベイ本文：Claim 2（二次・本文確認）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-3" class="lesson">
+<summary data-i18n="lesson3Title">3. Blakley 1979の原文の形</summary>
+<p data-i18n="lesson3Original">原論文では、ベクトルfの無作為な位置に鍵を置き、別の無作為な位置の成分を1にします。fを含む原点を通る超平面をシェアにします。</p>
+<p data-i18n="lesson3Line">復元する対象は、原点を通る直線です。これは射影空間の1点に当たります。このツールが扱う、秘密を固定の第1座標に置く形とは異なります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson3NotationCaption">原文とこのツールの記号</caption>
+<thead><tr>
+<th data-i18n="lesson3NotationH1" scope="col">項目</th>
+<th data-i18n="lesson3NotationH2" scope="col">1979年の原文</th>
+<th data-i18n="lesson3NotationH3" scope="col">このツールとの対応</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson3NotationR1C1" data-cell-label="lesson3NotationH1">しきい値</td>
+<td data-i18n="lesson3NotationR1C2" data-cell-label="lesson3NotationH2">b+1</td>
+<td data-i18n="lesson3NotationR1C3" data-cell-label="lesson3NotationH3">k＝b+1</td>
+</tr>
+<tr>
+<td data-i18n="lesson3NotationR2C1" data-cell-label="lesson3NotationH1">シェア総数</td>
+<td data-i18n="lesson3NotationR2C2" data-cell-label="lesson3NotationH2">a+b+1</td>
+<td data-i18n="lesson3NotationR2C3" data-cell-label="lesson3NotationH3">n＝a+b+1</td>
+</tr>
+<tr>
+<td data-i18n="lesson3NotationR3C1" data-cell-label="lesson3NotationH1">原文のベクトル空間の次元</td>
+<td data-i18n="lesson3NotationR3C2" data-cell-label="lesson3NotationH2">b+2</td>
+<td data-i18n="lesson3NotationR3C3" data-cell-label="lesson3NotationH3">k+1</td>
+</tr>
+<tr>
+<td data-i18n="lesson3NotationR4C1" data-cell-label="lesson3NotationH1">しきい値ぶんの交わり</td>
+<td data-i18n="lesson3NotationR4C2" data-cell-label="lesson3NotationH2">原点を通る直線</td>
+<td data-i18n="lesson3NotationR4C3" data-cell-label="lesson3NotationH3">このツールではk次元空間の1点</td>
+</tr>
+<tr>
+<td data-i18n="lesson3NotationR5C1" data-cell-label="lesson3NotationH1">1枚不足での交わり</td>
+<td data-i18n="lesson3NotationR5C2" data-cell-label="lesson3NotationH2">2次元部分空間</td>
+<td data-i18n="lesson3NotationR5C3" data-cell-label="lesson3NotationH3">このツールではアフィン直線</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson3Candidates">原論文では直線を復元したあとも、鍵の候補を試します。既知の平文と暗号文などにより、正しい鍵を認識できることを前提にしています。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson3CountsCaption">原文にある候補数の記載</caption>
+<thead><tr>
+<th data-i18n="lesson3CountsH1" scope="col">場所</th>
+<th data-i18n="lesson3CountsH2" scope="col">記載された候補数</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson3CountsR1C1" data-cell-label="lesson3CountsH1">p.316</td>
+<td data-i18n="lesson3CountsR1C2" data-cell-label="lesson3CountsH2">b+2</td>
+</tr>
+<tr>
+<td data-i18n="lesson3CountsR2C1" data-cell-label="lesson3CountsH1">p.317</td>
+<td data-i18n="lesson3CountsR2C2" data-cell-label="lesson3CountsH2">(b+1)(b+2)</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson3Mismatch">上の2つの数え方は原文でそろっていません。ここでは数値を訂正せず、その不一致を示しています。</p>
+<p data-i18n="lesson3Assumptions">安全性は “unproven but plausible” とする仮定Hypothesis 1・2に依存します。このツールの第2節の完全性の証明を、原論文の証明と読み替えることはできません。</p>
+<p data-i18n="lesson3Checks">原文の「第1検査・第2検査」は行列Mの成分や小行列式に対する検査です。このツールの法線に対する「検査 (i)(ii)」とは別の検査です。</p>
+<small data-i18n="lesson3Footnote">補足：原文の記述だけでは、同じ追加行を含む行集合の組が除かれません。そのような組では直線を一意に定めない場合があります。これはこのツールの調査での計算です。</small>
+<p data-i18n="lesson3Source">出典：Blakley 1979、pp.313–317（一次・本文確認）。原文の方式は紹介のみで、このツールには実装していません。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson3Blakley" href="https://doi.org/10.1109/MARK.1979.8817296" target="_blank" rel="noopener noreferrer">Blakley 1979原論文（DOI）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-4" class="lesson">
+<summary data-i18n="lesson4Title">4. 点全体と第1座標では候補数が違う</summary>
+<p data-i18n="lesson4Whole">点全体を秘密にすると、独立なシェアを1枚追加するたび、点の候補がp分の1になります。第1座標だけを秘密にする場合は、検査 (ii) と一様な乱数が必要です。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson4CountsCaption">固定教材例の候補数</caption>
+<thead><tr>
+<th data-i18n="lesson4CountsH1" scope="col">設定</th>
+<th data-i18n="lesson4CountsH2" scope="col">選んだ枚数</th>
+<th data-i18n="lesson4CountsH3" scope="col">点全体の候補</th>
+<th data-i18n="lesson4CountsH4" scope="col">秘密sの候補</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson4CountsR1C1" data-cell-label="lesson4CountsH1">k＝2、p＝13</td>
+<td data-i18n="lesson4CountsR1C2" data-cell-label="lesson4CountsH2">0 → 1 → 2</td>
+<td data-i18n="lesson4CountsR1C3" data-cell-label="lesson4CountsH3">169 → 13 → 1</td>
+<td data-i18n="lesson4CountsR1C4" data-cell-label="lesson4CountsH4">13 → 13 → 1</td>
+</tr>
+<tr>
+<td data-i18n="lesson4CountsR2C1" data-cell-label="lesson4CountsH1">k＝3、p＝11</td>
+<td data-i18n="lesson4CountsR2C2" data-cell-label="lesson4CountsH2">0 → 1 → 2 → 3</td>
+<td data-i18n="lesson4CountsR2C3" data-cell-label="lesson4CountsH3">1331 → 121 → 11 → 1</td>
+<td data-i18n="lesson4CountsR2C4" data-cell-label="lesson4CountsH4">11 → 11 → 11 → 1</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson4CountPremise">表は検査 (i)(ii) を通る教材例です。独立なm枚で、点の候補数はp^(k−m) です。m＜kのとき、秘密sの候補はp個のままです。</p>
+<p data-i18n="lesson4HacIntro">HAC §12.10 Notes、pp.538–539の原文です。HACが参照するのは、1979年の原論文の射影による方式です。</p>
+<blockquote data-i18n="lesson4HacQuote">While Shamir&#x27;s threshold scheme is perfect, Blakley&#x27;s vector scheme is not (the set of possible values of the shared secret narrows as subsequent shares are added).</blockquote>
+<p data-i18n="lesson4Reading">この記述は、点全体の版で起きる候補の減少と合います。これはこのツールでの読みであり、HACが第1座標版の条件を説明しているという意味ではありません。</p>
+<p data-i18n="lesson4Wiki">Wikipediaの「1座標だけなら内部の者は外部の者と同じ」という説明も、検査 (ii) なしには成り立ちません。1枚の式だけでsが定まる法線も存在します。</p>
+<p data-i18n="lesson4Source">HACはMenezes・van Oorschot・Vanstone著、1996年（二次・本文確認）。Wikipediaも二次資料として扱い、確認した版はrevid 1379678799です。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson4Hac" href="https://cacr.uwaterloo.ca/hac/about/chap12.pdf" target="_blank" rel="noopener noreferrer">Handbook of Applied Cryptography第12章（本文）</a>
+</li>
+<li>
+<a data-i18n="lesson4Wikipedia" href="https://en.wikipedia.org/wiki/Secret_sharing" target="_blank" rel="noopener noreferrer">Wikipedia “Secret sharing”（二次・本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson4Blakley" href="https://doi.org/10.1109/MARK.1979.8817296" target="_blank" rel="noopener noreferrer">HACが参照するBlakley 1979（一次・DOI）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-5" class="lesson">
+<summary data-i18n="lesson5Title">5. シェアの大きさとShamirとの対応</summary>
+<p data-i18n="lesson5Polynomial">多項式f(i)＝s+a₁i+…+aₖ₋₁i^(k−1) の係数を点X＝(s,a₁,…,aₖ₋₁) とします。シェアyᵢ＝f(i) は、次の超平面の式になります。</p>
+<p data-i18n="lesson5Equation">(1,i,i²,…,i^(k−1))·X＝yᵢ</p>
+<p data-i18n="lesson5Vandermonde">法線はヴァンデルモンドの行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。</p>
+<p data-i18n="lesson5Derivation">この式でShamirとBlakleyを対応づけることを明示した一次資料は、今回の調査では見つかっていません。ここはこのツールでの整理です。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson5SizesCaption">m個の体の要素を分けるときの1人ぶんのシェア</caption>
+<thead><tr>
+<th data-i18n="lesson5SizesH1" scope="col">法線の扱い</th>
+<th data-i18n="lesson5SizesH2" scope="col">体の要素数</th>
+<th data-i18n="lesson5SizesH3" scope="col">k＝3、m＝1</th>
+<th data-i18n="lesson5SizesH4" scope="col">k＝3、m＝16</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson5SizesR1C1" data-cell-label="lesson5SizesH1">要素ごとに法線も渡す</td>
+<td data-i18n="lesson5SizesR1C2" data-cell-label="lesson5SizesH2">mk</td>
+<td data-i18n="lesson5SizesR1C3" data-cell-label="lesson5SizesH3">3</td>
+<td data-i18n="lesson5SizesR1C4" data-cell-label="lesson5SizesH4">48</td>
+</tr>
+<tr>
+<td data-i18n="lesson5SizesR2C1" data-cell-label="lesson5SizesH1">1組の法線を再利用して渡す</td>
+<td data-i18n="lesson5SizesR2C2" data-cell-label="lesson5SizesH2">m+k−1</td>
+<td data-i18n="lesson5SizesR2C3" data-cell-label="lesson5SizesH3">3</td>
+<td data-i18n="lesson5SizesR2C4" data-cell-label="lesson5SizesH4">18</td>
+</tr>
+<tr>
+<td data-i18n="lesson5SizesR3C1" data-cell-label="lesson5SizesH1">公開の番号から法線を決める</td>
+<td data-i18n="lesson5SizesR3C2" data-cell-label="lesson5SizesH2">m</td>
+<td data-i18n="lesson5SizesR3C3" data-cell-label="lesson5SizesH3">1</td>
+<td data-i18n="lesson5SizesR3C4" data-cell-label="lesson5SizesH4">16</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson5SizeNote">表は正規化した超平面を表す、概念上の体の要素数です。公開の番号と、正規化で1にした成分の位置を示す情報は除いています。保存するバイト数の比較ではありません。</p>
+<p data-i18n="lesson5Uniform">法線を再利用しても、各要素の乱数の座標は新しく選びます。公開の番号から法線を決める場合は、配る値が右辺だけになり、秘密と同じ大きさになります。</p>
+<p data-i18n="lesson5Ideal">HACは情報レート1の方式をidealと呼びます。完全な方式ではシェアを秘密より小さくできず、公開の法線を使う形はこの下限に達します。</p>
+<p data-i18n="lesson5Nearby">近い記述はWikipedia、UIC CS594第8回の講義資料、darrelllong/secret-sharingのREADMEにあります。いずれもこの関係の説明では二次資料として扱います。</p>
+<p data-i18n="lesson5Kothari">Kothariの “Generalized Linear Threshold Scheme” はCRYPTO ’84、LNCS 196、pp.231–241（1985年刊）です。書誌のみ確認し、本文・要旨は未確認です。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson5Shamir" href="https://doi.org/10.1145/359168.359176" target="_blank" rel="noopener noreferrer">Shamir 1979：多項式による方式（一次・DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson5Hac" href="https://cacr.uwaterloo.ca/hac/about/chap12.pdf" target="_blank" rel="noopener noreferrer">HAC第12章：Fact 12.75、Definition 12.76（二次・本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson5Wiki" href="https://en.wikipedia.org/wiki/Secret_sharing" target="_blank" rel="noopener noreferrer">Wikipedia “Secret sharing”：確認版revid 1379678799（二次・本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson5Uic" href="https://www.cs.uic.edu/~block/courses/cs594-spring2026/docs/lecture8.pdf" target="_blank" rel="noopener noreferrer">Alex Block, UIC CS594 Spring 2026, Lecture 8（二次・本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson5Darrell" href="https://github.com/darrelllong/secret-sharing" target="_blank" rel="noopener noreferrer">darrelllong/secret-sharing README（二次・本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson5KothariLink" href="https://doi.org/10.1007/3-540-39568-7_19" target="_blank" rel="noopener noreferrer">Kothari, “Generalized Linear Threshold Scheme”（書誌のみ・DOI）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-6" class="lesson">
+<summary data-i18n="lesson6Title">6. 一般の位置を保証する作り方</summary>
+<p data-i18n="lesson6Intro">法線が乱数でも、検査 (i)(ii) が自動的に成り立つわけではありません。このツールでは、乱数を引いて検査する方法と、ヴァンデルモンドによる構成を選べます。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson6MethodsCaption">法線の構成と条件</caption>
+<thead><tr>
+<th data-i18n="lesson6MethodsH1" scope="col">方法</th>
+<th data-i18n="lesson6MethodsH2" scope="col">作り方</th>
+<th data-i18n="lesson6MethodsH3" scope="col">条件・実装範囲</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson6MethodsR1C1" data-cell-label="lesson6MethodsH1">乱数＋検査</td>
+<td data-i18n="lesson6MethodsR1C2" data-cell-label="lesson6MethodsH2">すべての対象の組で (i)(ii) を確かめ、不合格なら引き直す</td>
+<td data-i18n="lesson6MethodsR1C3" data-cell-label="lesson6MethodsH3">検査は法線だけ。Xと右辺を判定に使わない</td>
+</tr>
+<tr>
+<td data-i18n="lesson6MethodsR2C1" data-cell-label="lesson6MethodsH1">ヴァンデルモンド</td>
+<td data-i18n="lesson6MethodsR2C2" data-cell-label="lesson6MethodsH2">(1,i,…,i^(k−1))。iは0以外で互いに異なる</td>
+<td data-i18n="lesson6MethodsR2C3" data-cell-label="lesson6MethodsH3">n≤p−1。このツールで使用</td>
+</tr>
+<tr>
+<td data-i18n="lesson6MethodsR3C1" data-cell-label="lesson6MethodsH1">コーシー行列</td>
+<td data-i18n="lesson6MethodsR3C2" data-cell-label="lesson6MethodsH2">Cᵢⱼ＝1/(xᵢ−yⱼ)。xᵢ とyⱼ はすべて互いに異なる</td>
+<td data-i18n="lesson6MethodsR3C3" data-cell-label="lesson6MethodsH3">このn+1行の構成はn≤p−k−1。ここでは紹介のみ</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson6Cauchy">コーシー行列は、どの正方の部分行列も正則です。n+1行を用意し、先頭行をe₁ に写す正則行列を右から掛けると、残りを法線にできます。</p>
+<p data-i18n="lesson6CauchyBasis">この基底変換は行の独立性を保ちます。残りのn行が検査 (i)(ii) を満たすという対応は、このツールでの整理です。</p>
+<p data-i18n="lesson6Mds">[e₁;A] のどのk行も独立という条件は、最大距離分離符号（MDS符号）に対応します。射影空間では、これらの行は弧を作ります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson6BoundsCaption">有限体とシェア数の上限</caption>
+<thead><tr>
+<th data-i18n="lesson6BoundsH1" scope="col">範囲</th>
+<th data-i18n="lesson6BoundsH2" scope="col">上限の根拠</th>
+<th data-i18n="lesson6BoundsH3" scope="col">確認状況</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson6BoundsR1C1" data-cell-label="lesson6BoundsH1">k＝2</td>
+<td data-i18n="lesson6BoundsR1C2" data-cell-label="lesson6BoundsH2">射影直線の点はp+1個。e₁ を除きn≤p</td>
+<td data-i18n="lesson6BoundsR1C3" data-cell-label="lesson6BoundsH3">このツールでの数え上げ</td>
+</tr>
+<tr>
+<td data-i18n="lesson6BoundsR2C1" data-cell-label="lesson6BoundsH1">k＝3、pは奇素数</td>
+<td data-i18n="lesson6BoundsR2C2" data-cell-label="lesson6BoundsH2">Bose 1947によるp+1の上限からn≤p</td>
+<td data-i18n="lesson6BoundsR2C3" data-cell-label="lesson6BoundsH3">書誌は二次資料で確認。原論文本文は未確認</td>
+</tr>
+<tr>
+<td data-i18n="lesson6BoundsR3C1" data-cell-label="lesson6BoundsH1">2≤k≤p、pは素数</td>
+<td data-i18n="lesson6BoundsR3C2" data-cell-label="lesson6BoundsH2">Ball 2012の上限p+1からn≤p</td>
+<td data-i18n="lesson6BoundsR3C3" data-cell-label="lesson6BoundsH3">一次・要旨と冒頭確認。証明本文は未精査</td>
+</tr>
+<tr>
+<td data-i18n="lesson6BoundsR4C1" data-cell-label="lesson6BoundsH1">このツールの選択範囲</td>
+<td data-i18n="lesson6BoundsR4C2" data-cell-label="lesson6BoundsH2">n≤min(8,p−1)</td>
+<td data-i18n="lesson6BoundsR4C3" data-cell-label="lesson6BoundsH3">ヴァンデルモンドにそろえた設計上の制限</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson6BoundNote">n＝pが数学的に不可能という意味ではありません。Ballの結果をここで使う範囲は、pが素数で2≤k≤pの場合です。</p>
+<p data-i18n="lesson6Bose">Boseの書誌：R. C. Bose, 1947, Sankhyā 8, pp.107–166。原論文本文を読んだ資料としては扱っていません。</p>
+<p data-i18n="lesson6Sources">構成の計算はこのツールでの整理です。コーシー行列の性質はWikipedia（二次）、上限はBallの一次資料を参照しています。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson6Ball" href="https://doi.org/10.4171/JEMS/316"
+  target="_blank" rel="noopener noreferrer">S. Ball, “On sets of vectors of a finite vector space in which every subset of basis size is a basis”, JEMS 14(3), pp.733–748, 2012（一次・DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson6CauchySource" href="https://en.wikipedia.org/wiki/Cauchy_matrix" target="_blank" rel="noopener noreferrer">Wikipedia “Cauchy matrix”（二次）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-7" class="lesson">
+<summary data-i18n="lesson7Title">7. 実数・整数と乱数の範囲</summary>
+<p data-i18n="lesson7Uniform">実数・整数の全体には、一様な確率分布を置けません。乱数の範囲を限ると、シェアの式と範囲の条件から秘密の候補が減ることがあります。</p>
+<p data-i18n="lesson7Integer">最初の教材例X＝(5,8)の法線を使った整数の実験です。mod 13を取らずに計算し、sとx₂は0〜12の整数に限ります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson7IntegerTableCaption">整数の式1本から残る秘密の候補</caption>
+<thead><tr>
+<th data-i18n="lesson7IntegerTableH1" scope="col">シェア</th>
+<th data-i18n="lesson7IntegerTableH2" scope="col">整数の右辺</th>
+<th data-i18n="lesson7IntegerTableH3" scope="col">残るs</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson7IntegerTableR1C1" data-cell-label="lesson7IntegerTableH1">#1</td>
+<td data-i18n="lesson7IntegerTableR1C2" data-cell-label="lesson7IntegerTableH2">29</td>
+<td data-i18n="lesson7IntegerTableR1C3" data-cell-label="lesson7IntegerTableH3">{2,5,8,11}</td>
+</tr>
+<tr>
+<td data-i18n="lesson7IntegerTableR2C1" data-cell-label="lesson7IntegerTableH1">#2</td>
+<td data-i18n="lesson7IntegerTableR2C2" data-cell-label="lesson7IntegerTableH2">50</td>
+<td data-i18n="lesson7IntegerTableR2C3" data-cell-label="lesson7IntegerTableH3">{0,5,10}</td>
+</tr>
+<tr>
+<td data-i18n="lesson7IntegerTableR3C1" data-cell-label="lesson7IntegerTableH1">#3</td>
+<td data-i18n="lesson7IntegerTableR3C2" data-cell-label="lesson7IntegerTableH2">36</td>
+<td data-i18n="lesson7IntegerTableR3C3" data-cell-label="lesson7IntegerTableH3">{3,4,5,6,7,8,9}</td>
+</tr>
+<tr>
+<td data-i18n="lesson7IntegerTableR4C1" data-cell-label="lesson7IntegerTableH1">#4</td>
+<td data-i18n="lesson7IntegerTableR4C2" data-cell-label="lesson7IntegerTableH2">33</td>
+<td data-i18n="lesson7IntegerTableR4C3" data-cell-label="lesson7IntegerTableH3">{5,6}</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson7Narrow">有限体を使っても、乱数の座標を0〜3だけから選べば同じ問題が起きます。「確かめる」の狭い乱数の例は、その範囲から作った別の固定教材例です。</p>
+<p data-i18n="lesson7Density">範囲の制限がなくても、乱数の分布が一様でなければ候補の確率が偏る場合があります。候補の個数と、それぞれの確率を分けて考える必要があります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson7DetCaption">実数の図とmod pの計算</caption>
+<thead><tr>
+<th data-i18n="lesson7DetH1" scope="col">整数の行列式</th>
+<th data-i18n="lesson7DetH2" scope="col">実数での独立性</th>
+<th data-i18n="lesson7DetH3" scope="col">mod pでの独立性</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson7DetR1C1" data-cell-label="lesson7DetH1">0</td>
+<td data-i18n="lesson7DetR1C2" data-cell-label="lesson7DetH2">独立でない</td>
+<td data-i18n="lesson7DetR1C3" data-cell-label="lesson7DetH3">必ず独立でない</td>
+</tr>
+<tr>
+<td data-i18n="lesson7DetR2C1" data-cell-label="lesson7DetH1">0でないpの倍数</td>
+<td data-i18n="lesson7DetR2C2" data-cell-label="lesson7DetH2">独立</td>
+<td data-i18n="lesson7DetR2C3" data-cell-label="lesson7DetH3">独立でない</td>
+</tr>
+<tr>
+<td data-i18n="lesson7DetR3C1" data-cell-label="lesson7DetH1">pの倍数でない</td>
+<td data-i18n="lesson7DetR3C2" data-cell-label="lesson7DetH2">独立</td>
+<td data-i18n="lesson7DetR3C3" data-cell-label="lesson7DetH3">独立</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson7Example">p＝13、法線 (1,3) と (6,5) の整数の行列式は −13です。実数では独立でも、mod 13では独立ではありません。交わりの有無は右辺にも依存します。</p>
+<p data-i18n="lesson7Three">3Dの実数の図は導入図です。同じsの切り口を選んでも、実数の交点の座標とGF(p) の点は一般には一致しません。有限体の候補数はGF(p) の計算で読みます。</p>
+<p data-i18n="lesson7Pyquorum">pyquorumの作者は、0.3.0より前に、2^127−1の体で座標を64ビットの範囲に限っていた問題を公表しています。格子基底簡約（LLL）による復元の報告です。</p>
+<p data-i18n="lesson7Source">数値表と行列式は、画面の固定教材例と同じです。pyquorumは作者自身の公表を確認した一次資料で、現在の版への攻撃結果を主張するものではありません。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson7Disclosure" href="https://github.com/svvqt/pyquorum/blob/main/SECURITY_ISSUES_TRACKER.md" target="_blank" rel="noopener noreferrer">pyquorum SECURITY_ISSUES_TRACKER.md（一次・作者公表本文確認）</a>
+</li>
+<li>
+<a data-i18n="lesson7Beimel" href="https://www.cs.bgu.ac.il/~beimel/Papers/Survey.pdf" target="_blank" rel="noopener noreferrer">Beimel Claim 2：有限体で一様に選ぶ構成（二次・本文確認）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-8" class="lesson">
+<summary data-i18n="lesson8Title">8. 線形秘密分散とスパン・プログラム</summary>
+<p data-i18n="lesson8Intro">行列Mの各行を参加者に割り当て、X＝(s,r₂,…,rₖ) からM Xを配ると、線形秘密分散になります。一般には、参加者1人に複数の行を割り当てることもできます。</p>
+<p data-i18n="lesson8Access">誰が集まれば復元できるかは、その人たちの行の線形結合でe₁＝(1,0,…,0) を作れるかで決まります。人数だけで決めない参加条件も表せます。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson8MapCaption">このツールと一般の線形秘密分散</caption>
+<thead><tr>
+<th data-i18n="lesson8MapH1" scope="col">このツールの量</th>
+<th data-i18n="lesson8MapH2" scope="col">一般の枠組み</th>
+<th data-i18n="lesson8MapH3" scope="col">役割</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson8MapR1C1" data-cell-label="lesson8MapH1">法線aᵢ</td>
+<td data-i18n="lesson8MapR1C2" data-cell-label="lesson8MapH2">参加者に割り当てた行</td>
+<td data-i18n="lesson8MapR1C3" data-cell-label="lesson8MapH3">シェアを計算する係数</td>
+</tr>
+<tr>
+<td data-i18n="lesson8MapR2C1" data-cell-label="lesson8MapH1">点X＝(s,r₂,…,rₖ)</td>
+<td data-i18n="lesson8MapR2C2" data-cell-label="lesson8MapH2">秘密と一様な乱数のベクトル</td>
+<td data-i18n="lesson8MapR2C3" data-cell-label="lesson8MapH3">行列を掛ける入力</td>
+</tr>
+<tr>
+<td data-i18n="lesson8MapR3C1" data-cell-label="lesson8MapH1">右辺cᵢ</td>
+<td data-i18n="lesson8MapR3C2" data-cell-label="lesson8MapH2">M Xの成分</td>
+<td data-i18n="lesson8MapR3C3" data-cell-label="lesson8MapH3">参加者が持つ値</td>
+</tr>
+<tr>
+<td data-i18n="lesson8MapR4C1" data-cell-label="lesson8MapH1">e₁ を作れる集合</td>
+<td data-i18n="lesson8MapR4C2" data-cell-label="lesson8MapH2">資格のある集合</td>
+<td data-i18n="lesson8MapR4C3" data-cell-label="lesson8MapH3">線形結合でsを復元</td>
+</tr>
+<tr>
+<td data-i18n="lesson8MapR5C1" data-cell-label="lesson8MapH1">e₁ を作れない集合</td>
+<td data-i18n="lesson8MapR5C2" data-cell-label="lesson8MapH2">資格のない集合</td>
+<td data-i18n="lesson8MapR5C3" data-cell-label="lesson8MapH3">第2節の乱数の前提で、sの情報が増えない</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson8Check">検査 (ii) は、k−1枚のどの集合もe₁ を作れないことを保証します。検査 (i) と合わせると、任意のk枚で復元できるしきい値の参加条件になります。</p>
+<p data-i18n="lesson8Msp">行に参加者名を付け、目標ベクトルを作れるかで受理を決める表現を、モノトーン・スパン・プログラム（MSP）と呼びます。</p>
+<p data-i18n="lesson8History">BeimelのRemark 2は、Brickellが1989年に1人1行の場合を暗黙に定義し、Karchmer–Wigdersonが1993年にスパン・プログラムを明示的に定義したと説明しています。</p>
+<p data-i18n="lesson8Status">この説明はBeimelのClaim 2・Remark 2（二次・本文確認）に基づきます。BrickellとKarchmer–Wigdersonの原論文は書誌を確認しましたが、本文は未確認です。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson8Brickell" href="https://doi.org/10.1007/3-540-46885-4_45" target="_blank" rel="noopener noreferrer">E. F. Brickell, “Some Ideal Secret Sharing Schemes”, EUROCRYPT ’89, LNCS 434, pp.468–475（DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson8Kw" href="https://doi.org/10.1109/SCT.1993.336536" target="_blank" rel="noopener noreferrer">M. Karchmer・A. Wigderson, “On span programs”, Structure in Complexity Theory 1993, pp.102–111（DOI）</a>
+</li>
+<li>
+<a data-i18n="lesson8Beimel" href="https://www.cs.bgu.ac.il/~beimel/Papers/Survey.pdf" target="_blank" rel="noopener noreferrer">Beimelサーベイ本文：Claim 2・Remark 2（二次・本文確認）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-9" class="lesson">
+<summary data-i18n="lesson9Title">9. 改ざんの検出と、誤りのあるシェアの特定</summary>
+<p data-i18n="lesson9Intro">秘密分散の完全性は、シェアの改ざんを防ぐ性質ではありません。ちょうどk枚で式が解けても、その答えが元の秘密かどうかは、それだけではわかりません。</p>
+<p data-i18n="lesson9Example">最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で復元すると (8,7) となり、秘密は5から8へ変わります。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson9CountsCaption">1枚を書き換えた固定教材例</caption>
+<thead><tr>
+<th data-i18n="lesson9CountsH1" scope="col">集める枚数</th>
+<th data-i18n="lesson9CountsH2" scope="col">得られる結果</th>
+<th data-i18n="lesson9CountsH3" scope="col">わかる範囲</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson9CountsR1C1" data-cell-label="lesson9CountsH1">k＝2：#1・#2</td>
+<td data-i18n="lesson9CountsR1C2" data-cell-label="lesson9CountsH2">(8,7)</td>
+<td data-i18n="lesson9CountsR1C3" data-cell-label="lesson9CountsH3">誤った1点が出る。2枚だけでは気づけない</td>
+</tr>
+<tr>
+<td data-i18n="lesson9CountsR2C1" data-cell-label="lesson9CountsH1">k+1＝3：#1・#2・#3</td>
+<td data-i18n="lesson9CountsR2C2" data-cell-label="lesson9CountsH2">(8,7)、(5,8)、(0,5)</td>
+<td data-i18n="lesson9CountsR2C3" data-cell-label="lesson9CountsH3">不一致には気づくが、1枚を特定できない</td>
+</tr>
+<tr>
+<td data-i18n="lesson9CountsR3C1" data-cell-label="lesson9CountsH1">k+2＝4：#1〜#4</td>
+<td data-i18n="lesson9CountsR3C2" data-cell-label="lesson9CountsH2">(5,8) が3回、ほかの点は各1回</td>
+<td data-i18n="lesson9CountsR3C3" data-cell-label="lesson9CountsH3">真の点を通らない #2を特定</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson9Conditions">表の条件は、改ざんが1枚で、すべてのk枚の部分集合を調べ、書き換えた超平面が元のXを通らないことです。正しい法線は検査 (i) を満たす必要があります。</p>
+<p data-i18n="lesson9General">同じ条件を一般化すると、最大t枚の誤りを特定して訂正するにはk+2t枚あれば足ります。正しいシェアの法線は一般の位置にあり、全対象の組を調べるという条件つきです。</p>
+<p data-i18n="lesson9Invisible">書き換えても元のXを通る超平面なら、この一致の検査では改ざんとして検出できません。送信者の認証や、暗号学的な改ざん防止を提供する説明ではありません。</p>
+<p data-i18n="lesson9Linear">Shamirとこの形はどちらも線形です。選んだk枚についてs＝u·cと書けるので、右辺の1つを δ ずらすと、秘密も対応する係数の δ 倍だけずれます。</p>
+<p data-i18n="lesson9Coefficients">#1・#2ではu＝(8,3) です。#2を +1ずらすとsは5→8となります。Blakleyの素朴な形はシェアに法線も含むため、法線を書き換える自由もあります。</p>
+<p data-i18n="lesson9Source">数値は画面の固定教材例と同じです。検出・訂正の説明は、正しい法線の独立性からこのツールで整理したものです。Shamirの多項式による方式の一次資料を下に示します。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson9Shamir" href="https://doi.org/10.1145/359168.359176" target="_blank" rel="noopener noreferrer">Shamir, “How to share a secret”, 1979（一次・DOI）</a>
+</li>
+</ul>
+</details>
+<details id="lesson-10" class="lesson">
+<summary data-i18n="lesson10Title">10. 関連ツール</summary>
+<p data-i18n="lesson10Intro">このツールは、小さな有限体で秘密分散の式と候補を学ぶ教材です。パスワード・シード・鍵などの本物の秘密は入力しないでください。</p>
+<table class="responsive-table">
+<caption data-i18n="lesson10ToolsCaption">目的に合わせた4つの関連ツール</caption>
+<thead><tr>
+<th data-i18n="lesson10ToolsH1" scope="col">ツール</th>
+<th data-i18n="lesson10ToolsH2" scope="col">扱う内容</th>
+<th data-i18n="lesson10ToolsH3" scope="col">Day126との関係</th>
+</tr></thead><tbody>
+<tr>
+<td data-i18n="lesson10ToolsR1C1" data-cell-label="lesson10ToolsH1">Day123 ShamirSharing CipherLab</td>
+<td data-i18n="lesson10ToolsR1C2" data-cell-label="lesson10ToolsH2">GF(p)・GF(2⁸) で学ぶ多項式の秘密分散</td>
+<td data-i18n="lesson10ToolsR1C3" data-cell-label="lesson10ToolsH3">係数を点、シェアを超平面と読む対応を学べる</td>
+</tr>
+<tr>
+<td data-i18n="lesson10ToolsR2C1" data-cell-label="lesson10ToolsH1">Day070 VisualCryptography CipherLab</td>
+<td data-i18n="lesson10ToolsR2C2" data-cell-label="lesson10ToolsH2">2枚の画像を重ねる視覚暗号</td>
+<td data-i18n="lesson10ToolsR2C3" data-cell-label="lesson10ToolsH3">数式で交点を求める方式との違いを比べる</td>
+</tr>
+<tr>
+<td data-i18n="lesson10ToolsR3C1" data-cell-label="lesson10ToolsH1">Day124 Scatter Seeds</td>
+<td data-i18n="lesson10ToolsR3C2" data-cell-label="lesson10ToolsH2">紙で分ける実用のバックアップと復元</td>
+<td data-i18n="lesson10ToolsR3C3" data-cell-label="lesson10ToolsH3">実用のバックアップを検討する場合の案内先</td>
+</tr>
+<tr>
+<td data-i18n="lesson10ToolsR4C1" data-cell-label="lesson10ToolsH1">Day125 Overlay QR Shares</td>
+<td data-i18n="lesson10ToolsR4C2" data-cell-label="lesson10ToolsH2">視覚暗号とQRの重ね合わせ</td>
+<td data-i18n="lesson10ToolsR4C3" data-cell-label="lesson10ToolsH3">画像を重ねる復元と、有限体の求解を比べる</td>
+</tr>
+</tbody></table>
+<p data-i18n="lesson10Source">出典は、作者による各ツールの公開説明です。下のリンクから、それぞれのツールを開けます。</p>
+<ul class="lesson-sources">
+<li>
+<a data-i18n="lesson10Day123" href="https://ipusiron.github.io/shamir-sharing-cipherlab/" target="_blank" rel="noopener noreferrer">Day123 ShamirSharing CipherLab</a>
+</li>
+<li>
+<a data-i18n="lesson10Day070" href="https://ipusiron.github.io/visual-cryptography-cipherlab/" target="_blank" rel="noopener noreferrer">Day070 VisualCryptography CipherLab</a>
+</li>
+<li>
+<a data-i18n="lesson10Day124" href="https://ipusiron.github.io/scatter-seeds/" target="_blank" rel="noopener noreferrer">Day124 Scatter Seeds</a>
+</li>
+<li>
+<a data-i18n="lesson10Day125" href="https://ipusiron.github.io/overlay-qr-shares/" target="_blank" rel="noopener noreferrer">Day125 Overlay QR Shares</a>
+</li>
+</ul>
+</details>
+
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

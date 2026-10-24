@@ -38,8 +38,115 @@
     <p class="learning-note"><span data-i18n="educational"></span>
       <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical"></a></p>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
-      <h2 data-i18n="intersections"></h2><p data-i18n="intro"></p>
-      <p class="result" data-i18n="initialExample"></p>
+      <div id="k2-view">
+        <h2 data-i18n="intersections"></h2><p data-i18n="intro"></p>
+        <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph"></svg>
+        <details><summary data-i18n="graphTable"></summary><div id="intro-table"></div></details>
+        <p id="intro-summary" class="result"></p>
+        <section id="real-story" class="stage-card">
+          <h3 data-i18n="realToMod"></h3>
+          <div class="three-steps">
+            <figure><figcaption data-i18n="realStep"></figcaption><svg id="real-grid" class="coordinate-plane" role="img" data-label="realStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="real-table"></div></details></figure>
+            <figure><figcaption data-i18n="integerStep"></figcaption><svg id="integer-grid" class="coordinate-plane" role="img" data-label="integerStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="integer-table"></div></details></figure>
+            <figure><figcaption data-i18n="modStep"></figcaption><svg id="mod-grid" class="coordinate-plane" role="img" data-label="modStep"></svg>
+              <details><summary data-i18n="graphTable"></summary><div id="mod-table"></div></details></figure>
+          </div><p id="integer-explanation"></p><p id="mod-rule"></p>
+          <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides"></span></label>
+        </section>
+        <p id="edited-real-note" hidden data-i18n="editedReal"></p>
+      </div>
+      <section class="stage-card" aria-labelledby="explore-title">
+        <h3 id="explore-title" data-i18n="explore"></h3>
+        <div id="share-picks" class="actions" role="group" data-label="chooseShares"></div>
+        <div id="legend" class="legend"></div>
+        <p id="selected-summary"></p>
+        <div id="candidate-controls" class="actions">
+          <button id="candidate-prev" type="button" data-label="previousCandidate">◀</button>
+          <output id="candidate-value"></output>
+          <button id="candidate-next" type="button" data-label="nextCandidate">▶</button>
+          <button id="candidate-all" type="button" aria-pressed="false" data-i18n="allCandidates"></button>
+        </div>
+        <div id="k2-interactive">
+          <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="grid-table"></div></details>
+        </div>
+        <p id="candidate-equation" class="formula"></p><p id="recovery-result" class="result" role="status"></p>
+        <div id="combination-results"></div>
+        <details id="edit-controls"><summary data-i18n="editCopy"></summary>
+          <label><span data-i18n="editShare"></span><select id="edit-share"></select></label>
+          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys">
+            <button id="shift-minus" type="button" data-i18n="shiftMinus"></button>
+            <button id="shift-plus" type="button" data-i18n="shiftPlus"></button>
+            <button id="direction-minus" type="button" data-i18n="directionMinus"></button>
+            <button id="direction-plus" type="button" data-i18n="directionPlus"></button>
+          </div><button id="reset-edit" type="button" data-i18n="undoEdit"></button>
+          <p id="edit-warning" class="danger-text" role="status"></p>
+        </details>
+      </section>
+      <section class="stage-card">
+        <h3 data-i18n="nextDimension"></h3><p data-i18n="columnsToSlices"></p>
+        <div class="actions"><button id="k2-start" type="button" data-i18n="back2"></button>
+          <button id="k3-start" type="button" data-i18n="start3"></button></div>
+        <div id="view-3d" hidden>
+          <h3 data-i18n="real3d"></h3>
+          <svg id="scene" class="scene" role="img" tabindex="0" aria-describedby="camera-description" data-label="sceneLabel"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="scene-table"></div></details>
+          <p id="camera-description"></p>
+          <div class="actions camera-controls">
+            <button id="yaw-left" type="button" data-label="yawLeft">↺</button>
+            <button id="yaw-right" type="button" data-label="yawRight">↻</button>
+            <button id="pitch-up" type="button" data-label="pitchUp">▲</button>
+            <button id="pitch-down" type="button" data-label="pitchDown">▼</button>
+            <button id="camera-reset" type="button" data-i18n="cameraReset"></button>
+          </div><div id="plane-toggles" class="actions"></div>
+          <p data-i18n="real3dNote"></p><p id="real-slice-value"></p>
+          <h3 data-i18n="finiteSlices"></h3>
+          <div id="slices" class="slice-list" role="group" data-label="chooseSlice"></div>
+          <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph"></svg>
+          <details><summary data-i18n="graphTable"></summary><div id="slice-table"></div></details>
+          <p id="slice-equation" class="formula"></p><p id="slice-result" class="result" role="status"></p>
+        </div>
+        <div id="matrix-view" hidden>
+          <h3 data-i18n="rowReduction"></h3><p id="matrix-op"></p>
+          <div id="matrix-table" class="matrix-frame"></div>
+          <div class="actions"><button id="matrix-prev" type="button" data-i18n="previousStep"></button>
+            <output id="matrix-step"></output><button id="matrix-next" type="button" data-i18n="nextStep"></button></div>
+          <details><summary data-i18n="allSteps"></summary><div id="matrix-all"></div></details>
+          <div id="matrix-candidates"></div>
+        </div>
+      </section>
+      <details id="dealer"><summary data-i18n="dealer"></summary>
+        <p id="example-kind" class="result"></p>
+        <div class="settings-grid">
+          <label><span>p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
+          <label><span>n</span><select id="share-count"></select></label>
+          <label><span data-i18n="secretLabel"></span><input id="secret" type="number" min="0" max="12" value="5"></label>
+        </div><div id="coordinates" class="settings-grid"></div>
+        <div class="actions"><button id="generate" type="button" data-i18n="generate"></button>
+          <button id="reset-default" type="button" data-i18n="resetDefault"></button></div>
+        <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote"></p>
+        <p data-i18n="premise"></p><p data-i18n="reuse"></p>
+        <div id="distribution-table"></div>
+        <details id="advanced"><summary data-i18n="advanced"></summary>
+          <label><span data-i18n="normalMethod"></span><select id="method">
+            <option value="random" data-i18n="randomMethod"></option><option value="vandermonde" data-i18n="vandermonde"></option>
+          </select></label>
+          <details><summary data-i18n="higherDimensions"></summary><div class="actions">
+            <button id="k4" type="button">k=4</button><button id="k5" type="button">k=5</button></div></details>
+          <h3 data-i18n="checks"></h3><p data-i18n="normalName"></p>
+          <p data-i18n="checkI"></p><p data-i18n="checkII"></p><p id="inspection-summary" class="result"></p>
+          <details><summary data-i18n="inspectionList"></summary>
+            <label class="choice"><input id="failures-only" type="checkbox"><span data-i18n="failuresOnly"></span></label>
+            <div id="inspection-list"></div>
+          </details><p data-i18n="checkPremise"></p>
+        </details>
+      </details>
+      <details id="field-primer"><summary data-i18n="fieldPrimer"></summary>
+        <p data-i18n="fieldText"></p><p data-i18n="inverseText"></p>
+        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer"></a>
+      </details>
     </section>
     <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
       <h2 data-i18n="compare"></h2><p data-i18n="compareIntro"></p>

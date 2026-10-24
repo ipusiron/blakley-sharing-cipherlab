@@ -213,18 +213,317 @@ def test_preferences_interaction(page, language, theme):
     return saved
 
 
+def open_ancestors(locator):
+    """Open existing details through their summary controls, from the outside in."""
+    for details in locator.locator("xpath=ancestor::details").all():
+        if not details.evaluate("el => el.open"):
+            details.locator(":scope > summary").click()
+
+
+def show_details(page, identifier):
+    details = page.locator("#" + identifier)
+    open_ancestors(details)
+    if not details.evaluate("el => el.open"):
+        details.locator(":scope > summary").click()
+
+
+def click_visible(page, identifier):
+    locator = page.locator("#" + identifier)
+    open_ancestors(locator)
+    locator.click()
+
+
+def point_data(page, identifier):
+    raw = page.locator("#" + identifier).get_attribute("data-points")
+    check(raw is not None, identifier + " has data-points")
+    return json.loads(raw)
+
+
+def sorted_points(points):
+    return sorted(tuple(point) for point in points)
+
+
+def selected_shares(page):
+    return page.locator("#share-picks [aria-pressed='true']").count()
+
+
+def choose_shares(page, indices):
+    for index, button in enumerate(page.locator("#share-picks button").all()):
+        if (button.get_attribute("aria-pressed") == "true") != (index in indices):
+            button.click()
+
+
+def feature_layout(page, width, name, layouts, identifiers):
+    assert_layout(page, width, name, layouts)
+    for identifier in identifiers:
+        locator = page.locator("#" + identifier)
+        if not locator.is_visible():
+            continue
+        bounds = locator.evaluate("""el => {
+          const box = el.getBoundingClientRect();
+          return {width: box.width, left: box.left, right: box.right,
+            client: el.clientWidth, scroll: el.scrollWidth};
+        }""")
+        check(bounds["left"] >= -0.5 and bounds["right"] <= width + 0.5, (identifier, bounds))
+        check(bounds["scroll"] <= bounds["client"], (identifier, bounds))
+        layouts[-1].setdefault("features", {})[identifier] = bounds
+
+
+def matrix_values(page):
+    return page.locator("#matrix-table tbody tr").evaluate_all(
+        "rows => rows.map(row => Array.from(row.querySelectorAll('td'), cell => Number(cell.textContent)))"
+    )
+
+
+def camera_angles(page):
+    text = page.locator("#camera-description").inner_text()
+    import re
+    return [float(number) for number in re.findall(r"-?\d+(?:\.\d+)?(?=°)", text)]
+
+
+def check_slices(page, expected):
+    check(page.locator("#slices button").count() == len(expected), "slice count")
+    for index, points in enumerate(expected):
+        check(sorted_points(point_data(page, "slice-" + str(index))) == sorted_points(points),
+              ("slice", index, points))
+
+
+def test_k2(page, width, layouts, vectors, language):
+    default = vectors["default_k2"]
+    expected = default["lines"][0]
+    check(sorted_points(point_data(page, "intro-grid")) == sorted_points(expected), "intro vector points")
+    check(sorted_points(point_data(page, "main-grid")) == sorted_points(expected), "selected line points")
+    check(selected_shares(page) == 1, "one initially selected share")
+    check(page.locator("#dealer").get_attribute("open") is None, "dealer initially collapsed")
+    integer_points = [point for point in expected if point[0] in default["integerCandidates"][0]]
+    check(sorted_points(point_data(page, "integer-grid")) == sorted_points(integer_points), "integer grid vector points")
+    check(sorted_points(point_data(page, "mod-grid")) == sorted_points(expected), "mod grid vector points")
+    check(str(default["cInt"][0]) in page.locator("#integer-explanation").inner_text(), "integer RHS")
+    check(page.locator("#real-grid").get_attribute("data-rhs") == str(default["cInt"][0]), "real line uses integer RHS")
+    feature_layout(page, width, "k2-initial", layouts,
+                   ("intro-grid", "main-grid", "real-grid", "integer-grid", "mod-grid"))
+    initial_candidate = page.locator("#candidate-value").inner_text()
+    click_visible(page, "candidate-next")
+    check(page.locator("#candidate-value").inner_text() != initial_candidate, "candidate advances")
+    check("9" in page.locator("#candidate-equation").inner_text(), "inverse shown in remaining equation")
+    click_visible(page, "candidate-prev")
+    check(page.locator("#candidate-value").inner_text() == initial_candidate, "candidate returns")
+    click_visible(page, "candidate-all")
+    check(page.locator("#candidate-all").get_attribute("aria-pressed") == "true", "all candidates enabled")
+    feature_layout(page, width, "k2-all-candidates", layouts, ("main-grid",))
+    click_visible(page, "candidate-all")
+    choose_shares(page, {0, 1})
+    check(",".join(map(str, default["X"])) in page.locator("#recovery-result").inner_text().replace(" ", ""), "two-share recovery")
+    choose_shares(page, {0, 1, 2})
+    check(",".join(map(str, default["X"])) in page.locator("#combination-results").inner_text().replace(" ", ""), "third share agrees")
+    choose_shares(page, {0, 1, 2, 3})
+    check(page.locator("#combination-results tbody tr").count() == 6, "all six pairs")
+    feature_layout(page, width, "k2-four-shares", layouts, ("main-grid",))
+    choose_shares(page, set())
+    check(not selected_shares(page), "zero selected shares allowed")
+    check(not point_data(page, "main-grid"), "no selected line points")
+    choose_shares(page, {0})
+    show_details(page, "dealer")
+    original_distribution = page.locator("#distribution-table").inner_text()
+    show_details(page, "edit-controls")
+    before_shift = point_data(page, "main-grid")
+    click_visible(page, "shift-plus")
+    check(point_data(page, "main-grid") != before_shift, "shift changes drawn copy")
+    click_visible(page, "shift-minus")
+    check(point_data(page, "main-grid") == before_shift, "opposite shift restores copy")
+    check(page.locator("#distribution-table").inner_text() == original_distribution, "editing preserves distributed values")
+    check(not page.locator("#real-story").is_visible(), "edited copies hide real diagram")
+    check(page.locator("#edited-real-note").is_visible(), "edited real explanation")
+    click_visible(page, "reset-edit")
+    check(page.locator("#real-story").is_visible(), "reset restores real diagram")
+    for _ in range(default["A"][0][1]):
+        click_visible(page, "direction-minus")
+    warning = page.locator("#edit-warning").inner_text()
+    expected_warning = "この1本で s が決まる" if language == "ja" else "This one share determines s"
+    check(expected_warning in warning, "vertical line warning")
+    show_details(page, "advanced")
+    inspection = page.locator("#inspection-list")
+    open_ancestors(inspection)
+    check("✗" in inspection.inner_text(), "vertical line fails inspection")
+    feature_layout(page, width, "k2-invalid-vertical", layouts, ("main-grid",))
+    click_visible(page, "reset-edit")
+    import re
+    for _ in range(default["p"]):
+        click_visible(page, "direction-plus")
+        warning = page.locator("#edit-warning").inner_text()
+        if re.search(r"#(\d+)", warning):
+            break
+    match = re.search(r"#(\d+)", warning)
+    check(match is not None, "parallel warning identifies other share")
+    other_points = sorted_points(default["lines"][int(match.group(1)) - 1])
+    current_points = sorted_points(point_data(page, "main-grid"))
+    check(not set(current_points).intersection(other_points), "parallel warning corresponds to disjoint lines")
+    check(("交点はありません" if language == "ja" else "no intersection") in warning, "disjoint warning")
+    for _ in range(default["p"]):
+        click_visible(page, "shift-plus")
+        if sorted_points(point_data(page, "main-grid")) == other_points:
+            break
+    check(sorted_points(point_data(page, "main-grid")) == other_points, "shift reaches same reference line")
+    check(("同じ直線" if language == "ja" else "same line") in page.locator("#edit-warning").inner_text(), "coincident warning")
+    check(int(page.locator("#inspection-list").get_attribute("data-failed")) > 0, "parallel line fails inspection")
+    click_visible(page, "reset-edit")
+    previous = point_data(page, "main-grid")
+    page.locator("#edit-actions").focus()
+    page.keyboard.press("ArrowUp")
+    check(point_data(page, "main-grid") != previous, "keyboard shifts selected copy")
+    click_visible(page, "reset-edit")
+    page.locator("#dealer > summary").click()
+    page.locator("#edit-controls > summary").click()
+
+
+def test_k3(page, width, layouts, vectors):
+    default = vectors["default_k3"]
+    click_visible(page, "k3-start")
+    check(page.locator("#prime").input_value() == str(default["p"]), "k3 default prime")
+    check(selected_shares(page) == 2, "k3 starts with two shares")
+    check("X" not in page.locator("#scene-table tbody tr td:first-child").all_text_contents(), "two planes do not reveal X in table")
+    check_slices(page, default["slices12"])
+    check(page.locator("#slice-grid .grid-secret").count() == 0, "two planes do not mark a known secret")
+    common = page.locator("#slice-grid .grid-overlap[data-point]").get_attribute("data-point")
+    check(common == ",".join(map(str, default["slices12"][0][0])), "two-plane common point")
+    click_visible(page, "candidate-all")
+    check(page.locator("#slices .slice-candidate-ring").count() == default["p"], "all slice candidates highlighted")
+    click_visible(page, "candidate-all")
+    check(page.locator("#slices .slice-candidate-ring").count() == 1, "one slice candidate highlighted")
+    check(camera_angles(page) == [35, 25], "initial camera")
+    feature_layout(page, width, "k3-two-planes", layouts, ("scene", "slices", "slice-grid"))
+    click_visible(page, "slice-7")
+    check(page.locator("#slice-7").get_attribute("aria-pressed") == "true", "slice selected")
+    check("(2,9)" in page.locator("#slice-result").inner_text().replace(" ", ""), "selected slice vector")
+    check(page.locator("#scene [data-slice='7']").count() > 0, "real board uses selected slice")
+    click_visible(page, "yaw-right")
+    check(camera_angles(page) == [45, 25], "yaw button increment")
+    page.locator("#scene").focus()
+    page.keyboard.press("ArrowLeft")
+    check(camera_angles(page) == [35, 25], "yaw keyboard increment")
+    for _ in range(12):
+        click_visible(page, "pitch-up")
+    check(camera_angles(page)[1] == 80, "pitch upper bound")
+    for _ in range(20):
+        click_visible(page, "pitch-down")
+    check(camera_angles(page)[1] == -80, "pitch lower bound")
+    click_visible(page, "camera-reset")
+    check(camera_angles(page) == [35, 25], "camera reset")
+    check(page.locator("#scene").evaluate("el => getComputedStyle(el).touchAction") == "pan-y", "vertical scrolling allowed")
+    scene = page.locator("#scene")
+    scene.scroll_into_view_if_needed()
+    box = scene.bounding_box()
+    page.mouse.move(box["x"] + box["width"] * .3, box["y"] + box["height"] * .5)
+    page.mouse.down()
+    page.mouse.move(box["x"] + box["width"] * .7, box["y"] + box["height"] * .5, steps=4)
+    page.mouse.up()
+    moved = camera_angles(page)
+    check(moved[0] != 35 and moved[1] == 25, "horizontal drag changes only yaw")
+    click_visible(page, "camera-reset")
+    toggles = page.locator("#plane-toggles input[type='checkbox']")
+    check(toggles.count() >= 2, "plane display toggles")
+    first = toggles.first
+    plane_count = page.locator("#scene .three-plane").count()
+    first.uncheck()
+    check(page.locator("#scene .three-plane").count() == plane_count - 1, "plane can be hidden")
+    first.check()
+    choose_shares(page, {0, 1, 2})
+    check_slices(page, default["slices123"])
+    check(page.locator("#slice-grid .grid-secret").count() > 0, "unique system marks the secret")
+    check("X" in page.locator("#scene-table tbody tr td:first-child").all_text_contents(), "three planes reveal X in table")
+    click_visible(page, "slice-0")
+    check(page.locator("#slice-grid .grid-overlap").count() == 0, "empty slice has no partial-overlap emphasis")
+    check(page.locator("#slice-grid .grid-secret").count() == 0, "empty slice has no secret mark")
+    click_visible(page, "slice-7")
+    feature_layout(page, width, "k3-three-planes", layouts, ("scene", "slices", "slice-grid"))
+    click_visible(page, "slice-7")
+    check("(2,9)" in page.locator("#slice-result").inner_text().replace(" ", ""), "three-plane slice intersection")
+
+
+def test_matrices(page, width, layouts, vectors):
+    for dimension in (4, 5):
+        default = vectors["default_k" + str(dimension)]
+        click_visible(page, "k" + str(dimension))
+        choose_shares(page, set(range(dimension)))
+        check(page.locator("#matrix-view").is_visible(), "matrix view")
+        check(not page.locator("#view-3d").is_visible(), "no 3D for larger k")
+        check(not page.locator("#k2-view").is_visible(), "no k2 figure for larger k")
+        for index, step in enumerate(default["steps123"]):
+            check(matrix_values(page) == step["m"], ("matrix", dimension, index, matrix_values(page)))
+            if index != len(default["steps123"]) - 1:
+                click_visible(page, "matrix-next")
+        check(page.locator("#matrix-next").is_disabled(), "final matrix next disabled")
+        click_visible(page, "matrix-prev")
+        check(matrix_values(page) == default["steps123"][-2]["m"], "previous matrix")
+        feature_layout(page, width, "k" + str(dimension) + "-matrix", layouts, ("matrix-table",))
+        choose_shares(page, set(range(dimension - 1)))
+        check(not page.locator("#candidate-controls").is_visible(), "larger k uses candidate table only")
+        check(page.locator("#matrix-candidates tbody tr").count() == default["p"], "one row per secret candidate")
+        feature_layout(page, width, "k" + str(dimension) + "-candidates", layouts, ("matrix-table",))
+
+
+def test_dealer(page, width, layouts, vectors, language):
+    click_visible(page, "k2-start")
+    show_details(page, "dealer")
+    show_details(page, "advanced")
+    page.locator("#share-count").select_option("8")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    page.locator("#secret").fill("12")
+    page.locator("#secret").press("Tab")
+    page.locator("#prime").select_option("7")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#share-count").input_value() == "6", "n clamps to p-1")
+    check(page.locator("#secret").input_value() == "6", "s clamps to p-1")
+    check(page.locator("#coordinates input").evaluate_all("els => els.every(el => Number(el.value) >= 0 && Number(el.value) < 7)"),
+          "all random coordinates in field")
+    generated_label = "乱数で作った例" if language == "ja" else "Randomly generated example"
+    check(page.locator("#example-kind").inner_text() == generated_label, "p change produces fresh example")
+    page.locator("#method").select_option("vandermonde")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    inspection = page.locator("#inspection-list")
+    open_ancestors(inspection)
+    check("✗" not in inspection.inner_text(), "Vandermonde passes")
+    page.locator("#method").select_option("random")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#example-kind").inner_text() == generated_label, "returning to random does not restore fixed example")
+    first_coordinate = page.locator("#coordinates input").first
+    first_coordinate.fill("-1")
+    first_coordinate.press("Tab")
+    check(bool(page.locator("#status").inner_text()), "invalid coordinate is reported")
+    first_coordinate.fill("0" if first_coordinate.input_value() != "0" else "1")
+    first_coordinate.press("Tab")
+    check(page.locator("#manual-note").is_visible(), "manual entry outside uniform guarantee")
+    check(not page.locator("#status").inner_text(), "valid manual entry clears prior error")
+    feature_layout(page, width, "dealer-settings", layouts, ("main-grid",))
+    click_visible(page, "reset-default")
+    default = vectors["default_k2"]
+    check(page.locator("#prime").input_value() == str(default["p"]), "reset restores default prime")
+    check(page.locator("#share-count").input_value() == str(len(default["A"])), "reset restores default n")
+    check(page.locator("#secret").input_value() == str(default["X"][0]), "reset restores default s")
+    check(not page.locator("#manual-note").is_visible(), "reset clears manual warning")
+
+
+def test_stage1b(page, width, layouts, language):
+    vectors = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))
+    test_k2(page, width, layouts, vectors, language)
+    test_k3(page, width, layouts, vectors)
+    test_matrices(page, width, layouts, vectors)
+    test_dealer(page, width, layouts, vectors, language)
+
+
 def new_context(browser, browser_name, width, language, theme):
     options = {
         "viewport": {"width": width, "height": 900},
         "locale": "ja-JP" if language == "ja" else "en-US",
-        "color_scheme": theme, "reduced_motion": "reduce", "has_touch": width < 720,
+        "color_scheme": theme, "reduced_motion": "reduce",
+        "has_touch": browser_name == "chromium" and width < 720,
     }
     if browser_name == "chromium":
         options["is_mobile"] = width < 720
     return browser.new_context(**options)
 
 
-def matrix_case(browser, browser_name, url, width, language, theme, output):
+def matrix_case(browser, browser_name, url, width, language, theme, output, stage):
     case_name = f"{browser_name}-{width}-{language}-{theme}"
     context = new_context(browser, browser_name, width, language, theme)
     page = context.new_page()
@@ -245,6 +544,8 @@ def matrix_case(browser, browser_name, url, width, language, theme, output):
         page.screenshot(path=str(output / (case_name + "-initial.png")), full_page=False)
         test_tabs(page, width, layouts)
         test_help(page, width, layouts, output / (case_name + "-help.png"))
+        if stage == "1b":
+            test_stage1b(page, width, layouts, language)
         saved = test_preferences_interaction(page, language, theme)
         assert_clean(page, errors)
         return {"case": case_name, "status": "passed", "layouts": layouts, "saved": saved}
@@ -298,9 +599,121 @@ def precedence_cases(browser, browser_name, url):
     return results
 
 
+def keyboard_to(page, identifier, key="Tab", limit=100):
+    path = []
+    for _ in range(limit):
+        active = page.evaluate("() => document.activeElement.id || document.activeElement.tagName.toLowerCase()")
+        path.append(active)
+        if active == identifier:
+            return path
+        page.keyboard.press(key)
+    raise AssertionError(("keyboard target unreachable", identifier, path))
+
+
+def keyboard_case(browser, browser_name, url, output):
+    context = new_context(browser, browser_name, 390, "ja", "light")
+    page = context.new_page()
+    errors = observe(page, url)
+    try:
+        page.goto(set_language_query(url, None), wait_until="load")
+        first = keyboard_to(page, "candidate-next")
+        before = page.locator("#candidate-value").inner_text()
+        page.keyboard.press("Enter")
+        check(page.locator("#candidate-value").inner_text() != before, "keyboard advances candidate")
+        points = point_data(page, "main-grid")
+        check(len(points) == 13 and len({point[0] for point in points}) == 13, "keyboard wow: all 13 columns")
+        second = keyboard_to(page, "k3-start")
+        page.keyboard.press("Enter")
+        vectors = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))
+        check_slices(page, vectors["default_k3"]["slices12"])
+        third = keyboard_to(page, "pick-2", key="Shift+Tab")
+        page.keyboard.press("Enter")
+        check_slices(page, vectors["default_k3"]["slices123"])
+        assert_clean(page, errors)
+        page.screenshot(path=str(output / (browser_name + "-keyboard-k3.png")), full_page=False)
+        return {"case": browser_name + "-keyboard-routes", "status": "passed",
+                "routes": {"one-line-13-columns": first, "k3-start": second, "third-share": third}}
+    except Exception as error:
+        return {"case": browser_name + "-keyboard-routes", "status": "failed",
+                "error": str(error), "errors": errors}
+    finally:
+        context.close()
+
+
+def real_touch_case(browser, width, url, output):
+    """Use trusted Chromium touch input, including native vertical page scrolling."""
+    context = new_context(browser, "chromium", width, "ja", "light")
+    page = context.new_page()
+    errors = observe(page, url)
+    case_name = "chromium-" + str(width) + "-real-touch"
+    evidence = {}
+    try:
+        page.goto(set_language_query(url, None), wait_until="load")
+        page.locator("#k3-start").click()
+        page.evaluate("""() => {
+          window.__qaTouch = [];
+          for (const name of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel',
+            'gotpointercapture', 'lostpointercapture']) {
+            document.addEventListener(name, event => window.__qaTouch.push({
+              name, type: event.pointerType, trusted: event.isTrusted,
+              x: event.clientX, y: event.clientY, target: event.target.tagName, scroll: scrollY
+            }), true);
+          }
+        }""")
+        cdp = context.new_cdp_session(page)
+        camera = """() => ({
+          scroll: scrollY, yaw: Number(document.querySelector('#scene').dataset.yaw),
+          pitch: Number(document.querySelector('#scene').dataset.pitch)
+        })"""
+        for kind in ("horizontal", "vertical"):
+            page.locator("#camera-reset").click()
+            page.locator("#scene").evaluate("el => el.scrollIntoView({block: 'center'})")
+            bounds = page.locator("#scene").bounding_box()
+            start_x = bounds["x"] + bounds["width"] * (.3 if kind == "horizontal" else .5)
+            start_y = bounds["y"] + bounds["height"] * (.5 if kind == "horizontal" else .8)
+            delta_x = bounds["width"] * .4 if kind == "horizontal" else 0
+            delta_y = 0 if kind == "horizontal" else -bounds["height"] * .6
+            check(0 < start_x < width and 0 < start_y < 900, "touch starts inside viewport")
+            hit = page.evaluate("""([x, y]) =>
+              document.querySelector('#scene').contains(document.elementFromPoint(x, y))""", [start_x, start_y])
+            check(hit, "touch starts on scene")
+            before = page.evaluate(camera)
+            page.evaluate("() => { window.__qaTouch = []; }")
+            point = {"x": start_x, "y": start_y, "id": 7, "radiusX": 3, "radiusY": 3, "force": 1}
+            cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [point]})
+            for step in range(1, 9):
+                point = {**point, "x": start_x + delta_x * step / 8, "y": start_y + delta_y * step / 8}
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [point]})
+                page.wait_for_timeout(20)
+            cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+            page.wait_for_timeout(80)
+            after = page.evaluate(camera)
+            events = page.evaluate("() => window.__qaTouch")
+            evidence[kind] = {"box": bounds, "start": [start_x, start_y],
+                              "delta": [delta_x, delta_y], "before": before, "after": after, "events": events}
+            touch_events = [event for event in events if event["type"] == "touch" and event["trusted"]]
+            names = [event["name"] for event in touch_events]
+            check("pointerdown" in names and "pointermove" in names, "trusted touch input reaches page")
+            if kind == "horizontal":
+                check(after["yaw"] != before["yaw"] and after["pitch"] == before["pitch"], "real touch changes only yaw")
+                check(after["scroll"] == before["scroll"], "horizontal drag does not scroll page")
+            else:
+                check(after["yaw"] == before["yaw"] and after["pitch"] == before["pitch"], "vertical touch does not rotate")
+                check(after["scroll"] > before["scroll"] + 30, "vertical touch scrolls page")
+                check("pointercancel" in names, "native pan cancels pointer capture")
+        assert_clean(page, errors)
+        page.screenshot(path=str(output / (case_name + ".png")), full_page=False)
+        return {"case": case_name, "status": "passed", "evidence": evidence}
+    except Exception as error:
+        return {"case": case_name, "status": "failed", "error": str(error),
+                "errors": errors, "evidence": evidence}
+    finally:
+        context.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage", choices=("1a",), default="1a")
+    parser.add_argument("--stage", choices=("1a", "1b"), default="1a")
     parser.add_argument("--url", default=(ROOT / "index.html").as_uri())
     parser.add_argument("--browser", choices=("chromium", "firefox"), action="append")
     parser.add_argument("--output", type=Path)
@@ -320,10 +733,23 @@ def main():
             for width in (320, 390, 1280):
                 for language in ("ja", "en"):
                     for theme in ("light", "dark"):
-                        result = matrix_case(browser, browser_name, args.url, width, language, theme, output)
+                        result = matrix_case(browser, browser_name, args.url, width, language, theme, output, args.stage)
                         report["cases"].append(result)
-                        print(result["case"], result["status"], flush=True)
+                        (output / (result["case"] + "-result.json")).write_text(
+                            json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+                        (output / "report.partial.json").write_text(
+                            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+                        print(result["case"], result["status"], result.get("error", ""), flush=True)
             report["cases"].extend(precedence_cases(browser, browser_name, args.url))
+            if args.stage == "1b":
+                report["cases"].append(keyboard_case(browser, browser_name, args.url, output))
+                if browser_name == "chromium":
+                    for width in (320, 390):
+                        result = real_touch_case(browser, width, args.url, output)
+                        report["cases"].append(result)
+                        (output / (result["case"] + "-result.json")).write_text(
+                            json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+                        print(result["case"], result["status"], result.get("error", ""), flush=True)
             browser.close()
     failed = [item for item in report["cases"] if item["status"] != "passed"]
     report["passed"] = len(report["cases"]) - len(failed)

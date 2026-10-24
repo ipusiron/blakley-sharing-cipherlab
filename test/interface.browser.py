@@ -281,6 +281,190 @@ def matrix_values(page):
     )
 
 
+
+def threshold_settings(page, k, n):
+    text = page.locator("#threshold-summary").inner_text()
+    check(re.search(r"k\s*=\s*" + str(k) + r"\b", text), ("threshold k", k, text))
+    check(re.search(r"n\s*=\s*" + str(n) + r"\b", text), ("threshold n", n, text))
+    check(page.locator("#sharing-primer").is_visible(), "general sharing introduction stays visible")
+
+
+def axis_metrics(page, identifiers):
+    results = {}
+    for identifier in identifiers:
+        measured = page.locator("#" + identifier).evaluate("""svg => {
+          const outer=svg.getBoundingClientRect(), scale=svg.getScreenCTM();
+          return [...svg.querySelectorAll('.grid-axis-label')].map(el=>{
+            const r=el.getBoundingClientRect();
+            return {text:el.textContent, font:parseFloat(getComputedStyle(el).fontSize),
+              renderedFont:parseFloat(getComputedStyle(el).fontSize)*Math.hypot(scale.a,scale.b),
+              inside:r.left>=outer.left-.02&&r.right<=outer.right+.02&&r.top>=outer.top-.02&&r.bottom<=outer.bottom+.02};
+          });
+        }""")
+        check(len(measured) == 2, ("two axis labels", identifier, measured))
+        check(all(x["font"] >= 14 and x["renderedFont"] >= 14 and x["inside"] for x in measured),
+              ("axis names are readable and unclipped", identifier, measured))
+        results[identifier] = measured
+    return results
+
+
+def mark_geometry(page, identifier, rings=True):
+    measured = page.locator("#" + identifier).evaluate("""svg => {
+      const lines=[...svg.querySelectorAll('.grid-line')];
+      const xs=[...new Set(lines.filter(e=>e.getAttribute('x1')===e.getAttribute('x2')).map(e=>Number(e.getAttribute('x1'))))].sort((a,b)=>a-b);
+      const ys=[...new Set(lines.filter(e=>e.getAttribute('y1')===e.getAttribute('y2')).map(e=>Number(e.getAttribute('y1'))))].sort((a,b)=>b-a);
+      const matrix=svg.getScreenCTM(), selected=[...svg.querySelectorAll('.grid-selected')];
+      return [...svg.querySelectorAll('.grid-mark')].map(el=>{
+        const [x,y]=el.dataset.point.split(',').map(Number), b=el.getBBox();
+        const expected=new DOMPoint(xs[x],ys[y]).matrixTransform(matrix);
+        const center=new DOMPoint(b.x+b.width/2,b.y+b.height/2).matrixTransform(el.getScreenCTM());
+        const ring=selected.find(e=>Math.abs(Number(e.getAttribute('cx'))-xs[x])<.001&&Math.abs(Number(e.getAttribute('cy'))-ys[y])<.001);
+        return {mark:Number(el.dataset.mark),tag:el.tagName,point:[x,y],
+          error:Math.hypot(center.x-expected.x,center.y-expected.y),ring:!!ring,
+          signature:[el.tagName,el.getAttribute('d'),el.getAttribute('points'),el.getAttribute('r'),el.getAttribute('width')].join('|')};
+      });
+    }""")
+    check(measured, ("geometric marks exist", identifier))
+    check(all(x["tag"] != "text" and x["error"] < .02 for x in measured), ("mark centers equal lattice centers", measured))
+    if rings:
+        check(all(x["ring"] for x in measured), ("each mark shares its center with the outer ring", measured))
+    return measured
+
+
+def hover_grid(page, identifier, coordinate, expected, edge=False, axes="x\u2081,x\u2082"):
+    svg = page.locator("#" + identifier)
+    svg.evaluate("el => el.scrollIntoView({block:'center'})")
+    position = svg.evaluate("""(svg,input) => {
+      const lines=[...svg.querySelectorAll('.grid-line')];
+      const xs=[...new Set(lines.filter(e=>e.getAttribute('x1')===e.getAttribute('x2')).map(e=>Number(e.getAttribute('x1'))))].sort((a,b)=>a-b);
+      const ys=[...new Set(lines.filter(e=>e.getAttribute('y1')===e.getAttribute('y2')).map(e=>Number(e.getAttribute('y1'))))].sort((a,b)=>b-a);
+      const [x,y]=input.coordinate,v=svg.viewBox.baseVal;
+      const local=input.edge ? [x?v.width-1:1,y?v.height-1:1] : [xs[0]+x*(xs[1]-xs[0]),ys[0]+y*(ys[1]-ys[0])];
+      const p=new DOMPoint(...local).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y};
+    }""", {"coordinate": coordinate, "edge": edge})
+    page.mouse.move(position["x"], position["y"])
+    popup = svg.locator(".grid-tooltip")
+    check(popup.count() == 1 and popup.get_attribute("visibility") == "visible", ("hover popup visible", identifier))
+    check(popup.get_attribute("data-coordinate") == ",".join(map(str, expected)), ("nearest lattice coordinate", identifier, coordinate, expected))
+    check(popup.get_attribute("data-axes") == axes, ("coordinate axes", identifier))
+    check("(" + ", ".join(map(str, expected)) + ")" in popup.text_content(), "coordinate text matches state")
+    bounds = popup.evaluate("""el=>{
+      const svg=el.ownerSVGElement,v=svg.viewBox.baseVal,box=el.querySelector('rect').getBBox();
+      const labels=[...el.querySelectorAll('text')].map(t=>t.getBBox());
+      return {x:box.x,y:box.y,width:box.width,height:box.height,
+        inside:box.x>=0&&box.y>=0&&box.x+box.width<=v.width&&box.y+box.height<=v.height,
+        textInside:labels.every(b=>b.x>=box.x&&b.y>=box.y&&b.x+b.width<=box.x+box.width+.02&&b.y+b.height<=box.y+box.height+.02)};
+    }""")
+    check(bounds["inside"] and bounds["textInside"], ("popup rectangle and text fit SVG", identifier, bounds))
+    check(page.evaluate("() => window.__qaGridPointer.trusted && window.__qaGridPointer.type === 'mouse'"), "real mouse pointer reaches graph")
+    return {"graph": identifier, "input": coordinate, "expected": expected, "edge": edge, "box": bounds}
+
+
+def test_coordinate_ui(page, width, layouts, language):
+    vectors = json.loads((ROOT / "test/vectors.json").read_text(encoding="utf-8"))
+    default = vectors["default_k2"]
+    threshold_settings(page, 2, 4)
+    order = page.evaluate("""() => {
+      const intro=document.querySelector('#intro-grid').getBoundingClientRect();
+      return ['sharing-primer','initial-example-primer'].every(id=>document.getElementById(id).getBoundingClientRect().bottom<=intro.top);
+    }""")
+    check(order, "definitions and distributed equations appear before the first graph")
+    rows = page.locator(".primer-equations tbody tr").evaluate_all("els=>els.map(el=>[...el.cells].map(c=>c.textContent.trim()))")
+    expected = []
+    for index, (coefficients, rhs) in enumerate(zip(default["A"], default["c"])):
+        terms = [("" if a == 1 else str(a)) + "x" + "\u2081\u2082"[j] for j, a in enumerate(coefficients)]
+        expected.append(["#" + str(index + 1), "+".join(terms) + "\u2261" + str(rhs) + "(mod13)"])
+    check([[r[0], re.sub(r"\s", "", r[1])] for r in rows] == expected, "four initial equations match authoritative vector")
+    graphs = ("intro-grid", "real-grid", "integer-grid", "mod-grid", "main-grid")
+    axes = axis_metrics(page, graphs)
+    check(page.locator("#panel-intersections svg.coordinate-plane[tabindex]").count() == 0, "coordinate plots add no tab stops")
+    page.evaluate("""() => document.addEventListener('pointermove',e=>{
+      window.__qaGridPointer={type:e.pointerType,trusted:e.isTrusted};
+    },true)""")
+    hover = []
+    for identifier in graphs:
+        hover.append(hover_grid(page, identifier, [5, 8], [5, 8]))
+    for point, nearest in (([3.25, 4.25], [3, 4]), ([3.75, 4.75], [4, 5])):
+        hover.append(hover_grid(page, "main-grid", point, nearest))
+    for corner, nearest in (([0, 0], [0, 12]), ([1, 0], [12, 12]), ([0, 1], [0, 0]), ([1, 1], [12, 0])):
+        hover.append(hover_grid(page, "main-grid", corner, nearest, edge=True))
+    active = page.evaluate("() => document.activeElement.id")
+    page.keyboard.press("Escape")
+    check(page.locator("#main-grid .grid-tooltip").get_attribute("visibility") == "hidden", "Escape hides coordinates")
+    check(page.evaluate("() => document.activeElement.id") == active, "Escape does not move focus")
+    hover_grid(page, "main-grid", [5, 8], [5, 8])
+    page.mouse.move(1, 1)
+    check(page.locator("#main-grid .grid-tooltip").get_attribute("visibility") == "hidden", "leaving graph hides coordinates")
+    click_visible(page, "candidate-all")
+    original = mark_geometry(page, "main-grid")
+    show_details(page, "dealer")
+    page.locator("#share-count").select_option("8")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    threshold_settings(page, 2, 8)
+    click_visible(page, "candidate-all")
+    shapes = []
+    for index in range(8):
+        choose_shares(page, {index})
+        measured = mark_geometry(page, "main-grid")
+        check({m["mark"] for m in measured} == {index}, ("selected share uses its geometric mark", index))
+        shapes.append(measured[0])
+    check(len({m["signature"] for m in shapes}) == 8, "all eight share marks are geometrically distinct")
+    choose_shares(page, {0})
+    page.locator("#prime").select_option("7")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    page.locator("#generate").click()
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    threshold_settings(page, 2, 6)
+    distribution = table_rows(page, "distribution-table")[0]
+    coefficients = integers(distribution[1])
+    rhs = int(re.search(r"\u2261\s*(\d+)", distribution[2]).group(1))
+    check(sorted_points(point_data(page, "main-grid")) == sorted_points(field_points([coefficients], [rhs], 7)), "regenerated graph agrees with distributed equation")
+    hover.append(hover_grid(page, "main-grid", [1, 0], [6, 6], edge=True))
+    actual = point_data(page, "main-grid")[0]
+    hover.append(hover_grid(page, "main-grid", actual, actual))
+    click_visible(page, "k3-start")
+    threshold_settings(page, 3, len(vectors["default_k3"]["A"]))
+    axes.update(axis_metrics(page, ("slice-grid",)))
+    hover.append(hover_grid(page, "slice-grid", [2, 9], [2, 9], axes="x\u2082,x\u2083"))
+    for dimension in (4, 5):
+        click_visible(page, "k" + str(dimension))
+        threshold_settings(page, dimension, len(vectors["default_k" + str(dimension)]["A"]))
+    click_visible(page, "k2-start")
+    for identifier in ("advanced", "dealer"):
+        if page.locator("#" + identifier).get_attribute("open") is not None:
+            page.locator("#" + identifier + " > summary").click()
+    threshold_settings(page, 2, 4)
+    feature_layout(page, width, "coordinate-ui-verified", layouts, graphs + ("sharing-primer", "initial-example-primer"))
+    return {"axis_labels": axes, "hover": hover, "eight_shapes": shapes,
+            "initial_mark_center_error": max(x["error"] for x in original)}
+
+
+def test_grid_touch(page, cdp, width, evidence):
+    click_visible(page, "k2-start")
+    graph = page.locator("#main-grid")
+    graph.evaluate("el => el.scrollIntoView({block:'center'})")
+    box = graph.bounding_box()
+    x, y = box["x"] + box["width"] * .5, box["y"] + box["height"] * .8
+    check(0 < x < width and 0 < y < 900, "grid touch starts within viewport")
+    before = page.evaluate("() => scrollY")
+    page.evaluate("() => { window.__qaTouch = []; }")
+    point = {"x": x, "y": y, "id": 9, "radiusX": 3, "radiusY": 3, "force": 1}
+    cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [point]})
+    for step in range(1, 9):
+        point = {**point, "y": y - box["height"] * .6 * step / 8}
+        cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [point]})
+        page.wait_for_timeout(20)
+        check(graph.locator(".grid-tooltip").get_attribute("visibility") == "hidden", "touch does not open hover popup")
+    cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+    page.wait_for_timeout(80)
+    after = page.evaluate("() => scrollY")
+    events = page.evaluate("() => window.__qaTouch")
+    names = [event["name"] for event in events if event["type"] == "touch" and event["trusted"]]
+    check("pointerdown" in names and "pointermove" in names and "pointercancel" in names, "native grid touch reaches pointer handlers")
+    check(after > before + 30, "coordinate popup preserves native vertical touch scrolling")
+    evidence["grid-vertical"] = {"box": box, "before": before, "after": after, "events": events}
+
+
 def camera_angles(page):
     text = page.locator("#camera-description").inner_text()
     import re
@@ -921,13 +1105,15 @@ def matrix_case(browser, browser_name, url, width, language, theme, output, stag
         page.screenshot(path=str(output / (case_name + "-initial.png")), full_page=False)
         test_tabs(page, width, layouts)
         test_help(page, width, layouts, output / (case_name + "-help.png"))
+        coordinate_ui = None
         if stage in ("1b", "1c"):
+            coordinate_ui = test_coordinate_ui(page, width, layouts, language)
             test_stage1b(page, width, layouts, language)
         if stage == "1c":
             test_stage1c(page, width, layouts, language)
         saved = test_preferences_interaction(page, language, theme)
         assert_clean(page, errors)
-        return {"case": case_name, "status": "passed", "layouts": layouts, "saved": saved}
+        return {"case": case_name, "status": "passed", "layouts": layouts, "saved": saved, "coordinate_ui": coordinate_ui}
     except Exception as error:
         page.screenshot(path=str(output / (case_name + "-failed.png")), full_page=False)
         return {"case": case_name, "status": "failed", "error": str(error),
@@ -1049,6 +1235,8 @@ def real_touch_case(browser, width, url, output):
           }
         }""")
         cdp = context.new_cdp_session(page)
+        test_grid_touch(page, cdp, width, evidence)
+        page.locator("#k3-start").click()
         camera = """() => ({
           scroll: scrollY, yaw: Number(document.querySelector('#scene').dataset.yaw),
           pitch: Number(document.querySelector('#scene').dataset.pitch)

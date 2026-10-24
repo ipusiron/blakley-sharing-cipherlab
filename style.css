@@ -105,6 +105,20 @@ dialog::backdrop { background: #101a2ab0; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
+.sharing-primer { padding: .75rem; border-left: 4px solid var(--accent); background: var(--bg); }
+.sharing-primer p { margin: .5rem 0 0; }
+.threshold-flow { margin: 0; }
+.threshold-current { font-weight: 600; }
+.primer-example { margin: 1rem 0; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.primer-example h3 { margin: 0 0 .5rem; }
+.primer-example p { margin: .5rem 0; }
+.primer-example .formula { padding: .45rem .65rem; background: var(--bg); font-weight: 600; }
+.primer-equations { table-layout: fixed; }
+.primer-equations caption { padding: .35rem 0; text-align: left; font-size: .875rem; font-weight: 600; }
+.primer-equations th:first-child { width: 5.5rem; }
+.primer-equations th, .primer-equations td { padding: .35rem; }
+.primer-equations td:last-child { font-size: .9375rem; }
+
 .stage-card { min-width: 0; margin: 1rem 0; padding: .65rem; border: 1px solid var(--line); border-left: 4px solid var(--accent); }
 .stage-card > :first-child { margin-top: 0; }
 .coordinate-plane { display: block; width: 100%; max-width: 360px; height: auto; margin: .5rem auto; background: var(--paper); }
@@ -112,7 +126,13 @@ dialog::backdrop { background: #101a2ab0; }
 .grid-axis { stroke: var(--muted); stroke-width: 1.2; }
 .grid-label { fill: var(--ink); font: 12px system-ui, sans-serif; }
 .grid-base { fill: var(--muted); opacity: .35; }
-.grid-mark { fill: var(--accent); font: 13px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.grid-mark { fill: var(--accent); }
+.grid-axis-label { fill: var(--ink); font: 600 16px system-ui, sans-serif; }
+.grid-pointer-surface { fill: transparent; pointer-events: all; }
+.grid-tooltip { pointer-events: none; }
+.grid-tooltip-box { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; }
+.grid-tooltip-label { fill: var(--ink); font: 14px system-ui, sans-serif; }
+.grid-hover-ring { fill: none; stroke: var(--accent); stroke-width: 1.5; pointer-events: none; }
 .grid-overlap { fill: var(--paper); stroke: var(--accent); stroke-width: 1.7; }
 .grid-secret { fill: var(--paper); stroke: var(--red); stroke-width: 2; }
 .grid-selected { fill: none; stroke: var(--accent); stroke-width: 2; }

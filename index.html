@@ -38,8 +38,32 @@
     <p class="learning-note"><span data-i18n="educational"></span>
       <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical"></a></p>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
+      <h2 data-i18n="intersections"></h2>
+      <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
+        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle"></h3>
+        <p data-i18n="thresholdDefinition"></p>
+        <p id="threshold-summary" class="threshold-current"></p>
+      </section>
       <div id="k2-view">
-        <h2 data-i18n="intersections"></h2><p data-i18n="intro"></p>
+        <section id="initial-example-primer" class="primer-example" aria-labelledby="primer-title">
+          <h3 id="primer-title" data-i18n="primerTitle"></h3>
+          <p data-i18n="primerPeople"></p>
+          <p data-i18n="primerPoint"></p>
+          <p class="formula">a x₁ + b x₂ ≡ c (mod p)</p>
+          <p data-i18n="primerEquationDefinition"></p>
+          <p data-i18n="primerField"></p>
+          <table class="primer-equations">
+            <caption data-i18n="primerDistribution"></caption>
+            <thead><tr><th scope="col" data-i18n="primerShare"></th><th scope="col" data-i18n="equation"></th></tr></thead>
+            <tbody>
+              <tr><td data-cell-label="primerShare">#1</td><td data-cell-label="equation">x₁ + 3x₂ ≡ 3 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#2</td><td data-cell-label="equation">2x₁ + 5x₂ ≡ 11 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#3</td><td data-cell-label="equation">4x₁ + 2x₂ ≡ 10 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#4</td><td data-cell-label="equation">5x₁ + x₂ ≡ 7 (mod 13)</td></tr>
+            </tbody>
+          </table>
+        </section>
+        <p data-i18n="intro"></p>
         <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph"></svg>
         <details><summary data-i18n="graphTable"></summary><div id="intro-table"></div></details>
         <p id="intro-summary" class="result"></p>

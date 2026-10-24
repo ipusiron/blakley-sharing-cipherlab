@@ -1,0 +1,106 @@
+/* BlakleySharing CipherLab - MIT (c) 2026 ipusiron. */
+:root {
+  --bg: #f6f4ed;
+  --paper: #fffdf7;
+  --ink: #152b45;
+  --muted: #44576b;
+  --line: #aabccb;
+  --grid: #d9e4e9;
+  --accent: #5e3a87;
+  --red: #a33c34;
+  --focus: #5e3a87;
+  --shadow: #d9d6cc;
+  --on-accent: #fffdf7;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1b2d;
+  --paper: #172940;
+  --ink: #eaf1f6;
+  --muted: #c5d4df;
+  --line: #668098;
+  --grid: #30485f;
+  --accent: #c9a8f0;
+  --red: #ffaaa1;
+  --focus: #c9a8f0;
+  --shadow: #091523;
+  --on-accent: #172940;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font: 1rem/1.55 system-ui, sans-serif;
+}
+button, input, select { font: inherit; }
+:where(button) {
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  padding: .4rem .7rem;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}
+@media (hover: hover) { button:hover { border-color: var(--accent); } }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+button:disabled { cursor: wait; opacity: .7; }
+.page-header, main, footer { width: min(100% - 2rem, 1000px); margin-inline: auto; }
+.page-header { padding: 1.4rem 0 .6rem; }
+.masthead { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2.7rem); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+h1 span, h2, h3 { color: var(--accent); }
+.header-tools { display: flex; gap: .3rem; align-self: flex-end; }
+.icon-button { width: 44px; height: 44px; padding: 0; border-radius: 50%; font-weight: 700; }
+.eyebrow { font-size: .875rem; text-align: center; color: var(--muted); }
+.tabs, .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .2rem; padding: .3rem; }
+.tabs button { border: 0; min-width: 0; padding: .3rem .15rem; font-size: .875rem; line-height: 1.4; }
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom: 3px solid var(--accent); font-weight: 700; }
+.panel { padding: .65rem; margin: 1rem 0; min-width: 0; overflow-wrap: anywhere; }
+.panel > :first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+.learning-note { font-size: .875rem; }
+.result { color: var(--accent); font-weight: 700; overflow-wrap: anywhere; }
+footer { padding: 1rem 0 3rem; text-align: center; }
+footer a { display: inline-flex; align-items: center; min-height: 44px; }
+summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 700; }
+dialog {
+  width: min(100% - 1rem, 46rem);
+  max-width: none;
+  max-height: 90dvh;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+}
+dialog[open] { display: flex; flex-direction: column; }
+dialog::backdrop { background: #101a2ab0; }
+.help-header {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: .75rem 1rem; border-bottom: 1px solid var(--line);
+}
+.help-header h2 { margin: 0; }
+.help-header button { flex: none; }
+.help-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 1rem 1rem; overflow-wrap: anywhere; }
+@media (min-width: 720px) {
+  .masthead { display: grid; grid-template-columns: 142px minmax(0, 1fr) 142px; gap: 1rem; }
+  .masthead h1 { grid-column: 2; }
+  .header-tools { grid-column: 3; align-self: start; }
+  .panel { padding: 1.1rem; }
+  .tabs button { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

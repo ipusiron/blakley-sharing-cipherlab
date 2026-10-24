@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Explore Blakley geometric secret sharing through intersections, Shamir and pitfalls. Educational examples only.">
+  <title>BlakleySharing CipherLab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="gf-core.js" defer></script>
+  <script src="pitfalls.js" defer></script>
+  <script src="messages.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="masthead">
+      <h1>BlakleySharing <span>CipherLab</span></h1>
+      <div class="header-tools">
+        <button id="theme" class="icon-button" type="button" data-label="theme">◐</button>
+        <button id="language" class="icon-button" type="button" data-label="language">EN</button>
+        <button id="help" class="icon-button" type="button" data-label="help" aria-haspopup="dialog">?</button>
+      </div>
+    </div>
+    <p class="eyebrow">DAY126 · INTERSECT / COMPARE / PITFALLS</p>
+  </header>
+  <main>
+    <nav class="tabs" role="tablist" data-label="tablist">
+      <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
+        aria-selected="true" tabindex="0" data-i18n="intersections"></button>
+      <button id="tab-compare" role="tab" type="button" aria-controls="panel-compare"
+        aria-selected="false" tabindex="-1" data-i18n="compare"></button>
+      <button id="tab-pitfalls" role="tab" type="button" aria-controls="panel-pitfalls"
+        aria-selected="false" tabindex="-1" data-i18n="pitfalls"></button>
+    </nav>
+    <p class="learning-note"><span data-i18n="educational"></span>
+      <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical"></a></p>
+    <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
+      <h2 data-i18n="intersections"></h2><p data-i18n="intro"></p>
+      <p class="result" data-i18n="initialExample"></p>
+    </section>
+    <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
+      <h2 data-i18n="compare"></h2><p data-i18n="compareIntro"></p>
+    </section>
+    <section id="panel-pitfalls" class="panel" role="tabpanel" aria-labelledby="tab-pitfalls" hidden>
+      <h2 data-i18n="pitfalls"></h2><p data-i18n="pitfallsIntro"></p>
+    </section>
+    <noscript>JavaScriptを有効にしてください。 / Please enable JavaScript.</noscript>
+  </main>
+  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source"></a></footer>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <header class="help-header"><h2 id="help-title" data-i18n="help"></h2>
+      <button id="close-help" type="button" data-i18n="close"></button></header>
+    <div class="help-body">
+      <p data-i18n="helpIntro"></p>
+      <p data-i18n="premise"></p>
+      <p data-i18n="reuse"></p>
+      <div id="lessons"></div>
+    </div>
+  </dialog>
+</body>
+</html>

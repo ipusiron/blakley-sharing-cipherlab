@@ -1,0 +1,9 @@
+{
+  "name": "blakley-sharing-cipherlab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Explore geometric threshold secret sharing. Day126.",
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}

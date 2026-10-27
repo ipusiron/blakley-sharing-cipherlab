@@ -730,9 +730,20 @@ def test_k2(page, width, layouts, vectors, language):
     check(page.locator("#real-grid").get_attribute("data-rhs") == str(default["cInt"][0]), "real line uses integer RHS")
     feature_layout(page, width, "k2-initial", layouts,
                    ("intro-grid", "main-grid", "real-grid", "integer-grid", "mod-grid"))
+    readable_copy(page, "#selection-explanation")
+    current_example = readable_copy(page, "#intro-current-example")
+    check(str(default["p"]) in current_example and "#1" in current_example, "current example identifies field and share")
     initial_candidate = page.locator("#candidate-value").inner_text()
+    initial_explanation = readable_copy(page, "#candidate-explanation")
+    actual_secret = page.locator("#secret").input_value()
+    distributed = page.locator("#distribution-table").text_content()
+    all_points = point_data(page, "main-grid")
     click_visible(page, "candidate-next")
     check(page.locator("#candidate-value").inner_text() != initial_candidate, "candidate advances")
+    check(readable_copy(page, "#candidate-explanation") != initial_explanation, "candidate explanation follows the tested value")
+    check(page.locator("#secret").input_value() == actual_secret, "trying a candidate does not change the real secret")
+    check(page.locator("#distribution-table").text_content() == distributed, "trying a candidate preserves distributed shares")
+    check(point_data(page, "main-grid") == all_points, "trying a candidate preserves all possible points")
     check("9" in page.locator("#candidate-equation").inner_text(), "inverse shown in remaining equation")
     click_visible(page, "candidate-prev")
     check(page.locator("#candidate-value").inner_text() == initial_candidate, "candidate returns")
@@ -747,7 +758,29 @@ def test_k2(page, width, layouts, vectors, language):
     choose_shares(page, {0, 1, 2, 3})
     check(page.locator("#combination-results tbody tr").count() == 6, "all six pairs")
     feature_layout(page, width, "k2-four-shares", layouts, ("main-grid",))
+    choose_shares(page, {0, 1})
+    show_details(page, "edit-controls")
+    original_value = page.locator("#recovery-result").inner_text()
+    click_visible(page, "shift-plus")
+    altered_rhs = [(default["c"][0] + 1) % default["p"], default["c"][1]]
+    altered = field_points(default["A"][:2], altered_rhs, default["p"])[0]
+    check(visible_coordinate_pairs(page.locator("#recovery-result").inner_text()) == [altered],
+          "two edited shares return the independently calculated altered point")
+    check(page.locator("#recovery-result").get_attribute("data-source") == "edited", "altered recovery identifies its source")
+    edited_explanation = readable_copy(page, "#selection-explanation")
+    check(page.locator("#secret").input_value() == actual_secret and
+          page.locator("#distribution-table").text_content() == distributed, "copy editing preserves dealer's original answer")
+    choose_shares(page, {0, 1, 2, 3})
+    check(not field_points(default["A"], [altered_rhs[0], *default["c"][1:]], default["p"]), "edited four-share system is inconsistent")
+    check(readable_copy(page, "#selection-explanation") != edited_explanation, "inconsistent-copy explanation differs from altered unique recovery")
+    click_visible(page, "reset-edit")
+    choose_shares(page, {0, 1})
+    check(page.locator("#recovery-result").get_attribute("data-source") == "distributed", "reset returns to distributed source")
+    check(page.locator("#recovery-result").inner_text() == original_value, "reset restores original answer text")
     choose_shares(page, set())
+    empty_explanation = readable_copy(page, "#selection-explanation")
+    check(str(default["p"] ** 2) in empty_explanation, "zero-share explanation accounts for the full grid")
+    check(not page.locator("#candidate-explanation").is_visible(), "zero shares do not present a tested single candidate")
     check(not selected_shares(page), "zero selected shares allowed")
     check(not point_data(page, "main-grid"), "no selected line points")
     choose_shares(page, {0})
@@ -808,7 +841,14 @@ def test_k2(page, width, layouts, vectors, language):
 
 def test_k3(page, width, layouts, vectors):
     default = vectors["default_k3"]
+    previous_heading = page.locator("#explore-title").inner_text()
     click_visible(page, "k3-start")
+    heading = readable_copy(page, "#explore-title")
+    check(heading != previous_heading and re.search(r"(?<!\d)3(?!\d)|\bthree\b", heading, re.IGNORECASE),
+          "three-share threshold has its own exploration heading")
+    readable_copy(page, "#dimension-intro")
+    readable_copy(page, "#slice-explanation")
+    check(not page.locator("#slice-recovered").is_visible(), "two planes have no single recovered slice shortcut")
     check(page.locator("#prime").input_value() == str(default["p"]), "k3 default prime")
     check(selected_shares(page) == 2, "k3 starts with two shares")
     check("X" not in page.locator("#scene-table tbody tr td:first-child").all_text_contents(), "two planes do not reveal X in table")
@@ -862,9 +902,21 @@ def test_k3(page, width, layouts, vectors):
     check(page.locator("#slice-grid .grid-secret").count() > 0, "unique system marks the secret")
     check("X" in page.locator("#scene-table tbody tr td:first-child").all_text_contents(), "three planes reveal X in table")
     click_visible(page, "slice-0")
+    recovered_secret = default["X"][0]
+    note = readable_copy(page, "#slice-focus-note")
+    check(0 in integers(note) and recovered_secret in integers(note), "empty selected slice distinguishes tried and recovered secrets")
+    check(page.locator("#slice-recovered").get_attribute("data-s") == str(recovered_secret), "shortcut targets actual recovered slice")
+    check(recovered_secret in integers(readable_copy(page, "#slice-recovered")), "shortcut names the recovered secret")
     check(page.locator("#slice-grid .grid-overlap").count() == 0, "empty slice has no partial-overlap emphasis")
     check(page.locator("#slice-grid .grid-secret").count() == 0, "empty slice has no secret mark")
-    click_visible(page, "slice-7")
+    page.locator("#slice-recovered").focus()
+    page.keyboard.press("Enter")
+    check(page.locator("#slice-" + str(recovered_secret)).evaluate("el=>el===document.activeElement"),
+          "recovered-slice shortcut moves keyboard focus to the shown slice")
+    check(page.locator("#slice-" + str(recovered_secret)).get_attribute("aria-pressed") == "true", "recovered slice is selected")
+    check(not page.locator("#slice-recovered").is_visible() and not page.locator("#slice-focus-note").is_visible(),
+          "already selected recovered slice needs no mismatch notice")
+    check(point_data(page, "slice-" + str(recovered_secret)) == [default["X"][1:]], "shortcut reveals the reference point")
     feature_layout(page, width, "k3-three-planes", layouts, ("scene", "slices", "slice-grid"))
     click_visible(page, "slice-7")
     check("(2,9)" in page.locator("#slice-result").inner_text().replace(" ", ""), "three-plane slice intersection")
@@ -876,16 +928,33 @@ def test_matrices(page, width, layouts, vectors):
         click_visible(page, "k" + str(dimension))
         choose_shares(page, set(range(dimension)))
         check(page.locator("#matrix-view").is_visible(), "matrix view")
+        check(str(dimension) in readable_copy(page, "#explore-title"), "matrix exploration heading follows threshold")
+        readable_copy(page, "#dimension-intro")
+        initial_matrix_explanation = readable_copy(page, "#matrix-explanation")
+        check(page.locator("#matrix-intro").get_attribute("data-used") == str(dimension), "matrix identifies its used equations")
         check(not page.locator("#view-3d").is_visible(), "no 3D for larger k")
         check(not page.locator("#k2-view").is_visible(), "no k2 figure for larger k")
         for index, step in enumerate(default["steps123"]):
             check(matrix_values(page) == step["m"], ("matrix", dimension, index, matrix_values(page)))
+            matrix_reading(page, step["m"][0], default["p"])
             if index != len(default["steps123"]) - 1:
                 click_visible(page, "matrix-next")
         check(page.locator("#matrix-next").is_disabled(), "final matrix next disabled")
+        final_matrix_explanation = readable_copy(page, "#matrix-explanation")
+        check(final_matrix_explanation != initial_matrix_explanation, "matrix explanation changes from progress to completed solution")
+        check(",".join(map(str, default["X"])) in final_matrix_explanation.replace(" ", ""), "completed matrix explains the reference coordinates")
         click_visible(page, "matrix-prev")
         check(matrix_values(page) == default["steps123"][-2]["m"], "previous matrix")
         feature_layout(page, width, "k" + str(dimension) + "-matrix", layouts, ("matrix-table",))
+        if len(default["A"]) > dimension:
+            choose_shares(page, set(range(len(default["A"]))))
+            scope = readable_copy(page, "#matrix-intro")
+            check(page.locator("#matrix-intro").get_attribute("data-used") == str(dimension) and
+                  page.locator("#matrix-intro").get_attribute("data-selected") == str(len(default["A"])),
+                  "extra shares distinguish selected equations from the first k used for row operations")
+            check(dimension in integers(scope) and len(default["A"]) in integers(scope), "matrix scope counts are visible")
+            step_index = integers(page.locator("#matrix-step").inner_text())[0] - 1
+            check(matrix_values(page) == default["steps123"][step_index]["m"], "extra shares leave row operations on the same first k equations")
         choose_shares(page, set(range(dimension - 1)))
         check(not page.locator("#candidate-controls").is_visible(), "larger k uses candidate table only")
         check(page.locator("#matrix-candidates tbody tr").count() == default["p"], "one row per secret candidate")
@@ -895,6 +964,11 @@ def test_matrices(page, width, layouts, vectors):
 def test_dealer(page, width, layouts, vectors, language):
     click_visible(page, "k2-start")
     show_details(page, "dealer")
+    normal = page.locator('#dealer [data-i18n="normalName"]')
+    check(normal.is_visible() and not normal.evaluate("el=>!!el.closest('#advanced')"),
+          "normal definition is available before advanced settings")
+    for key in ("dealerIntro", "coordinatesIntro", "randomnessPlain"):
+        readable_copy(page, '#dealer [data-i18n="' + key + '"]')
     show_details(page, "advanced")
     page.locator("#share-count").select_option("8")
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
@@ -943,6 +1017,42 @@ def test_stage1b(page, width, layouts, language):
 
 
 
+def readable_copy(page, selector):
+    element = page.locator(selector)
+    check(element.is_visible(), ("explanation is visible", selector))
+    text = element.inner_text().strip()
+    check(bool(text) and not re.search(r"\{[a-zA-Z][a-zA-Z0-9_]*\}", text),
+          ("explanation has resolved text", selector, text))
+    check("???" not in text and "\ufffd" not in text, ("explanation is not encoding-damaged", selector, text))
+    check(not re.fullmatch(r"[a-z]+(?:[A-Z][A-Za-z0-9]*)+", text),
+          ("dynamic explanation does not display a translation key", selector, text))
+    key = element.get_attribute("data-i18n")
+    check(not key or text != key, ("translation key is not shown", selector))
+    return text
+
+
+def secret_candidate_count(text):
+    match = re.search(r"(?:\u79d8\u5bc6\u306e)?\u5019\u88dc(?:\u306f)?\s*(\d+)\s*\u500b|"
+                      r"(\d+)\s+secret candidates", text, re.IGNORECASE)
+    check(match is not None, ("display identifies a secret candidate count", text))
+    return int(next(value for value in match.groups() if value is not None))
+
+
+def matrix_reading(page, expected_row, prime):
+    text = readable_copy(page, "#matrix-intro")
+    terms = re.findall(r"(\d+)x([\u2081-\u2085])", text)
+    indices = [ord(index) - ord("\u2081") for _, index in terms]
+    check(indices == list(range(len(expected_row) - 1)), "row explanation names each displayed variable")
+    check([int(value) for value, _ in terms] == expected_row[:-1], "row explanation uses current matrix coefficients")
+    rhs = re.search(r"\u2261\s*(\d+)\s*\(mod\s+(\d+)\)", text)
+    check(rhs is not None and [int(x) for x in rhs.groups()] == [expected_row[-1], prime],
+          "row explanation uses the current right-hand value and field")
+
+
+def visible_coordinate_pairs(text):
+    return [[int(a), int(b)] for a, b in re.findall(r"\((\d+)\s*,\s*(\d+)\)", text)]
+
+
 def integers(text):
     return [int(value) for value in re.findall(r"-?\d+", text)]
 
@@ -977,6 +1087,23 @@ def test_compare(page, width, layouts, vectors):
     page.locator("#tab-compare").click()
     assert_selected(page, "compare")
     expected_k2 = vectors["shamir_k2"]["line1"]
+    known = {}
+    for dimension, vector_key, observed in ((2, "shamir_k2", 1), (3, "shamir", 2)):
+        source = "compare-k" + str(dimension) + "-source"
+        identifier = "compare-k" + str(dimension) + "-shares"
+        model = vectors[vector_key]
+        check(page.locator("#" + source).get_attribute("open") is None, "dealer's full comparison distribution starts collapsed")
+        known[identifier] = readable_copy(page, "#" + identifier)
+        check(visible_coordinate_pairs(known[identifier]) == [[i + 1, value] for i, value in enumerate(model["c"][:observed])],
+              "comparison exposes only the observed one or two shares")
+        check(not page.locator("#compare-k" + str(dimension) + "-all-shares").is_visible(), "unobserved shares are not presented as known")
+        show_details(page, source)
+        all_shares = readable_copy(page, "#compare-k" + str(dimension) + "-all-shares")
+        check(visible_coordinate_pairs(all_shares) == [[i + 1, value] for i, value in enumerate(model["c"])],
+              "optional dealer detail retains the whole original distribution")
+        page.locator("#" + source + ">summary").click()
+    for key in ("compareBasics", "compareRandomRoles", "compareCandidateMeaning", "compareK2Task", "compareK3Task", "compareViews"):
+        readable_copy(page, '#panel-compare [data-i18n="' + key + '"]')
     check(sorted_points(point_data(page, "compare-k2-grid")) == sorted_points(expected_k2), "k2 comparison vector points")
     initial = int(page.locator("#compare-k2-grid").get_attribute("data-candidate"))
     check(data_json(page, "compare-k2-grid", "point") == expected_k2[initial], "k2 comparison selected point")
@@ -1004,8 +1131,10 @@ def test_compare(page, width, layouts, vectors):
                    ("compare-k2-grid", "compare-linear-table", "compare-poly", "compare-table", "compare-slice", "compare-size-table"))
     boxes = {name: page.locator("#compare-" + name + "-panel").bounding_box() for name in ("poly", "table", "slice")}
     if width < 720:
-        check(boxes["poly"]["y"] + boxes["poly"]["height"] <= boxes["table"]["y"] + 1, "mobile graph before table")
-        check(boxes["table"]["y"] + boxes["table"]["height"] <= boxes["slice"]["y"] + 1, "mobile table before slice")
+        check(boxes["poly"]["y"] + boxes["poly"]["height"] <= boxes["slice"]["y"] + 1, "mobile polynomial directly precedes slice")
+        gap = boxes["slice"]["y"] - (boxes["poly"]["y"] + boxes["poly"]["height"])
+        check(0 <= gap <= 48, "mobile linked diagrams have no intervening table")
+        check(boxes["slice"]["y"] + boxes["slice"]["height"] <= boxes["table"]["y"] + 1, "mobile correspondence table follows both diagrams")
     else:
         check(abs(boxes["poly"]["y"] - boxes["slice"]["y"]) <= 1, "desktop diagrams in same row")
         check(boxes["poly"]["x"] + boxes["poly"]["width"] <= boxes["slice"]["x"] + 1, "desktop diagrams in two columns")
@@ -1025,6 +1154,8 @@ def test_compare(page, width, layouts, vectors):
     page.keyboard.press("End")
     compare_selection(page, expected[11])
     feature_layout(page, width, "compare-nonzero-11", layouts, ("compare-poly", "compare-table", "compare-slice"))
+    for identifier, text in known.items():
+        check(page.locator("#" + identifier).inner_text() == text, "testing and filtering candidates does not change observed shares")
     page.locator("#compare-nonzero").uncheck()
     compare_table(page, expected)
     size_rows = table_rows(page, "compare-size-table")
@@ -1084,7 +1215,11 @@ def test_pitfall_c(page, width, layouts, vectors):
         check(str(model["cInt"][index]) in page.locator("#pit-c-equation").inner_text(), "integer RHS stays unreduced")
         check(integers(page.locator("#pit-c-unsafe").inner_text()) == [len(expected), *[point[0] for point in expected]],
               ("integer reported candidates", index))
-        check(integers(page.locator("#pit-c-result").inner_text()) == [13, 13], "full field restores thirteen candidates")
+        complete = field_points([row], [model["c"][index]], model["p"])
+        complete_secrets = {point[0] for point in complete}
+        check(len(complete_secrets) == model["p"], "full-field comparison independently covers every secret")
+        check(secret_candidate_count(page.locator("#pit-c-result").inner_text()) == len(complete_secrets),
+              "displayed alternative-model candidate count equals the full-field oracle")
         feature_layout(page, width, "pit-c-integer" + str(index), layouts, ("pit-c-grid", "pit-c-table"))
     page.locator("#pit-c-mode").select_option("narrow")
     expected = [point for point in model["lines"][0] if point[1] <= 3]
@@ -1093,7 +1228,9 @@ def test_pitfall_c(page, width, layouts, vectors):
     check([[int(cell) for cell in row] for row in table_rows(page, "pit-c-table")] == expected, "narrow point table")
     check(not page.locator("#pit-c-share").is_visible(), "narrow model uses fixed first share")
     check(integers(page.locator("#pit-c-unsafe").inner_text()) == [4, *[point[0] for point in expected]], "narrow reported candidates")
-    check(integers(page.locator("#pit-c-result").inner_text()) == [13, 13], "narrow model compared with full field")
+    complete = field_points(model["A"][:1], model["c"][:1], model["p"])
+    check(secret_candidate_count(page.locator("#pit-c-result").inner_text()) == len({point[0] for point in complete}),
+          "narrow model is compared against all independently enumerated full-field secrets")
     feature_layout(page, width, "pit-c-narrow", layouts, ("pit-c-grid", "pit-c-table"))
 
 
@@ -1177,6 +1314,12 @@ def test_pitfalls(page, width, layouts, vectors):
     assert_selected(page, "pitfalls")
     cards = page.locator("#panel-pitfalls > section").evaluate_all("nodes => nodes.map(node => node.id)")
     check(cards == ["pit-card-b", "pit-card-c", "pit-card-a", "pit-card-d"], "pitfall teaching order")
+    for suffix in ("b", "c"):
+        card = page.locator("#pit-card-" + suffix)
+        check(card.locator('[data-i18n="pitChecked"]').count() == 0, "alternative model comparison is not labelled as an input check")
+        readable_copy(page, '#pit-card-' + suffix + ' [data-i18n="pit' + suffix.upper() + 'Comparison"]')
+        readable_copy(page, '#pit-card-' + suffix + ' [data-i18n="pit' + suffix.upper() + 'Task"]')
+    readable_copy(page, '[data-i18n="pitTamperAuthentication"]')
     for suffix in ("b", "c", "a", "d"):
         card = page.locator("#pit-card-" + suffix)
         check(card.locator("h4").count() == 4, ("four teaching headings", suffix))
@@ -1194,6 +1337,14 @@ def test_lessons(page, width, layouts, language):
     dialog = page.locator("#help-dialog")
     check(dialog.is_visible(), "lessons are inside open help")
     check(dialog.locator("details[id^='lesson-']").count() == 10, "ten lessons")
+    for key in ("helpLearningRoute", "helpTheoryRoute"):
+        readable_copy(page, '#help-dialog [data-i18n="' + key + '"]')
+    glossary = dialog.locator('.beginner-glossary')
+    check(glossary.is_visible() and glossary.locator('dt').count() == 8 and glossary.locator('dd').count() == 8,
+          "eight beginner terms are visible without opening theory lessons")
+    check(glossary.evaluate("el=>!!(el.compareDocumentPosition(document.querySelector('#lessons'))&Node.DOCUMENT_POSITION_FOLLOWING)"),
+          "beginner vocabulary precedes advanced lessons")
+    feature_layout(page, width, "help-beginner-guide", layouts, ())
     for number in range(1, 11):
         identifier = "lesson-" + str(number)
         lesson = page.locator("#" + identifier)

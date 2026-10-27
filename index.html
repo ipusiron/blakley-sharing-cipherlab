@@ -67,7 +67,9 @@
       </details>
       <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
         <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle"></h3>
+        <p data-i18n="secretSharingDefinition"></p>
         <p data-i18n="thresholdDefinition"></p>
+        <p data-i18n="learningRoute"></p>
         <p id="threshold-summary" class="threshold-current"></p>
       </section>
       <div id="k2-view">
@@ -75,6 +77,8 @@
           <h3 id="primer-title" data-i18n="primerTitle"></h3>
           <p data-i18n="primerPeople"></p>
           <p data-i18n="primerPoint"></p>
+          <p data-i18n="primerRandom"></p>
+          <p data-i18n="primerRoles"></p>
           <p class="formula">a x₁ + b x₂ ≡ c (mod p)</p>
           <p data-i18n="primerEquationDefinition"></p>
           <p data-i18n="primerField"></p>
@@ -90,30 +94,37 @@
           </table>
         </section>
         <p data-i18n="intro"></p>
+        <p id="intro-current-example" class="formula"></p>
         <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph"></svg>
         <details><summary data-i18n="graphTable"></summary><div id="intro-table"></div></details>
         <p id="intro-summary" class="result"></p>
         <p id="edited-real-note" hidden data-i18n="editedReal"></p>
       </div>
       <section class="stage-card" aria-labelledby="explore-title">
-        <h3 id="explore-title" data-i18n="explore"></h3>
+        <h3 id="explore-title"></h3>
+        <p data-i18n="exploreInstruction"></p>
         <div id="share-picks" class="actions" role="group" data-label="chooseShares"></div>
         <div id="legend" class="legend"></div>
         <p id="selected-summary"></p>
+        <p id="selection-explanation" class="reading-guide"></p>
         <div id="candidate-controls" class="actions">
           <button id="candidate-prev" type="button" data-label="previousCandidate">◀</button>
           <output id="candidate-value"></output>
           <button id="candidate-next" type="button" data-label="nextCandidate">▶</button>
           <button id="candidate-all" type="button" aria-pressed="false" data-i18n="allCandidates"></button>
         </div>
+        <p id="candidate-explanation"></p>
         <div id="k2-interactive">
           <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides"></span></label>
           <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane"></svg>
           <details><summary data-i18n="graphTable"></summary><div id="grid-table"></div></details>
         </div>
-        <p id="candidate-equation" class="formula"></p><p id="recovery-result" class="result" role="status"></p>
+        <p id="candidate-equation" class="formula"></p>
+        <p id="candidate-inverse-explanation" hidden></p>
+        <p id="recovery-result" class="result" role="status"></p>
         <div id="combination-results"></div>
         <details id="edit-controls"><summary data-i18n="editCopy"></summary>
+          <p data-i18n="editIntro"></p>
           <label><span data-i18n="editShare"></span><select id="edit-share"></select></label>
           <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys">
             <button id="shift-minus" type="button" data-i18n="shiftMinus"></button>
@@ -125,7 +136,7 @@
         </details>
       </section>
       <section class="stage-card">
-        <h3 data-i18n="nextDimension"></h3><p data-i18n="columnsToSlices"></p>
+        <h3 id="dimension-title"></h3><p id="dimension-intro"></p>
         <div class="actions"><button id="k2-start" type="button" data-i18n="back2"></button>
           <button id="k3-start" type="button" data-i18n="start3"></button></div>
         <div id="view-3d" hidden>
@@ -142,39 +153,48 @@
           </div><div id="plane-toggles" class="actions"></div>
           <p data-i18n="real3dNote"></p><p id="real-slice-value"></p>
           <h3 data-i18n="finiteSlices"></h3>
+          <p id="slice-explanation"></p>
           <div id="slices" class="slice-list" role="group" data-label="chooseSlice"></div>
+          <p id="slice-focus-note" class="reading-guide"></p>
+          <button id="slice-recovered" type="button" hidden></button>
           <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph"></svg>
           <details><summary data-i18n="graphTable"></summary><div id="slice-table"></div></details>
           <p id="slice-equation" class="formula"></p><p id="slice-result" class="result" role="status"></p>
         </div>
         <div id="matrix-view" hidden>
-          <h3 data-i18n="rowReduction"></h3><p id="matrix-op"></p>
+          <h3 data-i18n="rowReduction"></h3><p id="matrix-intro"></p>
+          <p id="matrix-op"></p>
           <div id="matrix-table" class="matrix-frame"></div>
           <div class="actions"><button id="matrix-prev" type="button" data-i18n="previousStep"></button>
             <output id="matrix-step"></output><button id="matrix-next" type="button" data-i18n="nextStep"></button></div>
+          <p id="matrix-explanation" class="reading-guide"></p>
           <details><summary data-i18n="allSteps"></summary><div id="matrix-all"></div></details>
           <div id="matrix-candidates"></div>
         </div>
       </section>
       <details id="dealer"><summary data-i18n="dealer"></summary>
+        <p data-i18n="dealerIntro"></p>
         <p id="example-kind" class="result"></p>
         <div class="settings-grid">
-          <label><span>p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
-          <label><span>n</span><select id="share-count"></select></label>
+          <label><span data-i18n="primeLabel"></span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
+          <label><span data-i18n="shareCountLabel"></span><select id="share-count"></select></label>
           <label><span data-i18n="secretLabel"></span><input id="secret" type="number" min="0" max="12" value="5"></label>
-        </div><div id="coordinates" class="settings-grid"></div>
+        </div><p data-i18n="coordinatesIntro"></p><div id="coordinates" class="settings-grid"></div>
         <div class="actions"><button id="generate" type="button" data-i18n="generate"></button>
           <button id="reset-default" type="button" data-i18n="resetDefault"></button></div>
         <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote"></p>
+        <p data-i18n="randomnessPlain"></p>
+        <p data-i18n="normalName"></p>
         <p data-i18n="premise"></p><p data-i18n="reuse"></p>
         <div id="distribution-table"></div>
         <details id="advanced"><summary data-i18n="advanced"></summary>
+          <p data-i18n="methodIntro"></p>
           <label><span data-i18n="normalMethod"></span><select id="method">
             <option value="random" data-i18n="randomMethod"></option><option value="vandermonde" data-i18n="vandermonde"></option>
           </select></label>
           <details><summary data-i18n="higherDimensions"></summary><div class="actions">
             <button id="k4" type="button">k=4</button><button id="k5" type="button">k=5</button></div></details>
-          <h3 data-i18n="checks"></h3><p data-i18n="normalName"></p>
+          <h3 data-i18n="checks"></h3><p data-i18n="checkPlain"></p>
           <p data-i18n="checkI"></p><p data-i18n="checkII"></p><p id="inspection-summary" class="result"></p>
           <details><summary data-i18n="inspectionList"></summary>
             <label class="choice"><input id="failures-only" type="checkbox"><span data-i18n="failuresOnly"></span></label>
@@ -190,10 +210,17 @@
     <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
       <h2 data-i18n="compare"></h2>
       <p data-i18n="compareIntro"></p>
-      <div id="compare-equivalence-table"></div>
+      <p data-i18n="compareBasics"></p>
+      <p data-i18n="compareRandomRoles"></p>
+      <p data-i18n="compareCandidateMeaning"></p>
       <section class="stage-card" aria-labelledby="compare-k2-title">
         <h3 id="compare-k2-title" data-i18n="compareK2Title"></h3>
         <p data-i18n="compareK2Intro"></p>
+        <p data-i18n="compareK2Task"></p>
+        <details id="compare-k2-source"><summary data-i18n="compareDealerSource"></summary>
+          <p id="compare-k2-answer" class="formula"></p>
+          <p id="compare-k2-all-shares"></p>
+        </details>
         <p id="compare-k2-shares"></p>
         <p class="formula">s + a₁ ≡ 9 (mod 13)</p>
         <div class="actions">
@@ -209,7 +236,12 @@
       <section class="stage-card" aria-labelledby="compare-k3-title">
         <h3 id="compare-k3-title" data-i18n="compareK3Title"></h3>
         <p data-i18n="compareK3Intro"></p>
-        <p id="compare-fixed-polynomial" class="formula"></p>
+        <div id="compare-equivalence-table"></div>
+        <p data-i18n="compareK3Task"></p>
+        <details id="compare-k3-source"><summary data-i18n="compareDealerSource"></summary>
+          <p id="compare-fixed-polynomial" class="formula"></p>
+          <p id="compare-k3-all-shares"></p>
+        </details>
         <p id="compare-k3-shares"></p>
         <p data-i18n="compareVandermonde"></p>
         <label class="choice">
@@ -222,6 +254,7 @@
           <output id="compare-current"></output>
           <button id="compare-next" type="button" data-label="compareNext">▶</button>
         </div>
+        <p data-i18n="compareViews"></p>
         <div id="compare-layout" class="compare-layout">
           <section id="compare-poly-panel" class="compare-poly-panel" aria-labelledby="compare-poly-title">
             <h4 id="compare-poly-title" data-i18n="comparePolynomialGraph"></h4>
@@ -233,6 +266,13 @@
             </label>
             <p class="compare-legend" data-i18n="comparePolynomialLegend"></p>
             <p data-i18n="compareObservedValues"></p>
+          </section>
+          <section id="compare-slice-panel" class="compare-slice-panel" aria-labelledby="compare-slice-title">
+            <h4 id="compare-slice-title" data-i18n="compareSliceGraph"></h4>
+            <p id="compare-slice-caption" class="formula"></p>
+            <svg id="compare-slice" class="coordinate-plane" role="img" data-label="compareSliceGraph"></svg>
+            <details><summary data-i18n="graphTable"></summary><div id="compare-slice-table"></div></details>
+            <p data-i18n="compareSliceExplanation"></p>
           </section>
           <section id="compare-table-panel" class="compare-table-panel" aria-labelledby="compare-table-title">
             <h4 id="compare-table-title" data-i18n="compareTableTitle"></h4>
@@ -246,17 +286,11 @@
             </table>
             <p data-i18n="compareZeroTopExplanation"></p>
           </section>
-          <section id="compare-slice-panel" class="compare-slice-panel" aria-labelledby="compare-slice-title">
-            <h4 id="compare-slice-title" data-i18n="compareSliceGraph"></h4>
-            <p id="compare-slice-caption" class="formula"></p>
-            <svg id="compare-slice" class="coordinate-plane" role="img" data-label="compareSliceGraph"></svg>
-            <details><summary data-i18n="graphTable"></summary><div id="compare-slice-table"></div></details>
-            <p data-i18n="compareSliceExplanation"></p>
-          </section>
         </div>
       </section>
       <section class="stage-card" aria-labelledby="compare-size-title">
         <h3 id="compare-size-title" data-i18n="compareSizeTitle"></h3>
+        <p data-i18n="compareSizePurpose"></p>
         <p data-i18n="compareSizeIntro">秘密がm要素、k=3の場合です。法線を正規化し、1にした成分を省いた体の要素数です。公開の番号と省いた成分の位置情報は数えません。バイト数の比較ではありません。</p><div id="compare-size-table"></div>
         <p data-i18n="compareSizeNote"></p>
       </section>
@@ -266,33 +300,36 @@
       <h2 data-i18n="pitfalls"></h2><p data-i18n="pitfallsIntro"></p>
       <section id="pit-card-b" class="stage-card" aria-labelledby="pit-b-title">
         <h3 id="pit-b-title" data-i18n="pitBTitle"></h3>
+        <p data-i18n="pitBTask"></p>
         <h4 data-i18n="pitChanged"></h4>
         <div class="actions" role="group" data-label="pitDimension">
           <button id="pit-b-k2" type="button" aria-pressed="true">k=2</button><button id="pit-b-k3" type="button" aria-pressed="false">k=3</button>
         </div><div id="pit-b-picks" class="actions" role="group" data-label="pitShares"></div><p id="pit-b-input"></p>
         <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitWithout"></h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout"></p></div>
-        <h4 data-i18n="pitChecked"></h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
+          <h4 data-i18n="pitBWholeCase"></h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout"></p></div>
+        <h4 data-i18n="pitBComparison"></h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
         <svg id="pit-b-grid" class="coordinate-plane" role="img" data-label="pitBGraph"></svg><div id="pit-b-slices" class="slice-list static-slices"></div>
         <details><summary data-i18n="graphTable"></summary><p data-i18n="pitBTableNote"></p><div id="pit-b-points"></div></details>
         <h4 data-i18n="pitLesson"></h4><p data-i18n="pitWholeLesson"></p>
       </section>
       <section id="pit-card-c" class="stage-card" aria-labelledby="pit-c-title">
-        <h3 id="pit-c-title" data-i18n="pitCTitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <h3 id="pit-c-title" data-i18n="pitCTitle"></h3>
+        <p data-i18n="pitCTask"></p><h4 data-i18n="pitChanged"></h4>
         <div class="settings-grid"><label><span data-i18n="pitGenerator"></span><select id="pit-c-mode">
           <option value="integer" data-i18n="pitInteger"></option><option value="narrow" data-i18n="pitNarrow"></option></select></label>
           <label id="pit-c-share-wrap"><span data-i18n="chooseShares"></span><select id="pit-c-share">
             <option value="0">#1</option><option value="1">#2</option><option value="2">#3</option><option value="3">#4</option></select></label></div>
         <p id="pit-c-input"></p><p id="pit-c-equation" class="formula"></p>
         <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitWithout"></h4><p id="pit-c-unsafe" role="status"></p>
+          <h4 data-i18n="pitCRestrictedCase"></h4><p id="pit-c-unsafe" role="status"></p>
           <svg id="pit-c-grid" class="coordinate-plane" role="img" data-label="pitCGraph"></svg>
           <details><summary data-i18n="graphTable"></summary><div id="pit-c-table"></div></details></div>
-        <h4 data-i18n="pitChecked"></h4><p id="pit-c-result" class="result"></p><p data-i18n="premise"></p>
+        <h4 data-i18n="pitCComparison"></h4><p id="pit-c-result" class="result"></p><p data-i18n="premise"></p>
         <h4 data-i18n="pitLesson"></h4><p id="pit-c-lesson"></p>
       </section>
       <section id="pit-card-a" class="stage-card" aria-labelledby="pit-a-title">
-        <h3 id="pit-a-title" data-i18n="pitATitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <h3 id="pit-a-title" data-i18n="pitATitle"></h3>
+        <p data-i18n="pitATask"></p><h4 data-i18n="pitChanged"></h4>
         <label><span data-i18n="pitConfiguration"></span><select id="pit-a-mode">
           <option value="vertical" data-i18n="pitVertical"></option><option value="leak3" data-i18n="pitLeak3"></option>
           <option value="parallel" data-i18n="pitParallel"></option><option value="short" data-i18n="pitShort"></option></select></label>
@@ -315,15 +352,19 @@
         <svg id="pit-a-grid" class="coordinate-plane" role="img" data-label="pitAGraph"></svg>
         <details><summary data-i18n="graphTable"></summary><div id="pit-a-table"></div></details>
         <h4 data-i18n="pitLesson"></h4><p id="pit-a-lesson"></p>
+        <details class="calculation-details"><summary data-i18n="calculationDetails"></summary>
+        <p data-i18n="pitParallelDetail"></p>
         <p data-i18n="pitPassRateIntro"></p><table class="responsive-table">
           <thead><tr><th data-i18n="pitParameters"></th><th data-i18n="pitPassRate"></th></tr></thead><tbody>
             <tr><td data-cell-label="pitParameters">13, 2, 4</td><td data-cell-label="pitPassRate">0.4362</td></tr>
             <tr><td data-cell-label="pitParameters">11, 3, 5</td><td data-cell-label="pitPassRate">0.1184</td></tr>
             <tr><td data-cell-label="pitParameters">13, 3, 8</td><td data-cell-label="pitPassRate" data-i18n="pitRateApprox"></td></tr>
           </tbody></table>
+        </details>
       </section>
       <section id="pit-card-d" class="stage-card" aria-labelledby="pit-d-title">
-        <h3 id="pit-d-title" data-i18n="pitDTitle"></h3><h4 data-i18n="pitChanged"></h4>
+        <h3 id="pit-d-title" data-i18n="pitDTitle"></h3>
+        <p data-i18n="pitDTask"></p><h4 data-i18n="pitChanged"></h4>
         <div class="settings-grid"><label><span data-i18n="pitShares"></span><select id="pit-d-count">
           <option value="2">2 (k)</option><option value="3">3 (k+1)</option><option value="4">4 (k+2)</option></select></label>
           <label><span data-i18n="pitDelta"></span><select id="pit-d-delta">          <option value="0">0</option>
@@ -344,8 +385,12 @@
         <h4 data-i18n="pitChecked"></h4><p id="pit-d-result" class="result"></p><div id="pit-d-table"></div>
         <svg id="pit-d-grid" class="coordinate-plane" role="img" data-label="pitDGraph"></svg>
         <details><summary data-i18n="graphTable"></summary><div id="pit-d-points"></div></details>
-        <h4 data-i18n="pitLesson"></h4><p data-i18n="pitTamperConditions">条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。</p><p data-i18n="pitLinearity"></p>
+        <h4 data-i18n="pitLesson"></h4>
+        <p data-i18n="pitTamperAuthentication"></p>
+        <p data-i18n="pitTamperConditions">条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。</p><details class="calculation-details"><summary data-i18n="calculationDetails"></summary>
+        <p data-i18n="pitLinearity"></p>
         <details><summary data-i18n="pitAllDelta"></summary><div id="pit-d-linearity"></div></details>
+        </details>
       </section>
     </section>
     <noscript>JavaScriptを有効にしてください。 / Please enable JavaScript.</noscript>
@@ -355,7 +400,21 @@
     <header class="help-header"><h2 id="help-title" data-i18n="help"></h2>
       <button id="close-help" type="button" data-i18n="close"></button></header>
     <div class="help-body">
+      <h3 data-i18n="helpLearningTitle"></h3>
+      <p data-i18n="helpLearningRoute"></p>
       <p data-i18n="helpIntro"></p>
+      <h3 data-i18n="helpTerms"></h3>
+      <dl class="beginner-glossary">
+        <dt data-i18n="termShareName"></dt><dd data-i18n="termShareDefinition"></dd>
+        <dt data-i18n="termSecretName"></dt><dd data-i18n="termSecretDefinition"></dd>
+        <dt data-i18n="termThresholdName"></dt><dd data-i18n="termThresholdDefinition"></dd>
+        <dt data-i18n="termCandidateName"></dt><dd data-i18n="termCandidateDefinition"></dd>
+        <dt data-i18n="termRandomName"></dt><dd data-i18n="termRandomDefinition"></dd>
+        <dt data-i18n="termFieldName"></dt><dd data-i18n="termFieldDefinition"></dd>
+        <dt data-i18n="termEquationName"></dt><dd data-i18n="termEquationDefinition"></dd>
+        <dt data-i18n="termHyperplaneName"></dt><dd data-i18n="termHyperplaneDefinition"></dd>
+      </dl>
+      <p data-i18n="helpTheoryRoute"></p>
       <p data-i18n="premise"></p>
       <p data-i18n="reuse"></p>
       <div id="lessons">
@@ -399,6 +458,7 @@
 </details>
 <details id="lesson-2" class="lesson">
 <summary data-i18n="lesson2Title">2. 第1座標を秘密にする条件</summary>
+<p class="reading-guide" data-i18n="lesson2Guide"></p>
 <p data-i18n="lesson2Point">F＝GF(p) とし、点をX＝(s,r₂,…,rₖ) とします。秘密はs＝x₁ だけで、シェアiは公開の法線aᵢ と右辺cᵢ＝aᵢ·Xです。</p>
 <p data-i18n="lesson2Premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。法線は公開・使い回してよい。使い回してはならないのは x₂…x_k</p>
 <p data-i18n="lesson2Reuse">乱数の座標同士も独立に選びます。法線の選び方も秘密に依存させません。法線を再利用しても、この前提と次の2つの検査を満たす必要があります。</p>
@@ -435,6 +495,7 @@
 </details>
 <details id="lesson-3" class="lesson">
 <summary data-i18n="lesson3Title">3. Blakley 1979の原文の形</summary>
+<p class="reading-guide" data-i18n="lesson3Guide"></p>
 <p data-i18n="lesson3Original">原論文では、ベクトルfの無作為な位置に鍵を置き、別の無作為な位置の成分を1にします。fを含む原点を通る超平面をシェアにします。</p>
 <p data-i18n="lesson3Line">復元する対象は、原点を通る直線です。これは射影空間の1点に当たります。このツールが扱う、秘密を固定の第1座標に置く形とは異なります。</p>
 <table class="responsive-table">
@@ -541,6 +602,7 @@
 </details>
 <details id="lesson-5" class="lesson">
 <summary data-i18n="lesson5Title">5. シェアの大きさとShamirとの対応</summary>
+<p class="reading-guide" data-i18n="lesson5Guide"></p>
 <p data-i18n="lesson5Polynomial">多項式f(i)＝s+a₁i+…+aₖ₋₁i^(k−1) の係数を点X＝(s,a₁,…,aₖ₋₁) とします。シェアyᵢ＝f(i) は、次の超平面の式になります。</p>
 <p data-i18n="lesson5Equation">(1,i,i²,…,i^(k−1))·X＝yᵢ</p>
 <p data-i18n="lesson5Vandermonde">法線はヴァンデルモンドの行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。</p>
@@ -600,6 +662,7 @@
 </details>
 <details id="lesson-6" class="lesson">
 <summary data-i18n="lesson6Title">6. 一般の位置を保証する作り方</summary>
+<p class="reading-guide" data-i18n="lesson6Guide"></p>
 <p data-i18n="lesson6Intro">法線が乱数でも、検査 (i)(ii) が自動的に成り立つわけではありません。このツールでは、乱数を引いて検査する方法と、ヴァンデルモンドによる構成を選べます。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson6MethodsCaption">法線の構成と条件</caption>
@@ -740,6 +803,7 @@
 </details>
 <details id="lesson-8" class="lesson">
 <summary data-i18n="lesson8Title">8. 線形秘密分散とスパン・プログラム</summary>
+<p class="reading-guide" data-i18n="lesson8Guide"></p>
 <p data-i18n="lesson8Intro">行列Mの各行を参加者に割り当て、X＝(s,r₂,…,rₖ) からM Xを配ると、線形秘密分散になります。一般には、参加者1人に複数の行を割り当てることもできます。</p>
 <p data-i18n="lesson8Access">誰が集まれば復元できるかは、その人たちの行の線形結合でe₁＝(1,0,…,0) を作れるかで決まります。人数だけで決めない参加条件も表せます。</p>
 <table class="responsive-table">
@@ -793,6 +857,7 @@
 </details>
 <details id="lesson-9" class="lesson">
 <summary data-i18n="lesson9Title">9. 改ざんの検出と、誤りのあるシェアの特定</summary>
+<p class="reading-guide" data-i18n="lesson9Guide"></p>
 <p data-i18n="lesson9Intro">秘密分散の完全性は、シェアの改ざんを防ぐ性質ではありません。ちょうどk枚で式が解けても、その答えが元の秘密かどうかは、それだけではわかりません。</p>
 <p data-i18n="lesson9Example">最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で復元すると (8,7) となり、秘密は5から8へ変わります。</p>
 <table class="responsive-table">
@@ -832,6 +897,7 @@
 </details>
 <details id="lesson-10" class="lesson">
 <summary data-i18n="lesson10Title">10. 関連ツール</summary>
+<p class="reading-guide" data-i18n="lesson10Guide"></p>
 <p data-i18n="lesson10Intro">このツールは、小さな有限体で秘密分散の式と候補を学ぶ教材です。パスワード・シード・鍵などの本物の秘密は入力しないでください。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson10ToolsCaption">目的に合わせた4つの関連ツール</caption>

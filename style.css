@@ -278,3 +278,11 @@ details details { margin: .5rem 0; }
 .lesson caption { text-align: left; font-weight: 700; margin: .5rem 0; }
 
 #lesson-2 th:first-child { min-width: 4rem; }
+
+/* Reading cues stay close to the operation or result they explain. */
+.reading-guide { padding: .6rem .7rem; border-left: 3px solid var(--accent); background: var(--bg); }
+.reading-guide:empty { display: none; }
+.beginner-glossary { margin: .8rem 0 1.2rem; }
+.beginner-glossary dt { margin-top: .7rem; font-weight: 700; color: var(--accent); }
+.beginner-glossary dd { margin: .15rem 0 0; }
+.calculation-details { margin: .75rem 0; border-top: 1px solid var(--line); }

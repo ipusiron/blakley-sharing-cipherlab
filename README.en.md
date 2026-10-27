@@ -26,6 +26,10 @@ For a practical backup workflow, see [Day124 Scatter Seeds][day124].
 Use it in a browser, or open the downloaded `index.html` directly through `file://`. No build is required.
 The controls at the top right switch between Japanese and English, and between light and dark themes.
 
+During startup, Japanese explanations and bilingual preparation messages appear first, with interactive controls disabled until initialization finishes.
+Successful initialization opens the normal interface and enables the language and theme controls.
+If JavaScript is disabled or a required file cannot load, the explanatory text, expandable sections and reload link remain available.
+
 ## 📸 Screenshots
 
 These screenshots use the English interface and light theme. Each caption explains what the displayed state shows.
@@ -392,7 +396,7 @@ npm test
 
 - Finite-field inverses, rank and elimination; reconstruction of every fixed-example subset; known generation values and rejection behavior
 - Candidate counts, integers and narrow randomness, Shamir correspondence, tampering and the effect of δ on the secret
-- Bilingual dictionaries, prohibited terms, CSP, storage scope, colors and source format
+- Agreement between the dictionaries and static Japanese text; prohibited terms, CSP, storage scope, colors and source format
 - README numeric tables, YAML, matching headings, directory coverage and images
 
 GitHub Actions runs syntax checks and `npm test` with Node.js 22 on pushes and pull requests.
@@ -405,6 +409,13 @@ python test/interface.browser.py --stage 1c
 Checks cover file:// and HTTP, widths of 320, 390 and 1280 px, both languages and themes, tabs, keyboard input, 3D rotation,
 the comparison table, all four cards and help.
 The local browser suite passed 46 cases, with four additional checks for recovery after random-generation failure.
+The following startup suite covers 12 conditions, including delayed loading, disabled JavaScript, script-loading failures and denied storage.
+It checks explanatory content and the disabling and enabling of controls, starts a temporary local HTTP server, and saves results under `.work/`.
+
+```sh
+python test/startup.browser.py
+```
+
 The current Node test count, including README and image checks, is reported by the test runner.
 
 ## 📚 Sources and verification scope
@@ -454,9 +465,10 @@ blakley-sharing-cipherlab/  # Project root
 ├── test/contrast.test.js            # Text and background contrast checks
 ├── test/core.test.js                # Arithmetic, generation, reconstruction and unsafe-model tests
 ├── test/format.test.js              # Public-source format checks
-├── test/i18n.test.js                # Bilingual dictionary and wording checks
+├── test/i18n.test.js                # Dictionaries, static Japanese text and wording checks
 ├── test/interface.browser.py        # Chromium and Firefox interaction checks
 ├── test/readme.test.js              # README number, structure and screenshot checks
+├── test/startup.browser.py          # Content and controls during loading, failure and completion
 ├── test/structure.test.js           # Page structure, CSP and storage-scope checks
 ├── test/vectors.json                # Fixed expected values from the reference implementation
 ├── app.js                           # Interface state, figures, tables and interaction

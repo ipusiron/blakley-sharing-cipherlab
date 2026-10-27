@@ -59,6 +59,13 @@ button:disabled { cursor: wait; opacity: .7; }
 h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2.7rem); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
 h1 span, h2, h3 { color: var(--accent); }
 .header-tools { display: flex; gap: .3rem; align-self: flex-end; }
+.startup-control-group { min-width: 0; min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+.startup-note { margin: .5rem 0; padding: .5rem .75rem; border-left: 4px solid var(--accent); background: var(--paper); }
+.startup-note p { margin: 0; }
+.startup-note summary { padding: .3rem 0; }
+.startup-note a { display: inline-flex; min-height: 44px; align-items: center; }
+.graph-loading { fill: var(--muted); font: 20px system-ui, sans-serif; }
+
 .icon-button { width: 44px; height: 44px; padding: 0; border-radius: 50%; font-weight: 700; }
 .eyebrow { font-size: .875rem; text-align: center; color: var(--muted); }
 .tabs, .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }

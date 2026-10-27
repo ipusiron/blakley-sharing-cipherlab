@@ -14,7 +14,7 @@ BlakleySharing CipherLab is an educational tool for learning secret-sharing cond
 Select shares, compare whole-point candidates with first-coordinate secret candidates, and trace their correspondence with Shamir polynomials.
 
 Secret sharing creates several shares from a secret and recovers the original value when enough shares are collected.
-A share is information given to a recipient; in this tool, it is one equation. With suitable coefficients and randomness, fewer than k shares do not narrow the secret, while any k recover it.
+A share is information given to a recipient; in this tool, it is one equation. With suitable coefficients and randomness, fewer than k shares do not narrow the secret, while any set of at least k shares recovers it.
 
 For learning only. Do not enter actual secrets, including passwords, seed phrases or keys.
 For a practical backup workflow, see [Day124 Scatter Seeds][day124].
@@ -36,7 +36,7 @@ These screenshots use the English interface and light theme. Each caption explai
 
 ![Collapsed mathematical background, n/k definitions and four initial equations](assets/en/screenshot.png)
 
-> *The mathematical background starts collapsed. The page explains recovery from any k of n shares and shows the four equations of the initial (2,4) example.*
+> *The mathematical background starts collapsed. The page explains recovery from any set of at least k of n shares and shows the four equations of the initial (2,4) example.*
 
 ![Thirteen rows connecting Shamir polynomials to Blakley points](assets/en/screenshot2.png)
 
@@ -80,7 +80,7 @@ For example, `(14,5)→(1,5)` and `(32,−1)→(6,12)`. Wrapping only step 2’s
 This is easier to plot because points follow horizontal-axis order, x₁=0–12, as in `(0,1)→(1,5)→(2,9)→(3,0)`.
 The guide paths differ, but the set of points is the same. They do not represent continuous lines between points in GF(13).
 
-n is the total share count, and k is the number needed for recovery. Correctly generated shares allow recovery from any k.
+n is the total share count, and k is the minimum number needed for recovery. Correctly generated shares allow recovery from any set of at least k shares.
 The introduction before the graph explains this relationship and shows the current p, k and n.
 The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.
 The dealer creates and distributes shares. Recipients receive their own equations and bring them together for recovery.

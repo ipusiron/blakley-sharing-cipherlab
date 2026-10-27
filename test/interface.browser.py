@@ -372,6 +372,102 @@ def math_primer_closed(page):
           "main experiment guide control precedes its graph outside prerequisite")
 
 
+def math_approach_geometry(page, default, expected_approach=None):
+    """Check drawn SVG coordinates against independent arithmetic from the vector."""
+    radios = page.locator('input[name="math-approach"]')
+    check(radios.count() == 2, "two native math approach radios")
+    check(radios.evaluate_all("els => els.every(el => el.type === 'radio' && el.closest('fieldset')?.querySelector('legend'))"),
+          "math approaches form a labelled native fieldset")
+    approach = page.locator('input[name="math-approach"]:checked').input_value()
+    check(approach in ("folded", "x-order"), "valid selected math approach")
+    if expected_approach is not None:
+        check(approach == expected_approach, "math approach selection survives experimental changes")
+    graph = page.locator("#mod-grid")
+    check(graph.get_attribute("data-approach") == approach, "rendered approach matches checked radio")
+    enabled = page.locator("#math-guides").is_checked()
+    check(graph.get_attribute("data-guides") == str(enabled).lower(), "rendered math guide state agrees")
+    p, (a, b), rhs = default["p"], default["A"][0], default["c"][0]
+    points = default["lines"][0]
+    check(sorted_points(point_data(page, "mod-grid")) == sorted_points(points), "both approaches keep all authoritative points")
+    marks = mark_geometry(page, "mod-grid", rings=False)
+    check(sorted_points([mark["point"] for mark in marks]) == sorted_points(points), "all thirteen rendered marks match authoritative points")
+    geometry = graph.evaluate("""svg => {
+      const lines=[...svg.querySelectorAll('.grid-line')];
+      const xs=[...new Set(lines.filter(e=>e.getAttribute('x1')===e.getAttribute('x2')).map(e=>Number(e.getAttribute('x1'))))].sort((a,b)=>a-b);
+      const ys=[...new Set(lines.filter(e=>e.getAttribute('y1')===e.getAttribute('y2')).map(e=>Number(e.getAttribute('y1'))))].sort((a,b)=>b-a);
+      const guides=[...svg.querySelectorAll('.graph-guide')], marks=[...svg.querySelectorAll('.grid-mark')], step=svg.querySelector('.rule-step');
+      return {xs,ys,paths:guides.map(e=>e.getAttribute('d')),
+        behind:guides.every(g=>marks.every(m=>!!(g.compareDocumentPosition(m)&Node.DOCUMENT_POSITION_FOLLOWING))),
+        arrow:step?{from:JSON.parse(step.dataset.from),to:JSON.parse(step.dataset.to),delta:JSON.parse(step.dataset.delta),
+          lines:[...step.querySelectorAll('line.rule-arrow')].map(e=>['x1','y1','x2','y2'].map(k=>Number(e.getAttribute(k)))),
+          polygon:step.querySelector('polygon.rule-arrow')?.getAttribute('points')}:null};
+    }""")
+    check(len(geometry["paths"]) == int(enabled), "one guide path when enabled, none when disabled")
+    check(geometry["behind"], "math guides are drawn behind their points")
+    xs, ys = geometry["xs"], geometry["ys"]
+    def lattice(x, y):
+        return ((x - xs[0]) / (xs[1] - xs[0]), (y - ys[0]) / (ys[1] - ys[0]))
+    def canonical(segments):
+        return sorted(tuple(sorted(tuple(round(value, 6) for value in point) for point in segment)) for segment in segments)
+    segments = []
+    command = r"([ML])\s*([-+\d.eE]+)[ ,]+([-+\d.eE]+)"
+    for d in geometry["paths"]:
+        check(not re.sub(command, "", d).strip(), ("unparsed SVG path", d))
+        previous = None
+        for operation, x, y in re.findall(command, d):
+            point = lattice(float(x), float(y))
+            if operation == "L":
+                check(previous is not None, "line follows a move")
+                segments.append([previous, point])
+            previous = point
+    levels = sorted({a * x + b * y for x, y in points})
+    expected_segments = []
+    if approach == "folded":
+        for level in levels:
+            candidates = [(x, (level - a * x) / b) for x in (0, p - 1)]
+            candidates += [((level - b * y) / a, y) for y in (0, p - 1)]
+            ends = sorted(set(point for point in candidates if all(0 <= value <= p - 1 for value in point)))
+            check(len(ends) == 2, "each folded level has two box intersections")
+            expected_segments.append(ends)
+    else:
+        inverse = next(value for value in range(1, p) if b * value % p == 1)
+        rise = -a * inverse % p
+        expected_segments = [[first, second] for first, second in zip(points, points[1:]) if second[1] - first[1] == rise]
+    check(canonical(segments) == canonical(expected_segments if enabled else []),
+          ("drawn math path matches independent clipped lines or x-order steps", approach, segments, expected_segments))
+    integer_points = [point for point in points if point[0] in default["integerCandidates"][0]]
+    source_points = integer_points if approach == "folded" else points
+    start, finish = source_points[:2]
+    delta = [finish[i] - start[i] for i in (0, 1)]
+    arrow = geometry["arrow"]
+    check(arrow is not None and arrow["from"] == start and arrow["to"] == finish and arrow["delta"] == delta,
+          "step arrow uses the selected mathematical direction")
+    check(len(arrow["lines"]) == 2, "step arrow has horizontal and vertical legs")
+    horizontal, vertical = arrow["lines"]
+    check(horizontal[2] > horizontal[0] and abs(horizontal[3] - horizontal[1]) < .001, "step arrow points right")
+    check(abs(vertical[2] - vertical[0]) < .001 and (vertical[3] - vertical[1]) * delta[1] < 0,
+          "step arrow vertical direction agrees with selected approach")
+    polygon = [float(value) for value in re.findall(r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", arrow["polygon"])]
+    check(len(polygon) == 6, "triangle arrowhead")
+    distance = min(((polygon[i] - xs[finish[0]]) ** 2 + (polygon[i + 1] - ys[finish[1]]) ** 2) ** .5 for i in (0, 2, 4))
+    check(distance >= 5.9, "arrowhead does not cover destination point")
+    def pairs(identifier):
+        text = page.locator("#" + identifier).inner_text().replace("\u2212", "-")
+        return [[int(x), int(y)] for x, y in re.findall(r"\((-?\d+),\s*(-?\d+)\)", text)]
+    example = pairs("mod-example")
+    if approach == "folded":
+        inputs = [[14, 5], [32, -1]]
+        expected_example = [point for original in inputs for point in (original, [value % p for value in original])]
+        check(all(a * x + b * y == default["cInt"][0] for x, y in inputs), "fold examples lie on original real line")
+        check(example == expected_example, "both coordinate axes reduce modulo the fixed field")
+        check(pairs("mod-rule") == integer_points[:2], "folded rule gives the same right/down step as the arrow")
+    else:
+        check(example == points[:4], "x-order example wraps the fourth point correctly")
+    check(bool(page.locator("#mod-note").inner_text().strip()), "common finite-field guide note is present")
+    return {"approach": approach, "guides": enabled, "segments": segments, "rhs_levels": levels,
+            "step": arrow, "example": example, "arrow_clearance": distance}
+
+
 def fixed_math_example(page, default):
     check(page.locator("#math-primer").get_attribute("open") is not None, "fixed prerequisite is open")
     check(page.locator("#real-story").is_visible(), "fixed prerequisite stays visible for every experiment")
@@ -392,7 +488,19 @@ def fixed_math_example(page, default):
     check(all([axis["text"] for axis in measured] == ["x\u2082", "x\u2081"] for measured in axes.values()),
           "mathematical prerequisite axes use coordinate names without introducing secret or randomness")
     return {"rhs": int(page.locator("#real-grid").get_attribute("data-rhs")),
-            "integer_points": point_data(page, "integer-grid"), "mod_points": point_data(page, "mod-grid"), "axes": axes}
+            "integer_points": point_data(page, "integer-grid"), "mod_points": point_data(page, "mod-grid"), "axes": axes,
+            "approach": math_approach_geometry(page, default)}
+
+
+def fixed_math_after_change(page, default):
+    check(page.locator("#math-x-order").is_checked(), "experimental changes preserve selected x-order approach")
+    original = fixed_math_example(page, default)
+    check(page.locator("#math-guides").is_checked(), "experimental changes preserve enabled math guides")
+    page.locator("#math-folded").check()
+    folded = fixed_math_example(page, default)
+    page.locator("#math-x-order").check()
+    fixed_math_example(page, default)
+    return {"x-order": original, "folded": folded}
 
 
 def test_math_primer(page, width, layouts, default):
@@ -401,6 +509,15 @@ def test_math_primer(page, width, layouts, default):
     summary.focus()
     page.keyboard.press("Enter")
     opened = fixed_math_example(page, default)
+    placement = page.evaluate("""() => {
+      const owns=(id,graph)=>document.getElementById(id).closest('figure')?.contains(document.getElementById(graph));
+      return owns('integer-explanation','integer-grid') && ['math-guides','math-folded','math-x-order','mod-rule','mod-example','mod-note']
+        .every(id=>owns(id,'mod-grid'));
+    }""")
+    check(placement, "integer explanation belongs to step two; approach controls and explanations belong to step three")
+    check(page.locator("#math-folded").is_checked(), "folded approach is the default")
+    check(page.locator("#math-guides").is_checked(), "math guides are initially enabled")
+    check(not page.locator("#guides").is_checked(), "experiment guides retain their independent disabled default")
     check(summary.evaluate("el => document.activeElement === el"), "Enter opening preserves summary focus")
     page.keyboard.press("Space")
     check(page.locator("#math-primer").get_attribute("open") is None, "Space closes math prerequisite")
@@ -414,19 +531,51 @@ def test_math_primer(page, width, layouts, default):
     page.set_viewport_size({"width": width, "height": 900})
     restored = fixed_math_example(page, default)
     feature_layout(page, width, "math-open-resize", layouts, ("real-grid", "integer-grid", "mod-grid"))
-    toggles = []
-    for math_on, main_on in ((False, False), (True, False), (True, True), (False, True), (False, False)):
-        page.locator("#math-guides").set_checked(math_on)
-        page.locator("#guides").set_checked(main_on)
-        check(page.locator("#math-guides").is_checked() == math_on and page.locator("#guides").is_checked() == main_on,
-              "math and main checkbox states are independent")
-        check(page.locator("#mod-grid .graph-guide").count() == int(math_on), "math guide only changes fixed mod graph")
-        check(page.locator("#main-grid .graph-guide").count() == int(main_on), "main guide only changes selected experiment")
+    note = page.locator("#mod-note").inner_text()
+    for key, identifier in (("ArrowRight", "math-x-order"), ("ArrowLeft", "math-folded")):
+        current = page.locator('input[name="math-approach"]:checked')
+        current.focus()
+        page.keyboard.press(key)
+        check(page.locator("#" + identifier).is_checked(), "native arrow key selects math approach")
+        check(page.locator("#" + identifier).evaluate("el => document.activeElement === el"), "approach switch retains radio focus")
         fixed_math_example(page, default)
-        check(sorted_points(point_data(page, "main-grid")) == sorted_points(default["lines"][0]),
-              "independent guides preserve experiment points")
-        toggles.append({"math": math_on, "main": main_on})
+    page.locator("#math-x-order").focus()
+    page.keyboard.press("Space")
+    check(page.locator("#math-x-order").is_checked(), "Space activates a focused approach radio")
+    check(page.locator("#math-x-order").evaluate("el => document.activeElement === el"), "Space preserves approach radio focus")
+    toggles = []
+    language = page.locator("html").get_attribute("lang")
+    theme = page.locator("html").get_attribute("data-theme")
+    for approach in ("folded", "x-order"):
+        page.locator("#math-" + approach).check()
+        check(page.locator("#mod-note").inner_text() == note, "common field note remains unchanged by approach")
+        for math_on, main_on in ((False, False), (True, False), (True, True), (False, True), (False, False)):
+            page.locator("#math-guides").set_checked(math_on)
+            page.locator("#guides").set_checked(main_on)
+            check(page.locator("#math-guides").is_checked() == math_on and page.locator("#guides").is_checked() == main_on,
+                  "math and main checkbox states are independent")
+            check(page.locator("#mod-grid .graph-guide").count() == int(math_on), "math guide only changes fixed mod graph")
+            check(page.locator("#main-grid .graph-guide").count() == int(main_on), "main guide only changes selected experiment")
+            measured = fixed_math_example(page, default)
+            check(sorted_points(point_data(page, "main-grid")) == sorted_points(default["lines"][0]),
+                  "independent guides preserve experiment points")
+            toggles.append({"math": math_on, "main": main_on, "geometry": measured["approach"]})
+        page.locator("#math-guides").check()
+        for control in ("theme", "language", "language", "theme"):
+            page.locator("#" + control).click()
+            check(page.locator("#math-" + approach).is_checked(), "preference redraw preserves selected math approach")
+            fixed_math_example(page, default)
+        assert_preference(page, language, theme)
+        feature_layout(page, width, "math-approach-" + approach, layouts, ("real-grid", "integer-grid", "mod-grid"))
+        page.set_viewport_size({"width": alternate_width, "height": 900})
+        fixed_math_example(page, default)
+        check(page.locator("#math-" + approach).is_checked(), "resize preserves selected math approach")
+        feature_layout(page, alternate_width, "math-approach-resize-" + approach, layouts, ("real-grid", "integer-grid", "mod-grid"))
+        page.set_viewport_size({"width": width, "height": 900})
+        fixed_math_example(page, default)
+        check(page.locator("#math-" + approach).is_checked(), "resizing back preserves selected math approach")
     return {"initial_open": opened, "closed_resize_open": resized, "open_resize": restored, "guide_states": toggles}
+
 
 
 def test_coordinate_ui(page, width, layouts, language):
@@ -476,7 +625,7 @@ def test_coordinate_ui(page, width, layouts, language):
     page.locator("#share-count").select_option("8")
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     threshold_settings(page, 2, 8)
-    math_evidence["n8"] = fixed_math_example(page, default)
+    math_evidence["n8"] = fixed_math_after_change(page, default)
     click_visible(page, "candidate-all")
     shapes = []
     for index in range(8):
@@ -498,21 +647,21 @@ def test_coordinate_ui(page, width, layouts, language):
     hover.append(hover_grid(page, "main-grid", [1, 0], [6, 6], edge=True))
     actual = point_data(page, "main-grid")[0]
     hover.append(hover_grid(page, "main-grid", actual, actual))
-    math_evidence["p7-generated"] = fixed_math_example(page, default)
+    math_evidence["p7-generated"] = fixed_math_after_change(page, default)
     math_evidence["all_primes"] = {}
     for prime in page.locator("#prime option").evaluate_all("els => els.map(el => el.value)"):
         page.locator("#prime").select_option(prime)
         page.wait_for_function("() => !document.querySelector('#generate').disabled")
-        math_evidence["all_primes"][prime] = fixed_math_example(page, default)
+        math_evidence["all_primes"][prime] = fixed_math_after_change(page, default)
     click_visible(page, "k3-start")
     threshold_settings(page, 3, len(vectors["default_k3"]["A"]))
-    math_evidence["k3"] = fixed_math_example(page, default)
+    math_evidence["k3"] = fixed_math_after_change(page, default)
     axes.update(axis_metrics(page, ("slice-grid",)))
     hover.append(hover_grid(page, "slice-grid", [2, 9], [2, 9], axes="x\u2082,x\u2083"))
     for dimension in (4, 5):
         click_visible(page, "k" + str(dimension))
         threshold_settings(page, dimension, len(vectors["default_k" + str(dimension)]["A"]))
-        math_evidence["k" + str(dimension)] = fixed_math_example(page, default)
+        math_evidence["k" + str(dimension)] = fixed_math_after_change(page, default)
     click_visible(page, "k2-start")
     for identifier in ("advanced", "dealer"):
         if page.locator("#" + identifier).get_attribute("open") is not None:
@@ -568,7 +717,7 @@ def test_k2(page, width, layouts, vectors, language):
     default = vectors["default_k2"]
     math_primer_closed(page)
     show_details(page, "math-primer")
-    fixed_math_example(page, default)
+    fixed_math_after_change(page, default)
     expected = default["lines"][0]
     check(sorted_points(point_data(page, "intro-grid")) == sorted_points(expected), "intro vector points")
     check(sorted_points(point_data(page, "main-grid")) == sorted_points(expected), "selected line points")
@@ -608,20 +757,20 @@ def test_k2(page, width, layouts, vectors, language):
     before_shift = point_data(page, "main-grid")
     click_visible(page, "shift-plus")
     check(point_data(page, "main-grid") != before_shift, "shift changes drawn copy")
-    fixed_math_example(page, default)
+    fixed_math_after_change(page, default)
     click_visible(page, "shift-minus")
     check(point_data(page, "main-grid") == before_shift, "opposite shift restores copy")
     check(page.locator("#distribution-table").inner_text() == original_distribution, "editing preserves distributed values")
-    fixed_math_example(page, default)
+    fixed_math_after_change(page, default)
     check(page.locator("#edited-real-note").is_visible(), "edited real explanation")
     click_visible(page, "reset-edit")
-    fixed_math_example(page, default)
+    fixed_math_after_change(page, default)
     for _ in range(default["A"][0][1]):
         click_visible(page, "direction-minus")
     warning = page.locator("#edit-warning").inner_text()
     expected_warning = "この1本で s が決まる" if language == "ja" else "This one share determines s"
     check(expected_warning in warning, "vertical line warning")
-    fixed_math_example(page, default)
+    fixed_math_after_change(page, default)
     show_details(page, "advanced")
     inspection = page.locator("#inspection-list")
     open_ancestors(inspection)

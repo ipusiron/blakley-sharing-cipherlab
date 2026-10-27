@@ -148,6 +148,11 @@ dialog::backdrop { background: #101a2ab0; }
 .legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; font-size: .875rem; }
 .legend span { color: var(--accent); }
 .three-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; }
+.mod-approaches { min-width: 0; margin: .75rem 0 0; padding: .35rem; border: 1px solid var(--line); }
+.mod-approaches legend { padding: 0 .25rem; font-weight: 600; }
+.mod-approaches .choice { display: flex; width: 100%; }
+.mod-explanation { margin: .5rem 0; overflow-wrap: anywhere; }
+.mod-note { font-size: .875rem; }
 figure { min-width: 0; margin: 0; }
 figcaption { font-weight: 700; color: var(--accent); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .7rem 0; }
@@ -157,12 +162,12 @@ figcaption { font-weight: 700; color: var(--accent); }
 .actions output { min-width: 3.8rem; text-align: center; font-variant-numeric: tabular-nums; }
 .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin: .8rem 0; }
 label { min-width: 0; display: grid; gap: .2rem; }
-input:not([type="checkbox"]), select {
+input:not([type="checkbox"]):not([type="radio"]), select {
   min-height: 44px; width: 100%; min-width: 0; padding: .4rem; border: 1px solid var(--muted);
   border-radius: 6px; color: var(--ink); background: var(--paper); font-size: 1rem;
 }
 .choice { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: .4rem .5rem; gap: .5rem; cursor: pointer; }
-.choice input { width: 18px; height: 18px; margin: 0; flex: 0 0 18px; accent-color: var(--accent); }
+.choice input { width: 18px; height: 18px; min-width: 0; min-height: 0; margin: 0; padding: 0; flex: 0 0 18px; accent-color: var(--accent); }
 .formula { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .danger-text { color: var(--red); font-weight: 700; }
 .legend, .formula, .result { min-width: 0; }

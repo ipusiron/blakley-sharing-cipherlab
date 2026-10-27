@@ -215,7 +215,7 @@
     tab: 'intersections',
     example: { p: 13, k: 2, n: 4, X: [5, 8], A: [[1, 3], [2, 5], [4, 2], [5, 1]], c: [3, 11, 10, 7] },
     selected: [0], candidate: 0, all: false, busy: false, kind: 'fixed', edits: null, method: 'random',
-    editShare: 0, guides: false, mathGuides: false, failuresOnly: false, matrixStep: 0, matrixCount: 1,
+    editShare: 0, guides: false, mathGuides: true, mathApproach: 'folded', failuresOnly: false, matrixStep: 0, matrixCount: 1,
     yaw: 35, pitch: 25, visible: [true, true, true, true], drag: null, notice: null,
     pitBK: 2,
     pitBCount: 0,
@@ -381,6 +381,40 @@
     svg.addEventListener('pointerdown', hide, listener);
     document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); }, listener);
   }
+  function foldedGuideSegments(p, equation) {
+    const [a, b, c] = equation, limit = p - 1;
+    const minimum = Math.min(0, a * limit) + Math.min(0, b * limit);
+    const maximum = Math.max(0, a * limit) + Math.max(0, b * limit);
+    const segments = [];
+    for (let shift = Math.ceil((minimum - c) / p); shift <= Math.floor((maximum - c) / p); shift++) {
+      const rhs = c + shift * p, ends = [];
+      const add = (x, y) => {
+        if (x < -1e-9 || x > limit + 1e-9 || y < -1e-9 || y > limit + 1e-9) return;
+        const point = [Math.max(0, Math.min(limit, x)), Math.max(0, Math.min(limit, y))];
+        if (!ends.some(other => Math.hypot(point[0] - other[0], point[1] - other[1]) < 1e-9)) ends.push(point);
+      };
+      if (b !== 0) { add(0, rhs / b); add(limit, (rhs - a * limit) / b); }
+      if (a !== 0) { add(rhs / a, 0); add((rhs - b * limit) / a, limit); }
+      ends.sort((one, two) => one[0] - two[0] || one[1] - two[1]);
+      if (ends.length >= 2) segments.push({ rhs, points: [ends[0], ends[ends.length - 1]] });
+    }
+    return segments;
+  }
+  function drawRuleStep(svg, scale, step) {
+    const [from, to] = step, { X, Y } = scale;
+    const direction = Math.sign(Y(to[1]) - Y(from[1]));
+    if (!direction) return;
+    const startX = X(from[0]) + 4, startY = Y(from[1]) - direction * 3, endX = X(to[0]);
+    const tipY = Y(to[1]) - direction * 6, baseY = tipY - direction * 6;
+    const group = S('g', {
+      class: 'rule-step', 'data-from': JSON.stringify(from), 'data-to': JSON.stringify(to),
+      'data-delta': JSON.stringify(to.map((value, i) => value - from[i]))
+    });
+    group.append(S('line', { x1: startX, y1: startY, x2: endX, y2: startY, class: 'rule-arrow' }),
+      S('line', { x1: endX, y1: startY, x2: endX, y2: baseY, class: 'rule-arrow' }),
+      S('polygon', { points: `${endX - 3},${baseY} ${endX + 3},${baseY} ${endX},${tipY}`, class: 'rule-arrow' }));
+    svg.append(group);
+  }
   function graph(svg, p, series, options = {}) {
     const scale = graphScale(Math.min(360, svg.parentElement.clientWidth || 260), p);
     const { width, height, left, right, top, bottom, dx, X, Y } = scale;
@@ -398,9 +432,19 @@
     }
     label(svg, left, 20, options.axisY || (options.slice ? 'x₃' : t('axisRandom')), 'start', 'grid-axis-label');
     label(svg, width / 2, height - 10, options.axisX || (options.slice ? 'x₂' : t('axisSecret')), 'middle', 'grid-axis-label');
-    const points = new Map();
+    const points = new Map(), folded = options.foldedLine ? foldedGuideSegments(p, options.foldedLine) : null;
+    if (folded) {
+      svg.dataset.guideRhs = JSON.stringify(folded.map(segment => segment.rhs));
+      svg.dataset.guideSegments = JSON.stringify(folded.map(segment => segment.points));
+      if (options.guides) {
+        const path = folded.map(({ points: [from, to] }) => `M${X(from[0])},${Y(from[1])} L${X(to[0])},${Y(to[1])}`);
+        svg.append(S('path', { d: path.join(' '), class: 'graph-guide' }));
+      }
+    } else {
+      delete svg.dataset.guideRhs; delete svg.dataset.guideSegments;
+    }
     for (const item of series) {
-      if (options.guides && item.points.length > 1) {
+      if (options.guides && !folded && item.points.length > 1) {
         const segments = [];
         item.points.forEach((point, i) => {
           const previous = item.points[i - 1];
@@ -447,12 +491,7 @@
       svg.append(S('circle', { cx: X(x), cy: Y(y), r: 8, class: 'grid-secret' }),
         S('circle', { cx: X(x), cy: Y(y), r: 4, class: 'grid-secret' }));
     }
-    if (options.arrow && p === 13) {
-      const x = X(0) + 4, y = Y(1) - 3, endX = X(1) - 2, endY = Y(5) + 9;
-      svg.append(S('line', { x1: x, y1: y, x2: endX, y2: y, class: 'rule-arrow' }),
-        S('line', { x1: endX, y1: y, x2: endX, y2: endY, class: 'rule-arrow' }),
-        S('polygon', { points: `${endX - 3},${endY} ${endX + 3},${endY} ${endX},${endY - 6}`, class: 'rule-arrow' }));
-    }
+    if (options.ruleStep) drawRuleStep(svg, scale, options.ruleStep);
     if (hover) gridTooltip(svg, p, scale, options);
   }
   function pointsTable(id, p, series) {
@@ -473,6 +512,9 @@
   }
   function renderMathPrimer() {
     $('math-guides').checked = state.mathGuides;
+    for (const radio of document.querySelectorAll('input[name="math-approach"]')) radio.checked = radio.value === state.mathApproach;
+    $('mod-grid').dataset.approach = state.mathApproach;
+    $('mod-grid').dataset.guides = String(state.mathGuides);
     if (!$('math-primer').open || !$('panel-intersections').getClientRects().length) {
       for (const id of ['real-grid', 'integer-grid', 'mod-grid']) {
         const svg = $(id);
@@ -487,15 +529,18 @@
     for (let x = 0; x < p; x++) for (let y = 0; y < p; y++) if (a[0] * x + a[1] * y === integerRhs) integers.push([x, y]);
     graph($('real-grid'), p, [], { realLine: [...a, integerRhs], axisX: 'x₁', axisY: 'x₂' });
     graph($('integer-grid'), p, [{ id: 0, points: integers }], { axisX: 'x₁', axisY: 'x₂' });
-    graph($('mod-grid'), p, [{ id: 0, points: line }], { guides: state.mathGuides, arrow: true, axisX: 'x₁', axisY: 'x₂' });
+    const folded = state.mathApproach === 'folded';
+    graph($('mod-grid'), p, [{ id: 0, points: line }], {
+      guides: state.mathGuides, foldedLine: folded ? [...a, integerRhs] : null,
+      ruleStep: (folded ? integers : line).slice(0, 2), axisX: 'x₁', axisY: 'x₂'
+    });
     table($('real-table'), [t('equation')], [[`${a[0]}x₁ + ${a[1]}x₂ = ${integerRhs}`]]);
     pointsTable('integer-table', p, [{ id: 0, points: integers }]); pointsTable('mod-table', p, [{ id: 0, points: line }]);
     $('integer-explanation').textContent = t('integerCandidatesText', {
       rhs: integerRhs, points: integers.map(fmtPoint).join(' '), count: integers.length
     });
-    $('mod-rule').textContent = t('modRule', {
-      b: G.mod(c[0] * G.inv(a[1], p), p), a: G.mod(-a[0] * G.inv(a[1], p), p), p
-    });
+    $('mod-rule').textContent = t(folded ? 'foldedRule' : 'xOrderRule');
+    $('mod-example').textContent = t(folded ? 'foldedExample' : 'xOrderExample');
   }
   function renderPicks(example) {
     $('share-picks').replaceChildren(...example.A.map((_, i) => {
@@ -754,6 +799,10 @@
     $('candidate-all').addEventListener('click', () => { state.all = !state.all; render(); });
     $('guides').addEventListener('change', event => { state.guides = event.target.checked; render(); });
     $('math-guides').addEventListener('change', event => { state.mathGuides = event.target.checked; renderMathPrimer(); });
+    for (const radio of document.querySelectorAll('input[name="math-approach"]')) radio.addEventListener('change', () => {
+      if (!radio.checked || !['folded', 'x-order'].includes(radio.value)) return;
+      state.mathApproach = radio.value; renderMathPrimer();
+    });
     $('math-primer').addEventListener('toggle', renderMathPrimer);
     $('edit-share').addEventListener('change', event => { state.editShare = Number(event.target.value) - 1; render(); });
     for (const [id, component, delta] of [['shift-minus', 'c', -1], ['shift-plus', 'c', 1], ['direction-minus', 'b', -1], ['direction-plus', 'b', 1]]) {

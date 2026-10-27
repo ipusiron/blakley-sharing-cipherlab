@@ -15,3 +15,17 @@ test('F: Japanese and English keys, placeholders and HTML labels match', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   for (const match of html.matchAll(/data-(?:i18n|label)="([^"]+)"/g)) assert.ok(Object.hasOwn(M.ja, match[1]), match[1]);
 });
+
+
+test('F: initial HTML carries current Japanese text before JavaScript', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const tags = [...html.matchAll(
+    /<(?<tag>[a-z][a-z0-9]*)\b[^>]*\bdata-i18n="(?<key>[^"]+)"[^>]*>(?<text>[^<]*)<\/\k<tag>>/g
+  )];
+  assert.ok(tags.length > 0, 'static translations exist');
+  assert.equal(tags.length, [...html.matchAll(/\bdata-i18n="/g)].length, 'every translated element has static text');
+  const decode = value => value.replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&').trim();
+  for (const { groups } of tags) {
+    assert.equal(decode(groups.text), M.ja[groups.key], 'initial Japanese text: ' + groups.key);
+  }
+});

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-app-ready="false">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,73 +18,92 @@
   <header class="page-header">
     <div class="masthead">
       <h1>BlakleySharing <span>CipherLab</span></h1>
-      <div class="header-tools">
-        <button id="theme" class="icon-button" type="button" data-label="theme">◐</button>
-        <button id="language" class="icon-button" type="button" data-label="language">EN</button>
-        <button id="help" class="icon-button" type="button" data-label="help" aria-haspopup="dialog">?</button>
-      </div>
+      <fieldset id="startup-tools" class="header-tools startup-control-group" disabled aria-label="表示 / Display">
+        <button id="theme" class="icon-button" type="button" data-label="theme" aria-label="明暗を切り替える">◐</button>
+        <button id="language" class="icon-button" type="button" data-label="language" aria-label="言語を切り替える">EN</button>
+        <button id="help" class="icon-button" type="button" data-label="help" aria-haspopup="dialog" aria-label="ヘルプと座学">?</button>
+      </fieldset>
     </div>
     <p class="eyebrow">DAY126 · INTERSECT / COMPARE / PITFALLS</p>
   </header>
   <main>
-    <nav class="tabs" role="tablist" data-label="tablist">
+    <aside id="startup-note" class="startup-note" role="status">
+      <p>図と操作を準備中 / <span lang="en">Loading diagrams</span></p>
+      <details id="startup-help">
+        <summary>表示されない場合 / <span lang="en">Help</span></summary>
+        <p>説明文はこのまま読めます。図と操作が表示されない場合は、JavaScriptを有効にして再読み込みしてください。</p>
+        <p lang="en">You can read the explanations. If diagrams and controls do not appear, enable JavaScript and reload this page.</p>
+        <a id="startup-reload" href="">再読み込み / Reload</a>
+      </details>
+    </aside>
+    <fieldset id="startup-controls" class="startup-control-group" disabled aria-label="教材 / Learning tool">
+    <nav class="tabs" role="tablist" data-label="tablist" aria-label="学ぶ順番">
       <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
-        aria-selected="true" tabindex="0" data-i18n="intersections"></button>
+        aria-selected="true" tabindex="0" data-i18n="intersections">交点で追う</button>
       <button id="tab-compare" role="tab" type="button" aria-controls="panel-compare"
-        aria-selected="false" tabindex="-1" data-i18n="compare"></button>
+        aria-selected="false" tabindex="-1" data-i18n="compare">Shamir と並べる</button>
       <button id="tab-pitfalls" role="tab" type="button" aria-controls="panel-pitfalls"
-        aria-selected="false" tabindex="-1" data-i18n="pitfalls"></button>
+        aria-selected="false" tabindex="-1" data-i18n="pitfalls">確かめる</button>
     </nav>
-    <p class="learning-note"><span data-i18n="educational"></span>
-      <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical"></a></p>
+    <p class="learning-note"><span data-i18n="educational">学習用。本物の秘密（パスワード・シード・鍵）は入れない。</span>
+      <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical">実用のバックアップはDay124 Scatter Seedsへ。</a></p>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
-      <h2 data-i18n="intersections"></h2>
+      <h2 data-i18n="intersections">交点で追う</h2>
       <details id="math-primer" class="math-primer">
-        <summary data-i18n="mathPrimer"></summary>
+        <summary data-i18n="mathPrimer">知っておくべき数学的概念</summary>
         <section id="real-story" class="stage-card">
-          <h3 data-i18n="realToMod"></h3>
-          <p data-i18n="mathPrimerIntro"></p>
-          <p data-i18n="mathPrimerDifference"></p>
+          <h3 data-i18n="realToMod">実数から整数、そしてmodへ</h3>
+          <p data-i18n="mathPrimerIntro">GF(13)の固定例で、実数・整数・合同式を比べます。下の実験の設定やシェア編集とは独立した教材です。</p>
+          <p data-i18n="mathPrimerDifference">②では、各座標が0〜12の格子点のうち、等式x₁+3x₂=29を満たす4点を示します。③では合同式x₁+3x₂≡3 (mod 13)を満たす13点を、2通りの描き方で確かめます。</p>
           <div class="three-steps">
-            <figure><figcaption data-i18n="realStep"></figcaption><svg id="real-grid" class="coordinate-plane" role="img" data-label="realStep"></svg>
-              <details><summary data-i18n="graphTable"></summary><div id="real-table"></div></details></figure>
-            <figure><figcaption data-i18n="integerStep"></figcaption><svg id="integer-grid" class="coordinate-plane" role="img" data-label="integerStep"></svg>
+            <figure><figcaption data-i18n="realStep">① 実数の直線</figcaption><svg id="real-grid" class="coordinate-plane" role="img" data-label="realStep" viewBox="0 0 360 400" aria-label="① 実数の直線">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+              <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="real-table"></div></details></figure>
+            <figure><figcaption data-i18n="integerStep">② 範囲内の格子点</figcaption><svg id="integer-grid" class="coordinate-plane" role="img" data-label="integerStep" viewBox="0 0 360 400" aria-label="② 範囲内の格子点">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
               <p id="integer-explanation"></p>
-              <details><summary data-i18n="graphTable"></summary><div id="integer-table"></div></details></figure>
-            <figure><figcaption data-i18n="modStep"></figcaption><svg id="mod-grid" class="coordinate-plane" role="img" data-label="modStep"></svg>
+              <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="integer-table"></div></details></figure>
+            <figure><figcaption data-i18n="modStep">③ 合同式を満たす点</figcaption><svg id="mod-grid" class="coordinate-plane" role="img" data-label="modStep" viewBox="0 0 360 400" aria-label="③ 合同式を満たす点">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
               <fieldset class="mod-approaches">
-                <legend data-i18n="modApproaches"></legend>
-                <label class="choice"><input id="math-folded" type="radio" name="math-approach" value="folded" checked aria-controls="mod-grid mod-rule mod-example"><span data-i18n="foldedApproach"></span></label>
-                <label class="choice"><input id="math-x-order" type="radio" name="math-approach" value="x-order" aria-controls="mod-grid mod-rule mod-example"><span data-i18n="xOrderApproach"></span></label>
+                <legend data-i18n="modApproaches">点の描き方</legend>
+                <label class="choice"><input id="math-folded" type="radio" name="math-approach" value="folded" checked aria-controls="mod-grid mod-rule mod-example"><span data-i18n="foldedApproach">元の直線を折り返す</span></label>
+                <label class="choice"><input id="math-x-order" type="radio" name="math-approach" value="x-order" aria-controls="mod-grid mod-rule mod-example"><span data-i18n="xOrderApproach">別の描き方：x₁の順に描く</span></label>
               </fieldset>
-              <label class="choice"><input id="math-guides" type="checkbox" checked><span data-i18n="guides"></span></label>
+              <label class="choice"><input id="math-guides" type="checkbox" checked><span data-i18n="guides">点の間の目安を表示</span></label>
               <p id="mod-rule" class="mod-explanation"></p>
               <p id="mod-example" class="mod-explanation formula"></p>
-              <p id="mod-note" class="mod-note" data-i18n="modApproachNote"></p>
-              <details><summary data-i18n="graphTable"></summary><div id="mod-table"></div></details></figure>
+              <p id="mod-note" class="mod-note" data-i18n="modApproachNote">どちらも同じ13点です。点間の線は理解のための目安で、GF(13)の連続した線ではありません。</p>
+              <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="mod-table"></div></details></figure>
           </div>
         </section>
       </details>
       <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
-        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle"></h3>
-        <p data-i18n="secretSharingDefinition"></p>
-        <p data-i18n="thresholdDefinition"></p>
-        <p data-i18n="learningRoute"></p>
+        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚で復元</h3>
+        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚で復元できます。</p>
+        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚を集めても秘密sを復元できます。</p>
+        <p data-i18n="learningRoute">まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。</p>
         <p id="threshold-summary" class="threshold-current"></p>
       </section>
       <div id="k2-view">
         <section id="initial-example-primer" class="primer-example" aria-labelledby="primer-title">
-          <h3 id="primer-title" data-i18n="primerTitle"></h3>
-          <p data-i18n="primerPeople"></p>
-          <p data-i18n="primerPoint"></p>
-          <p data-i18n="primerRandom"></p>
-          <p data-i18n="primerRoles"></p>
+          <h3 id="primer-title" data-i18n="primerTitle">最初の固定例：(k,n)=(2,4)</h3>
+          <p data-i18n="primerPeople">4人に1枚ずつ配ります。どの2枚からも点Xの第1座標sが求まり、1枚ではsの13候補がすべて残ります。</p>
+          <p data-i18n="primerPoint">秘密sと乱数rを組にして、点X=(s,r)を作ります。1枚のシェアは、この点を通る直線を表す1本の式です。</p>
+          <p data-i18n="primerRandom">rは秘密と別に選ぶ補助の数です。式にrを混ぜ、正しい係数の組を使い、乱数を全体から同じ確率で選ぶと、1枚ではsを絞れなくなります。</p>
+          <p data-i18n="primerRoles">シェアを作って配る人をディーラーと呼びます。受取人は自分の式を受け取り、復元時に式を持ち寄ります。この画面は、配る人の答えと、集めた式だけからわかることの両方を示します。</p>
           <p class="formula">a x₁ + b x₂ ≡ c (mod p)</p>
-          <p data-i18n="primerEquationDefinition"></p>
-          <p data-i18n="primerField"></p>
+          <p data-i18n="primerEquationDefinition">係数a,bを選び、共通の法pでc=a s+b r (mod p)を計算します。係数a,bと右辺cを渡すことは、各人に1本の式を渡すことに相当します。</p>
+          <p data-i18n="primerField">GF(13)では0〜12を使い、計算結果を13で割った余りにします。たとえば12+2≡1 (mod 13)です。</p>
           <table class="primer-equations">
-            <caption data-i18n="primerDistribution"></caption>
-            <thead><tr><th scope="col" data-i18n="primerShare"></th><th scope="col" data-i18n="equation"></th></tr></thead>
+            <caption data-i18n="primerDistribution">4人に配る4本の式（最初の固定例）</caption>
+            <thead><tr><th scope="col" data-i18n="primerShare">配るシェア</th><th scope="col" data-i18n="equation">式</th></tr></thead>
             <tbody>
               <tr><td data-cell-label="primerShare">#1</td><td data-cell-label="equation">x₁ + 3x₂ ≡ 3 (mod 13)</td></tr>
               <tr><td data-cell-label="primerShare">#2</td><td data-cell-label="equation">2x₁ + 5x₂ ≡ 11 (mod 13)</td></tr>
@@ -93,251 +112,278 @@
             </tbody>
           </table>
         </section>
-        <p data-i18n="intro"></p>
+        <p data-i18n="intro">下の図は、現在配っているシェア#1の式を満たす格子点です。</p>
         <p id="intro-current-example" class="formula"></p>
-        <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph"></svg>
-        <details><summary data-i18n="graphTable"></summary><div id="intro-table"></div></details>
+        <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph" viewBox="0 0 360 400" aria-label="シェア#1の座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="intro-table"></div></details>
         <p id="intro-summary" class="result"></p>
-        <p id="edited-real-note" hidden data-i18n="editedReal"></p>
+        <p id="edited-real-note" hidden data-i18n="editedReal">配布したシェア#1の図とディーラーの配布表は、配った値を表示します。操作図と検査には、編集した写しを使います。</p>
       </div>
       <section class="stage-card" aria-labelledby="explore-title">
-        <h3 id="explore-title"></h3>
-        <p data-i18n="exploreInstruction"></p>
-        <div id="share-picks" class="actions" role="group" data-label="chooseShares"></div>
+        <h3 id="explore-title">1本から、2本で1点、3本目も同じ点へ</h3>
+        <p data-i18n="exploreInstruction">シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。</p>
+        <div id="share-picks" class="actions" role="group" data-label="chooseShares" aria-label="シェアを選ぶ"></div>
         <div id="legend" class="legend"></div>
         <p id="selected-summary"></p>
         <p id="selection-explanation" class="reading-guide"></p>
         <div id="candidate-controls" class="actions">
-          <button id="candidate-prev" type="button" data-label="previousCandidate">◀</button>
+          <button id="candidate-prev" type="button" data-label="previousCandidate" aria-label="前の候補">◀</button>
           <output id="candidate-value"></output>
-          <button id="candidate-next" type="button" data-label="nextCandidate">▶</button>
-          <button id="candidate-all" type="button" aria-pressed="false" data-i18n="allCandidates"></button>
+          <button id="candidate-next" type="button" data-label="nextCandidate" aria-label="次の候補">▶</button>
+          <button id="candidate-all" type="button" aria-pressed="false" data-i18n="allCandidates">全候補の点を強調</button>
         </div>
         <p id="candidate-explanation"></p>
         <div id="k2-interactive">
-          <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides"></span></label>
-          <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane"></svg>
-          <details><summary data-i18n="graphTable"></summary><div id="grid-table"></div></details>
+          <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides">点の間の目安を表示</span></label>
+          <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane" viewBox="0 0 360 400" aria-label="選んだシェアの座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+          <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="grid-table"></div></details>
         </div>
         <p id="candidate-equation" class="formula"></p>
         <p id="candidate-inverse-explanation" hidden></p>
         <p id="recovery-result" class="result" role="status"></p>
         <div id="combination-results"></div>
-        <details id="edit-controls"><summary data-i18n="editCopy"></summary>
-          <p data-i18n="editIntro"></p>
-          <label><span data-i18n="editShare"></span><select id="edit-share"></select></label>
-          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys">
-            <button id="shift-minus" type="button" data-i18n="shiftMinus"></button>
-            <button id="shift-plus" type="button" data-i18n="shiftPlus"></button>
-            <button id="direction-minus" type="button" data-i18n="directionMinus"></button>
-            <button id="direction-plus" type="button" data-i18n="directionPlus"></button>
-          </div><button id="reset-edit" type="button" data-i18n="undoEdit"></button>
+        <details id="edit-controls"><summary data-i18n="editCopy">選んだシェアの写しをいじる</summary>
+          <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
+          <label><span data-i18n="editShare">いじるシェア</span><select id="edit-share"></select></label>
+          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys" aria-label="矢印キー: 上下で平行移動、左右で方向を変更">
+            <button id="shift-minus" type="button" data-i18n="shiftMinus">右辺c −1（平行移動）</button>
+            <button id="shift-plus" type="button" data-i18n="shiftPlus">右辺c +1（平行移動）</button>
+            <button id="direction-minus" type="button" data-i18n="directionMinus">係数b −1（方向を変える）</button>
+            <button id="direction-plus" type="button" data-i18n="directionPlus">係数b +1（方向を変える）</button>
+          </div><button id="reset-edit" type="button" data-i18n="undoEdit">元に戻す</button>
           <p id="edit-warning" class="danger-text" role="status"></p>
         </details>
       </section>
       <section class="stage-card">
-        <h3 id="dimension-title"></h3><p id="dimension-intro"></p>
-        <div class="actions"><button id="k2-start" type="button" data-i18n="back2"></button>
-          <button id="k3-start" type="button" data-i18n="start3"></button></div>
+        <h3 id="dimension-title">k=3では、直線が平面になる</h3><p id="dimension-intro">k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>
+        <div class="actions"><button id="k2-start" type="button" data-i18n="back2">k=2の既定の例</button>
+          <button id="k3-start" type="button" data-i18n="start3">k=3の切り口を見る</button></div>
         <div id="view-3d" hidden>
-          <h3 data-i18n="real3d"></h3>
-          <svg id="scene" class="scene" role="img" tabindex="0" aria-describedby="camera-description" data-label="sceneLabel"></svg>
-          <details><summary data-i18n="graphTable"></summary><div id="scene-table"></div></details>
+          <h3 data-i18n="real3d">実数の導入図</h3>
+          <svg id="scene" class="scene" role="img" tabindex="0" aria-describedby="camera-description" data-label="sceneLabel" viewBox="0 0 360 360" aria-label="実数の3D図。矢印キーで回転。">
+  <text class="graph-loading" x="180" y="165" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="195" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+          <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="scene-table"></div></details>
           <p id="camera-description"></p>
           <div class="actions camera-controls">
-            <button id="yaw-left" type="button" data-label="yawLeft">↺</button>
-            <button id="yaw-right" type="button" data-label="yawRight">↻</button>
-            <button id="pitch-up" type="button" data-label="pitchUp">▲</button>
-            <button id="pitch-down" type="button" data-label="pitchDown">▼</button>
-            <button id="camera-reset" type="button" data-i18n="cameraReset"></button>
+            <button id="yaw-left" type="button" data-label="yawLeft" aria-label="左へ10°回す">↺</button>
+            <button id="yaw-right" type="button" data-label="yawRight" aria-label="右へ10°回す">↻</button>
+            <button id="pitch-up" type="button" data-label="pitchUp" aria-label="上へ10°回す">▲</button>
+            <button id="pitch-down" type="button" data-label="pitchDown" aria-label="下へ10°回す">▼</button>
+            <button id="camera-reset" type="button" data-i18n="cameraReset">正面に戻す</button>
           </div><div id="plane-toggles" class="actions"></div>
-          <p data-i18n="real3dNote"></p><p id="real-slice-value"></p>
-          <h3 data-i18n="finiteSlices"></h3>
+          <p data-i18n="real3dNote">上は実数の等式、下はGF(p)の合同式で、一般に交点は異なります。同じsで連動しますが、候補数は下の一覧で読みます。平面の表示切替は見え方だけを変え、計算する枚数は変えません。</p><p id="real-slice-value"></p>
+          <h3 data-i18n="finiteSlices">GF(p)の切り口一覧</h3>
           <p id="slice-explanation"></p>
-          <div id="slices" class="slice-list" role="group" data-label="chooseSlice"></div>
+          <div id="slices" class="slice-list" role="group" data-label="chooseSlice" aria-label="切り口を選ぶ"></div>
           <p id="slice-focus-note" class="reading-guide"></p>
           <button id="slice-recovered" type="button" hidden></button>
-          <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph"></svg>
-          <details><summary data-i18n="graphTable"></summary><div id="slice-table"></div></details>
+          <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph" viewBox="0 0 360 400" aria-label="選んだ切り口の座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+          <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="slice-table"></div></details>
           <p id="slice-equation" class="formula"></p><p id="slice-result" class="result" role="status"></p>
         </div>
         <div id="matrix-view" hidden>
-          <h3 data-i18n="rowReduction"></h3><p id="matrix-intro"></p>
+          <h3 data-i18n="rowReduction">拡大係数行列を1段ずつ解く</h3><p id="matrix-intro"></p>
           <p id="matrix-op"></p>
           <div id="matrix-table" class="matrix-frame"></div>
-          <div class="actions"><button id="matrix-prev" type="button" data-i18n="previousStep"></button>
-            <output id="matrix-step"></output><button id="matrix-next" type="button" data-i18n="nextStep"></button></div>
+          <div class="actions"><button id="matrix-prev" type="button" data-i18n="previousStep">前へ</button>
+            <output id="matrix-step"></output><button id="matrix-next" type="button" data-i18n="nextStep">次へ</button></div>
           <p id="matrix-explanation" class="reading-guide"></p>
-          <details><summary data-i18n="allSteps"></summary><div id="matrix-all"></div></details>
+          <details><summary data-i18n="allSteps">全手順を見る</summary><div id="matrix-all"></div></details>
           <div id="matrix-candidates"></div>
         </div>
       </section>
-      <details id="dealer"><summary data-i18n="dealer"></summary>
-        <p data-i18n="dealerIntro"></p>
+      <details id="dealer"><summary data-i18n="dealer">ディーラーの設定・計算・配布（答えを含む）</summary>
+        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。</p>
         <p id="example-kind" class="result"></p>
         <div class="settings-grid">
-          <label><span data-i18n="primeLabel"></span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
-          <label><span data-i18n="shareCountLabel"></span><select id="share-count"></select></label>
-          <label><span data-i18n="secretLabel"></span><input id="secret" type="number" min="0" max="12" value="5"></label>
-        </div><p data-i18n="coordinatesIntro"></p><div id="coordinates" class="settings-grid"></div>
-        <div class="actions"><button id="generate" type="button" data-i18n="generate"></button>
-          <button id="reset-default" type="button" data-i18n="resetDefault"></button></div>
-        <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote"></p>
-        <p data-i18n="randomnessPlain"></p>
-        <p data-i18n="normalName"></p>
-        <p data-i18n="premise"></p><p data-i18n="reuse"></p>
+          <label><span data-i18n="primeLabel">計算に使う素数 p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
+          <label><span data-i18n="shareCountLabel">配る総数 n</span><select id="share-count"></select></label>
+          <label><span data-i18n="secretLabel">秘密情報 s</span><input id="secret" type="number" min="0" max="12" value="5"></label>
+        </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
+        <div class="actions"><button id="generate" type="button" data-i18n="generate">新しい乱数で作る</button>
+          <button id="reset-default" type="button" data-i18n="resetDefault">既定の例に戻す</button></div>
+        <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote">手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。</p>
+        <p data-i18n="randomnessPlain">秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。</p>
+        <p data-i18n="normalName">係数の組を「法線」と呼びます。検査は係数の組だけを見ます。</p>
+        <p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p><p data-i18n="reuse">法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。</p>
         <div id="distribution-table"></div>
-        <details id="advanced"><summary data-i18n="advanced"></summary>
-          <p data-i18n="methodIntro"></p>
-          <label><span data-i18n="normalMethod"></span><select id="method">
-            <option value="random" data-i18n="randomMethod"></option><option value="vandermonde" data-i18n="vandermonde"></option>
+        <details id="advanced"><summary data-i18n="advanced">詳しく</summary>
+          <p data-i18n="methodIntro">「乱数＋検査」は係数を引いて条件を調べ、不合格なら引き直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。</p>
+          <label><span data-i18n="normalMethod">法線の作り方</span><select id="method">
+            <option value="random" data-i18n="randomMethod">乱数＋検査</option><option value="vandermonde" data-i18n="vandermonde">ヴァンデルモンド</option>
           </select></label>
-          <details><summary data-i18n="higherDimensions"></summary><div class="actions">
+          <details><summary data-i18n="higherDimensions">もっと大きなk（表だけ）</summary><div class="actions">
             <button id="k4" type="button">k=4</button><button id="k5" type="button">k=5</button></div></details>
-          <h3 data-i18n="checks"></h3><p data-i18n="checkPlain"></p>
-          <p data-i18n="checkI"></p><p data-i18n="checkII"></p><p id="inspection-summary" class="result"></p>
-          <details><summary data-i18n="inspectionList"></summary>
-            <label class="choice"><input id="failures-only" type="checkbox"><span data-i18n="failuresOnly"></span></label>
+          <h3 data-i18n="checks">係数の組を検査する</h3><p data-i18n="checkPlain">(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。</p>
+          <p data-i18n="checkI">検査 (i)：k 本の式で点が1つに決まる</p><p data-i18n="checkII">検査 (ii)：秘密 s を決めると、残りの未知数（x₂…x_k）の式に、いつもちょうど1つの解がある</p><p id="inspection-summary" class="result"></p>
+          <details><summary data-i18n="inspectionList">検査の一覧</summary>
+            <label class="choice"><input id="failures-only" type="checkbox"><span data-i18n="failuresOnly">不合格だけ</span></label>
             <div id="inspection-list"></div>
-          </details><p data-i18n="checkPremise"></p>
+          </details><p data-i18n="checkPremise">検査は係数の組だけを見るので、通るまで引き直しても秘密は漏れない。ただし乱数の座標 x₂…x_k が一様であることが前提。</p>
         </details>
       </details>
-      <details id="field-primer"><summary data-i18n="fieldPrimer"></summary>
-        <p data-i18n="fieldText"></p><p data-i18n="inverseText"></p>
-        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer"></a>
+      <details id="field-primer"><summary data-i18n="fieldPrimer">GF(p)の前提知識</summary>
+        <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
+        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer">Day123のGF(p)の前提知識へ</a>
       </details>
     </section>
     <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
-      <h2 data-i18n="compare"></h2>
-      <p data-i18n="compareIntro"></p>
-      <p data-i18n="compareBasics"></p>
-      <p data-i18n="compareRandomRoles"></p>
-      <p data-i18n="compareCandidateMeaning"></p>
+      <h2 data-i18n="compare">Shamir と並べる</h2>
+      <p data-i18n="compareIntro">シェアから秘密を絞れないことを、Shamirの式とBlakleyの点の両方で見ます。同じシェアを2通りに読む比較です。</p>
+      <p data-i18n="compareBasics">Shamir方式は、たとえばf(x)=s+a₁xという式を作ります。秘密sはx=0の値、a₁は乱数です。各人には、0以外の番号iと値f(i)の組を1枚のシェアとして渡します。</p>
+      <p data-i18n="compareRandomRoles">ここでa₁,a₂は乱数で、点Xの第2・第3座標に当たります。前のタブで各人に配る式の係数a,bとは役割が違います。</p>
+      <p data-i18n="compareCandidateMeaning">候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。</p>
       <section class="stage-card" aria-labelledby="compare-k2-title">
-        <h3 id="compare-k2-title" data-i18n="compareK2Title"></h3>
-        <p data-i18n="compareK2Intro"></p>
-        <p data-i18n="compareK2Task"></p>
-        <details id="compare-k2-source"><summary data-i18n="compareDealerSource"></summary>
+        <h3 id="compare-k2-title" data-i18n="compareK2Title">① k=2：13本の候補を13個の点へ</h3>
+        <p data-i18n="compareK2Intro">k=2ではf(x)=s+a₁xを使います。sとa₁の組を決めると1本の式が決まり、同じ組を点X=(s,a₁)としても表せます。</p>
+        <p data-i18n="compareK2Task">相手が知るのは(1,9)の1枚だけです。候補を送り、sを変えてもf(1)=9となる式が残ることを確かめてください。</p>
+        <details id="compare-k2-source"><summary data-i18n="compareDealerSource">配布側の答えを見る</summary>
           <p id="compare-k2-answer" class="formula"></p>
           <p id="compare-k2-all-shares"></p>
         </details>
         <p id="compare-k2-shares"></p>
         <p class="formula">s + a₁ ≡ 9 (mod 13)</p>
         <div class="actions">
-          <button id="compare-k2-prev" type="button" data-label="comparePrevious">◀</button>
+          <button id="compare-k2-prev" type="button" data-label="comparePrevious" aria-label="前の候補を選ぶ">◀</button>
           <output id="compare-k2-value"></output>
-          <button id="compare-k2-next" type="button" data-label="compareNext">▶</button>
+          <button id="compare-k2-next" type="button" data-label="compareNext" aria-label="次の候補を選ぶ">▶</button>
         </div>
-        <svg id="compare-k2-grid" class="coordinate-plane" role="img" data-label="compareK2Graph"></svg>
-        <details><summary data-i18n="graphTable"></summary><div id="compare-linear-table"></div></details>
+        <svg id="compare-k2-grid" class="coordinate-plane" role="img" data-label="compareK2Graph" viewBox="0 0 360 400" aria-label="シェア1枚と矛盾しない13個の点 (s,a₁)">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="compare-linear-table"></div></details>
         <p id="compare-k2-caption" class="result" role="status"></p>
-        <p data-i18n="compareK2Correspondence"></p>
+        <p data-i18n="compareK2Correspondence">シェア (1,9) を通る13本の候補の直線と、s+a₁≡9 の上の13点 (s,9−s) が1対1に並びます。</p>
       </section>
       <section class="stage-card" aria-labelledby="compare-k3-title">
-        <h3 id="compare-k3-title" data-i18n="compareK3Title"></h3>
-        <p data-i18n="compareK3Intro"></p>
+        <h3 id="compare-k3-title" data-i18n="compareK3Title">② k=3：多項式の係数が、そのまま点になる</h3>
+        <p data-i18n="compareK3Intro">k=3ではf(x)=s+a₁x+a₂x²を使います。x²の前の数a₂も乱数です。3つの係数の組を点X=(s,a₁,a₂)として見ます。</p>
         <div id="compare-equivalence-table"></div>
-        <p data-i18n="compareK3Task"></p>
-        <details id="compare-k3-source"><summary data-i18n="compareDealerSource"></summary>
+        <p data-i18n="compareK3Task">相手が知るのは(1,11)と(2,8)の2枚だけです。必要な3枚には足りません。sの行を選び、同じ2枚に合う候補を比べてください。</p>
+        <details id="compare-k3-source"><summary data-i18n="compareDealerSource">配布側の答えを見る</summary>
           <p id="compare-fixed-polynomial" class="formula"></p>
           <p id="compare-k3-all-shares"></p>
         </details>
         <p id="compare-k3-shares"></p>
-        <p data-i18n="compareVandermonde"></p>
+        <p data-i18n="compareVandermonde">番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)はヴァンデルモンドの行で、この構成は検査(i)(ii)を満たします。</p>
         <label class="choice">
-          <input id="compare-nonzero" type="checkbox"><span data-i18n="compareNonzero"></span>
+          <input id="compare-nonzero" type="checkbox"><span data-i18n="compareNonzero">乱数の座標を0以外に限る</span>
         </label>
-        <p data-i18n="compareNonzeroExplanation"></p>
+        <p data-i18n="compareNonzeroExplanation">この切り替えはa₁とa₂の両方を0以外に限ります。0を含むGF(13)全体から選ぶ前提を壊すと、秘密の候補が消えます。</p>
         <p id="compare-count" class="result" role="status"></p>
         <div class="actions">
-          <button id="compare-prev" type="button" data-label="comparePrevious">◀</button>
+          <button id="compare-prev" type="button" data-label="comparePrevious" aria-label="前の候補を選ぶ">◀</button>
           <output id="compare-current"></output>
-          <button id="compare-next" type="button" data-label="compareNext">▶</button>
+          <button id="compare-next" type="button" data-label="compareNext" aria-label="次の候補を選ぶ">▶</button>
         </div>
-        <p data-i18n="compareViews"></p>
+        <p data-i18n="compareViews">多項式の図、切り口の図、対応表は、同じ候補を別の形で示します。表の(s,a₁,a₂)が多項式の係数になり、切り口ではsを固定した(a₁,a₂)の点になります。</p>
         <div id="compare-layout" class="compare-layout">
           <section id="compare-poly-panel" class="compare-poly-panel" aria-labelledby="compare-poly-title">
-            <h4 id="compare-poly-title" data-i18n="comparePolynomialGraph"></h4>
+            <h4 id="compare-poly-title" data-i18n="comparePolynomialGraph">Shamir：候補の多項式</h4>
             <p id="compare-poly-caption" class="formula"></p>
-            <svg id="compare-poly" class="coordinate-plane" role="img" data-label="comparePolynomialGraph"></svg>
-            <details><summary data-i18n="graphTable"></summary><div id="compare-poly-table"></div></details>
+            <svg id="compare-poly" class="coordinate-plane" role="img" data-label="comparePolynomialGraph" viewBox="0 0 360 400" aria-label="Shamir：候補の多項式">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+            <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="compare-poly-table"></div></details>
             <label class="choice">
-              <input id="compare-guides" type="checkbox" checked><span data-i18n="compareGuides"></span>
+              <input id="compare-guides" type="checkbox" checked><span data-i18n="compareGuides">補助線を表示（点の並びの目安）</span>
             </label>
-            <p class="compare-legend" data-i18n="comparePolynomialLegend"></p>
-            <p data-i18n="compareObservedValues"></p>
+            <p class="compare-legend" data-i18n="comparePolynomialLegend">淡い点は全候補、紫の点は選んだ多項式です。計算する点は離散的で、補助線は目安です。</p>
+            <p data-i18n="compareObservedValues">丸で囲んだ2点は (1,11) と (2,8)。どの候補もこの2点を通ります。</p>
           </section>
           <section id="compare-slice-panel" class="compare-slice-panel" aria-labelledby="compare-slice-title">
-            <h4 id="compare-slice-title" data-i18n="compareSliceGraph"></h4>
+            <h4 id="compare-slice-title" data-i18n="compareSliceGraph">Blakley：選んだ切り口</h4>
             <p id="compare-slice-caption" class="formula"></p>
-            <svg id="compare-slice" class="coordinate-plane" role="img" data-label="compareSliceGraph"></svg>
-            <details><summary data-i18n="graphTable"></summary><div id="compare-slice-table"></div></details>
-            <p data-i18n="compareSliceExplanation"></p>
+            <svg id="compare-slice" class="coordinate-plane" role="img" data-label="compareSliceGraph" viewBox="0 0 360 400" aria-label="Blakley：選んだ切り口">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+            <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="compare-slice-table"></div></details>
+            <p data-i18n="compareSliceExplanation">2枚の平面をx₁=sで切った直線です。◎は両方を満たす1点を表します。ここではa₁が横軸、a₂が縦軸です。</p>
           </section>
           <section id="compare-table-panel" class="compare-table-panel" aria-labelledby="compare-table-title">
-            <h4 id="compare-table-title" data-i18n="compareTableTitle"></h4>
-            <p data-i18n="compareTableInstruction"></p>
+            <h4 id="compare-table-title" data-i18n="compareTableTitle">候補の対応表</h4>
+            <p data-i18n="compareTableInstruction">行のsボタンを選ぶと、両方の図が切り替わります。上下矢印・Home・Endでも行を選べます。</p>
             <table id="compare-table" class="responsive-table compare-correspondence">
               <thead><tr>
-                <th scope="col">s</th><th scope="col" data-i18n="comparePointHeading"></th>
-                <th scope="col" data-i18n="comparePolynomialHeading"></th><th scope="col">x=1</th><th scope="col">x=2</th>
+                <th scope="col">s</th><th scope="col" data-i18n="comparePointHeading">点 (s,a₁,a₂)</th>
+                <th scope="col" data-i18n="comparePolynomialHeading">候補の多項式</th><th scope="col">x=1</th><th scope="col">x=2</th>
               </tr></thead>
               <tbody id="compare-rows"></tbody>
             </table>
-            <p data-i18n="compareZeroTopExplanation"></p>
+            <p data-i18n="compareZeroTopExplanation">(1,10,0) は最高次の係数が0の候補です。最高次を0以外に限る実装では消えます。Day123の座学でも説明しています。</p>
           </section>
         </div>
       </section>
       <section class="stage-card" aria-labelledby="compare-size-title">
-        <h3 id="compare-size-title" data-i18n="compareSizeTitle"></h3>
-        <p data-i18n="compareSizePurpose"></p>
-        <p data-i18n="compareSizeIntro">秘密がm要素、k=3の場合です。法線を正規化し、1にした成分を省いた体の要素数です。公開の番号と省いた成分の位置情報は数えません。バイト数の比較ではありません。</p><div id="compare-size-table"></div>
-        <p data-i18n="compareSizeNote"></p>
+        <h3 id="compare-size-title" data-i18n="compareSizeTitle">1枚のシェアは何要素か</h3>
+        <p data-i18n="compareSizePurpose">同じ量の秘密を分けても、式の係数を毎回渡すか、番号から決めるかで、1枚に含める数の個数が変わります。</p>
+        <p data-i18n="compareSizeIntro">秘密を0〜p−1の数m個で表し、k=3とした例です。「要素」はその数1個です。式全体に0以外の数を掛け、係数の1つを1にそろえて（正規化して）、その1は省いて数えます。公開番号や省いた位置の情報は含まず、バイト数でもありません。</p><div id="compare-size-table"></div>
+        <p data-i18n="compareSizeNote">公開の番号iから (1,i,i²) を決めれば、渡す値は多項式の値だけになり、Shamirと同じ大きさです。</p>
       </section>
-      <p data-i18n="compareLinearGeneralization"></p>
-      <button id="compare-lesson" type="button" data-i18n="compareLesson"></button>    </section>
+      <p data-i18n="compareLinearGeneralization">集まったシェアから秘密の座標を求められるかを行列で決める考え方は、線形秘密分散につながります。</p>
+      <button id="compare-lesson" type="button" data-i18n="compareLesson">座学8：線形秘密分散への橋</button>    </section>
     <section id="panel-pitfalls" class="panel" role="tabpanel" aria-labelledby="tab-pitfalls" hidden>
-      <h2 data-i18n="pitfalls"></h2><p data-i18n="pitfallsIntro"></p>
+      <h2 data-i18n="pitfalls">確かめる</h2><p data-i18n="pitfallsIntro">正しく作るための条件を1つずつ変え、何がわかってしまうか、復元器がどこで間違うかを試します。各カードで操作し、結果と理由を読んでください。</p>
       <section id="pit-card-b" class="stage-card" aria-labelledby="pit-b-title">
-        <h3 id="pit-b-title" data-i18n="pitBTitle"></h3>
-        <p data-i18n="pitBTask"></p>
-        <h4 data-i18n="pitChanged"></h4>
-        <div class="actions" role="group" data-label="pitDimension">
+        <h3 id="pit-b-title" data-i18n="pitBTitle">B 点全体を秘密にした版</h3>
+        <p data-i18n="pitBTask">秘密を点全体Xとする場合と、第1座標sだけにする場合を比べます。0枚から順に枚数を増やし、2種類の候補数がどう減るかを見てください。</p>
+        <h4 data-i18n="pitChanged">変更した入力</h4>
+        <div class="actions" role="group" data-label="pitDimension" aria-label="次元を選ぶ">
           <button id="pit-b-k2" type="button" aria-pressed="true">k=2</button><button id="pit-b-k3" type="button" aria-pressed="false">k=3</button>
-        </div><div id="pit-b-picks" class="actions" role="group" data-label="pitShares"></div><p id="pit-b-input"></p>
-        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitBWholeCase"></h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout"></p></div>
-        <h4 data-i18n="pitBComparison"></h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
-        <svg id="pit-b-grid" class="coordinate-plane" role="img" data-label="pitBGraph"></svg><div id="pit-b-slices" class="slice-list static-slices"></div>
-        <details><summary data-i18n="graphTable"></summary><p data-i18n="pitBTableNote"></p><div id="pit-b-points"></div></details>
-        <h4 data-i18n="pitLesson"></h4><p data-i18n="pitWholeLesson"></p>
+        </div><div id="pit-b-picks" class="actions" role="group" data-label="pitShares" aria-label="シェアの枚数"></div><p id="pit-b-input"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge">✕ わざと無防備</p>
+          <h4 data-i18n="pitBWholeCase">点全体を秘密にした場合</h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout">点全体Xを秘密とみなす模型です。シェアを増やすと、点のどの成分の組が候補から消えるかを調べます。</p></div>
+        <h4 data-i18n="pitBComparison">第1座標だけを秘密にした場合</h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
+        <svg id="pit-b-grid" class="coordinate-plane" role="img" data-label="pitBGraph" viewBox="0 0 360 400" aria-label="点全体の候補の座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg><div id="pit-b-slices" class="slice-list static-slices"></div>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><p data-i18n="pitBTableNote">上の表に、各枚数で残る点の数と第1座標の数を示しています。切り口の札にも点の数を示しています。</p><div id="pit-b-points"></div></details>
+        <h4 data-i18n="pitLesson">わかったこと</h4><p data-i18n="pitWholeLesson">点全体を秘密にした版では、1枚増えるごとに候補がp分の1になります。第1座標だけを秘密にする版は、検査(i)(ii)と一様な乱数の前提の下で、k枚未満なら秘密の全候補を残します。HACの原文は座学4で確認できます。</p>
       </section>
       <section id="pit-card-c" class="stage-card" aria-labelledby="pit-c-title">
-        <h3 id="pit-c-title" data-i18n="pitCTitle"></h3>
-        <p data-i18n="pitCTask"></p><h4 data-i18n="pitChanged"></h4>
-        <div class="settings-grid"><label><span data-i18n="pitGenerator"></span><select id="pit-c-mode">
-          <option value="integer" data-i18n="pitInteger"></option><option value="narrow" data-i18n="pitNarrow"></option></select></label>
-          <label id="pit-c-share-wrap"><span data-i18n="chooseShares"></span><select id="pit-c-share">
+        <h3 id="pit-c-title" data-i18n="pitCTitle">C 整数と狭い乱数</h3>
+        <p data-i18n="pitCTask">整数のまま配る場合と、乱数の範囲を狭める場合を切り替え、1枚から何がわかるかを調べます。正しい生成条件との比較であり、すでに漏れた情報を後の検査で消す操作ではありません。</p><h4 data-i18n="pitChanged">変更した入力</h4>
+        <div class="settings-grid"><label><span data-i18n="pitGenerator">生成器の前提</span><select id="pit-c-mode">
+          <option value="integer" data-i18n="pitInteger">整数のまま配る</option><option value="narrow" data-i18n="pitNarrow">乱数を0〜3に限る</option></select></label>
+          <label id="pit-c-share-wrap"><span data-i18n="chooseShares">シェアを選ぶ</span><select id="pit-c-share">
             <option value="0">#1</option><option value="1">#2</option><option value="2">#3</option><option value="3">#4</option></select></label></div>
         <p id="pit-c-input"></p><p id="pit-c-equation" class="formula"></p>
-        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitCRestrictedCase"></h4><p id="pit-c-unsafe" role="status"></p>
-          <svg id="pit-c-grid" class="coordinate-plane" role="img" data-label="pitCGraph"></svg>
-          <details><summary data-i18n="graphTable"></summary><div id="pit-c-table"></div></details></div>
-        <h4 data-i18n="pitCComparison"></h4><p id="pit-c-result" class="result"></p><p data-i18n="premise"></p>
-        <h4 data-i18n="pitLesson"></h4><p id="pit-c-lesson"></p>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge">✕ わざと無防備</p>
+          <h4 data-i18n="pitCRestrictedCase">整数・狭い範囲で作った場合</h4><p id="pit-c-unsafe" role="status"></p>
+          <svg id="pit-c-grid" class="coordinate-plane" role="img" data-label="pitCGraph" viewBox="0 0 360 400" aria-label="整数または狭い乱数の前提で残る点">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+          <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="pit-c-table"></div></details></div>
+        <h4 data-i18n="pitCComparison">正しい生成条件との比較</h4><p id="pit-c-result" class="result"></p><p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p>
+        <h4 data-i18n="pitLesson">わかったこと</h4><p id="pit-c-lesson"></p>
       </section>
       <section id="pit-card-a" class="stage-card" aria-labelledby="pit-a-title">
-        <h3 id="pit-a-title" data-i18n="pitATitle"></h3>
-        <p data-i18n="pitATask"></p><h4 data-i18n="pitChanged"></h4>
-        <label><span data-i18n="pitConfiguration"></span><select id="pit-a-mode">
-          <option value="vertical" data-i18n="pitVertical"></option><option value="leak3" data-i18n="pitLeak3"></option>
-          <option value="parallel" data-i18n="pitParallel"></option><option value="short" data-i18n="pitShort"></option></select></label>
+        <h3 id="pit-a-title" data-i18n="pitATitle">A 検査を外すと</h3>
+        <p data-i18n="pitATask">1枚で秘密がわかる式や、同じ条件を重ねた式など、失敗の例を切り替えます。出力が1個でも、秘密が正しく求まったとは限らないことを確かめます。</p><h4 data-i18n="pitChanged">変更した入力</h4>
+        <label><span data-i18n="pitConfiguration">検査を外した例</span><select id="pit-a-mode">
+          <option value="vertical" data-i18n="pitVertical">k=2：1本の縦線</option><option value="leak3" data-i18n="pitLeak3">k=3：2枚で秘密が決まる</option>
+          <option value="parallel" data-i18n="pitParallel">k=2：同じ直線2本</option><option value="short" data-i18n="pitShort">k=2：足りない1枚で値を返す</option></select></label>
         <p id="pit-a-input" class="formula"></p>
-        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitWithout"></h4><p id="pit-a-unsafe" role="status"></p></div>
-        <h4 data-i18n="pitChecked"></h4><p id="pit-a-result" class="result"></p><div id="pit-a-checks"></div>
-        <label id="pit-a-s-wrap"><span data-i18n="pitChooseSlice"></span><select id="pit-a-s">          <option value="0">0</option>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge">✕ わざと無防備</p>
+          <h4 data-i18n="pitWithout">確認しない場合</h4><p id="pit-a-unsafe" role="status"></p></div>
+        <h4 data-i18n="pitChecked">選んだ検査の結果（入力を確認すると）</h4><p id="pit-a-result" class="result"></p><div id="pit-a-checks"></div>
+        <label id="pit-a-s-wrap"><span data-i18n="pitChooseSlice">切り口のs</span><select id="pit-a-s">          <option value="0">0</option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
@@ -349,25 +395,28 @@
           <option value="9">9</option>
           <option value="10">10</option></select></label>
         <div id="pit-a-slices" class="slice-list"></div>
-        <svg id="pit-a-grid" class="coordinate-plane" role="img" data-label="pitAGraph"></svg>
-        <details><summary data-i18n="graphTable"></summary><div id="pit-a-table"></div></details>
-        <h4 data-i18n="pitLesson"></h4><p id="pit-a-lesson"></p>
-        <details class="calculation-details"><summary data-i18n="calculationDetails"></summary>
-        <p data-i18n="pitParallelDetail"></p>
-        <p data-i18n="pitPassRateIntro"></p><table class="responsive-table">
-          <thead><tr><th data-i18n="pitParameters"></th><th data-i18n="pitPassRate"></th></tr></thead><tbody>
+        <svg id="pit-a-grid" class="coordinate-plane" role="img" data-label="pitAGraph" viewBox="0 0 360 400" aria-label="検査に通らない配置の有限体の座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="pit-a-table"></div></details>
+        <h4 data-i18n="pitLesson">わかったこと</h4><p id="pit-a-lesson"></p>
+        <details class="calculation-details"><summary data-i18n="calculationDetails">計算の詳細</summary>
+        <p data-i18n="pitParallelDetail">同じ直線を配る模型では、(6,5)=6·(1,3) mod 13、右辺も5≡6·3です。detの逆元をa^(p−2)だけで求めると、0^(p−2)=0を返して不成立を見落とします。</p>
+        <p data-i18n="pitPassRateIntro">係数の各成分をGF(p)全体から独立に一様に選び、全組の検査に合格する割合です。次の値は事前の計算値です。</p><table class="responsive-table">
+          <thead><tr><th data-i18n="pitParameters">p, k, n</th><th data-i18n="pitPassRate">全組に合格する割合</th></tr></thead><tbody>
             <tr><td data-cell-label="pitParameters">13, 2, 4</td><td data-cell-label="pitPassRate">0.4362</td></tr>
             <tr><td data-cell-label="pitParameters">11, 3, 5</td><td data-cell-label="pitPassRate">0.1184</td></tr>
-            <tr><td data-cell-label="pitParameters">13, 3, 8</td><td data-cell-label="pitPassRate" data-i18n="pitRateApprox"></td></tr>
+            <tr><td data-cell-label="pitParameters">13, 3, 8</td><td data-cell-label="pitPassRate" data-i18n="pitRateApprox">約0.0001</td></tr>
           </tbody></table>
         </details>
       </section>
       <section id="pit-card-d" class="stage-card" aria-labelledby="pit-d-title">
-        <h3 id="pit-d-title" data-i18n="pitDTitle"></h3>
-        <p data-i18n="pitDTask"></p><h4 data-i18n="pitChanged"></h4>
-        <div class="settings-grid"><label><span data-i18n="pitShares"></span><select id="pit-d-count">
+        <h3 id="pit-d-title" data-i18n="pitDTitle">D 改ざん</h3>
+        <p data-i18n="pitDTask">#2の式の右辺を変え、集める枚数を2→3→4と増やします。間違いに気づくことと、間違った1枚を特定することの違いを見てください。δは変更する量で、0なら変更なしです。</p><h4 data-i18n="pitChanged">変更した入力</h4>
+        <div class="settings-grid"><label><span data-i18n="pitShares">シェアの枚数</span><select id="pit-d-count">
           <option value="2">2 (k)</option><option value="3">3 (k+1)</option><option value="4">4 (k+2)</option></select></label>
-          <label><span data-i18n="pitDelta"></span><select id="pit-d-delta">          <option value="0">0</option>
+          <label><span data-i18n="pitDelta">#2の右辺への変化δ</span><select id="pit-d-delta">          <option value="0">0</option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
@@ -380,43 +429,47 @@
           <option value="10">10</option>
           <option value="11">11</option>
           <option value="12">12</option></select></label></div><p id="pit-d-input"></p>
-        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge"></p>
-          <h4 data-i18n="pitWithout"></h4><p id="pit-d-unsafe" role="status"></p><p data-i18n="pitFirstKOnly"></p></div>
-        <h4 data-i18n="pitChecked"></h4><p id="pit-d-result" class="result"></p><div id="pit-d-table"></div>
-        <svg id="pit-d-grid" class="coordinate-plane" role="img" data-label="pitDGraph"></svg>
-        <details><summary data-i18n="graphTable"></summary><div id="pit-d-points"></div></details>
-        <h4 data-i18n="pitLesson"></h4>
-        <p data-i18n="pitTamperAuthentication"></p>
-        <p data-i18n="pitTamperConditions">条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。</p><details class="calculation-details"><summary data-i18n="calculationDetails"></summary>
-        <p data-i18n="pitLinearity"></p>
-        <details><summary data-i18n="pitAllDelta"></summary><div id="pit-d-linearity"></div></details>
+        <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge">✕ わざと無防備</p>
+          <h4 data-i18n="pitWithout">確認しない場合</h4><p id="pit-d-unsafe" role="status"></p><p data-i18n="pitFirstKOnly">この模型は、後ろに追加したシェアを確認しません。</p></div>
+        <h4 data-i18n="pitChecked">選んだ検査の結果（入力を確認すると）</h4><p id="pit-d-result" class="result"></p><div id="pit-d-table"></div>
+        <svg id="pit-d-grid" class="coordinate-plane" role="img" data-label="pitDGraph" viewBox="0 0 360 400" aria-label="右辺を書き換えたシェアの有限体の座標平面">
+  <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
+  <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
+</svg>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="pit-d-points"></div></details>
+        <h4 data-i18n="pitLesson">わかったこと</h4>
+        <p data-i18n="pitTamperAuthentication">ここで調べるのは式どうしの一致です。送信者が誰かや、シェアが一度も書き換えられていないことを保証する認証ではありません。</p>
+        <p data-i18n="pitTamperConditions">条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。</p><details class="calculation-details"><summary data-i18n="calculationDetails">計算の詳細</summary>
+        <p data-i18n="pitLinearity">Shamir方式とこのBlakley方式はどちらも線形です。#1・#2ではsを読む係数がu=(8,3)で、#2の右辺を+1すると計算値は5→8へ変わります。素朴なBlakleyのシェアには法線も含まれ、その成分を書き換える余地もあります。</p>
+        <details><summary data-i18n="pitAllDelta">δ=0〜12の復元値をすべて見る</summary><div id="pit-d-linearity"></div></details>
         </details>
       </section>
     </section>
     <noscript>JavaScriptを有効にしてください。 / Please enable JavaScript.</noscript>
+    </fieldset>
   </main>
-  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source"></a></footer>
+  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source">ソースコード</a></footer>
   <dialog id="help-dialog" aria-labelledby="help-title">
-    <header class="help-header"><h2 id="help-title" data-i18n="help"></h2>
-      <button id="close-help" type="button" data-i18n="close"></button></header>
+    <header class="help-header"><h2 id="help-title" data-i18n="help">ヘルプと座学</h2>
+      <button id="close-help" type="button" data-i18n="close">閉じる</button></header>
     <div class="help-body">
-      <h3 data-i18n="helpLearningTitle"></h3>
-      <p data-i18n="helpLearningRoute"></p>
-      <p data-i18n="helpIntro"></p>
-      <h3 data-i18n="helpTerms"></h3>
+      <h3 data-i18n="helpLearningTitle">初めて読むとき</h3>
+      <p data-i18n="helpLearningRoute">最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。</p>
+      <p data-i18n="helpIntro">タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。</p>
+      <h3 data-i18n="helpTerms">この教材の用語</h3>
       <dl class="beginner-glossary">
-        <dt data-i18n="termShareName"></dt><dd data-i18n="termShareDefinition"></dd>
-        <dt data-i18n="termSecretName"></dt><dd data-i18n="termSecretDefinition"></dd>
-        <dt data-i18n="termThresholdName"></dt><dd data-i18n="termThresholdDefinition"></dd>
-        <dt data-i18n="termCandidateName"></dt><dd data-i18n="termCandidateDefinition"></dd>
-        <dt data-i18n="termRandomName"></dt><dd data-i18n="termRandomDefinition"></dd>
-        <dt data-i18n="termFieldName"></dt><dd data-i18n="termFieldDefinition"></dd>
-        <dt data-i18n="termEquationName"></dt><dd data-i18n="termEquationDefinition"></dd>
-        <dt data-i18n="termHyperplaneName"></dt><dd data-i18n="termHyperplaneDefinition"></dd>
+        <dt data-i18n="termShareName">シェア</dt><dd data-i18n="termShareDefinition">秘密から作り、各人に配る情報です。この教材のBlakleyでは、係数と右辺で表す1本の式に当たります。</dd>
+        <dt data-i18n="termSecretName">秘密 s</dt><dd data-i18n="termSecretDefinition">必要な枚数を集めて求めたい元の値です。この教材では点Xの第1座標に置きます。</dd>
+        <dt data-i18n="termThresholdName">しきい値 k と総数 n</dt><dd data-i18n="termThresholdDefinition">nは配る枚数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚でも復元できます。</dd>
+        <dt data-i18n="termCandidateName">候補</dt><dd data-i18n="termCandidateDefinition">集めたシェアと、わかっている生成条件に矛盾しない値や点です。候補を選ぶ操作は、答えの入力ではありません。</dd>
+        <dt data-i18n="termRandomName">乱数</dt><dd data-i18n="termRandomDefinition">秘密と別に選ぶ補助の数です。全体から同じ確率で選ぶことを「一様に選ぶ」と呼びます。</dd>
+        <dt data-i18n="termFieldName">有限体 GF(p)</dt><dd data-i18n="termFieldDefinition">この教材ではpを素数とし、0〜p−1を使って、pで割った余りで計算します。0以外の数での割り算も定義できます。</dd>
+        <dt data-i18n="termEquationName">式と係数</dt><dd data-i18n="termEquationDefinition">式は座標が満たす条件です。a x₁+b x₂≡cでは、a,bが座標に掛ける係数、cが右辺の値です。</dd>
+        <dt data-i18n="termHyperplaneName">超平面</dt><dd data-i18n="termHyperplaneDefinition">2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。</dd>
       </dl>
-      <p data-i18n="helpTheoryRoute"></p>
-      <p data-i18n="premise"></p>
-      <p data-i18n="reuse"></p>
+      <p data-i18n="helpTheoryRoute">座学は1→4→7の順で、方式・候補数・乱数の範囲を読むと進めやすくなります。2は証明、3は原論文、5・6・8は発展事項です。9は改ざん検査の限界、10は関連ツールを扱います。</p>
+      <p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p>
+      <p data-i18n="reuse">法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。</p>
       <div id="lessons">
 <details id="lesson-1" class="lesson">
 <summary data-i18n="lesson1Title">1. しきい値法と1979年の2つの提案</summary>
@@ -458,7 +511,7 @@
 </details>
 <details id="lesson-2" class="lesson">
 <summary data-i18n="lesson2Title">2. 第1座標を秘密にする条件</summary>
-<p class="reading-guide" data-i18n="lesson2Guide"></p>
+<p class="reading-guide" data-i18n="lesson2Guide">この節は「k枚なら復元、k−1枚なら情報が増えない」を証明します。一様な乱数の下で、どの秘密にも同じ数の乱数の組が対応することが要点です。下の行列はその確認に使います。</p>
 <p data-i18n="lesson2Point">F＝GF(p) とし、点をX＝(s,r₂,…,rₖ) とします。秘密はs＝x₁ だけで、シェアiは公開の法線aᵢ と右辺cᵢ＝aᵢ·Xです。</p>
 <p data-i18n="lesson2Premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。法線は公開・使い回してよい。使い回してはならないのは x₂…x_k</p>
 <p data-i18n="lesson2Reuse">乱数の座標同士も独立に選びます。法線の選び方も秘密に依存させません。法線を再利用しても、この前提と次の2つの検査を満たす必要があります。</p>
@@ -495,7 +548,7 @@
 </details>
 <details id="lesson-3" class="lesson">
 <summary data-i18n="lesson3Title">3. Blakley 1979の原文の形</summary>
-<p class="reading-guide" data-i18n="lesson3Guide"></p>
+<p class="reading-guide" data-i18n="lesson3Guide">1979年の論文と、この教材の有限体の式は同じ書き方ではありません。原文の記述と、教材で置いた条件を分けて読みます。原資料を詳しく確認したい人のための節です。</p>
 <p data-i18n="lesson3Original">原論文では、ベクトルfの無作為な位置に鍵を置き、別の無作為な位置の成分を1にします。fを含む原点を通る超平面をシェアにします。</p>
 <p data-i18n="lesson3Line">復元する対象は、原点を通る直線です。これは射影空間の1点に当たります。このツールが扱う、秘密を固定の第1座標に置く形とは異なります。</p>
 <table class="responsive-table">
@@ -584,7 +637,7 @@
 </tbody></table>
 <p data-i18n="lesson4CountPremise">表は検査 (i)(ii) を通る教材例です。独立なm枚で、点の候補数はp^(k−m) です。m＜kのとき、秘密sの候補はp個のままです。</p>
 <p data-i18n="lesson4HacIntro">HAC §12.10 Notes、pp.538–539の原文です。HACが参照するのは、1979年の原論文の射影による方式です。</p>
-<blockquote data-i18n="lesson4HacQuote">While Shamir&#x27;s threshold scheme is perfect, Blakley&#x27;s vector scheme is not (the set of possible values of the shared secret narrows as subsequent shares are added).</blockquote>
+<blockquote data-i18n="lesson4HacQuote">While Shamir's threshold scheme is perfect, Blakley's vector scheme is not (the set of possible values of the shared secret narrows as subsequent shares are added).</blockquote>
 <p data-i18n="lesson4Reading">この記述は、点全体の版で起きる候補の減少と合います。これはこのツールでの読みであり、HACが第1座標版の条件を説明しているという意味ではありません。</p>
 <p data-i18n="lesson4Wiki">Wikipediaの「1座標だけなら内部の者は外部の者と同じ」という説明も、検査 (ii) なしには成り立ちません。1枚の式だけでsが定まる法線も存在します。</p>
 <p data-i18n="lesson4Source">HACはMenezes・van Oorschot・Vanstone著、1996年（二次・本文確認）。Wikipediaも二次資料として扱い、確認した版はrevid 1379678799です。</p>
@@ -602,7 +655,7 @@
 </details>
 <details id="lesson-5" class="lesson">
 <summary data-i18n="lesson5Title">5. シェアの大きさとShamirとの対応</summary>
-<p class="reading-guide" data-i18n="lesson5Guide"></p>
+<p class="reading-guide" data-i18n="lesson5Guide">1枚にいくつの数を入れる必要があるかを比べます。係数を毎回渡すか、番号から決めるかで量が変わります。表の単位は有限体の数1個で、保存容量のバイト数ではありません。</p>
 <p data-i18n="lesson5Polynomial">多項式f(i)＝s+a₁i+…+aₖ₋₁i^(k−1) の係数を点X＝(s,a₁,…,aₖ₋₁) とします。シェアyᵢ＝f(i) は、次の超平面の式になります。</p>
 <p data-i18n="lesson5Equation">(1,i,i²,…,i^(k−1))·X＝yᵢ</p>
 <p data-i18n="lesson5Vandermonde">法線はヴァンデルモンドの行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。</p>
@@ -662,7 +715,7 @@
 </details>
 <details id="lesson-6" class="lesson">
 <summary data-i18n="lesson6Title">6. 一般の位置を保証する作り方</summary>
-<p class="reading-guide" data-i18n="lesson6Guide"></p>
+<p class="reading-guide" data-i18n="lesson6Guide">どのk枚でも復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。</p>
 <p data-i18n="lesson6Intro">法線が乱数でも、検査 (i)(ii) が自動的に成り立つわけではありません。このツールでは、乱数を引いて検査する方法と、ヴァンデルモンドによる構成を選べます。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson6MethodsCaption">法線の構成と条件</caption>
@@ -803,7 +856,7 @@
 </details>
 <details id="lesson-8" class="lesson">
 <summary data-i18n="lesson8Title">8. 線形秘密分散とスパン・プログラム</summary>
-<p class="reading-guide" data-i18n="lesson8Guide"></p>
+<p class="reading-guide" data-i18n="lesson8Guide">線形とは、秘密と乱数をそれぞれ決まった数倍して足す形です。この見方を広げると、人数だけでなく「誰と誰がそろえば戻せるか」も表せます。下はそのための発展事項です。</p>
 <p data-i18n="lesson8Intro">行列Mの各行を参加者に割り当て、X＝(s,r₂,…,rₖ) からM Xを配ると、線形秘密分散になります。一般には、参加者1人に複数の行を割り当てることもできます。</p>
 <p data-i18n="lesson8Access">誰が集まれば復元できるかは、その人たちの行の線形結合でe₁＝(1,0,…,0) を作れるかで決まります。人数だけで決めない参加条件も表せます。</p>
 <table class="responsive-table">
@@ -857,9 +910,9 @@
 </details>
 <details id="lesson-9" class="lesson">
 <summary data-i18n="lesson9Title">9. 改ざんの検出と、誤りのあるシェアの特定</summary>
-<p class="reading-guide" data-i18n="lesson9Guide"></p>
+<p class="reading-guide" data-i18n="lesson9Guide">枚数を増やすと、式の答えが合わないことや、一定の条件でどの1枚が合わないかを調べられます。これは秘密を隠す性質とも、送信者を確かめる認証とも別の話です。</p>
 <p data-i18n="lesson9Intro">秘密分散の完全性は、シェアの改ざんを防ぐ性質ではありません。ちょうどk枚で式が解けても、その答えが元の秘密かどうかは、それだけではわかりません。</p>
-<p data-i18n="lesson9Example">最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で復元すると (8,7) となり、秘密は5から8へ変わります。</p>
+<p data-i18n="lesson9Example">最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で計算すると(8,7)となり、計算された秘密の値は5から8へ変わります。元の秘密は5のままです。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson9CountsCaption">1枚を書き換えた固定教材例</caption>
 <thead><tr>
@@ -886,8 +939,8 @@
 <p data-i18n="lesson9Conditions">表の条件は、改ざんが1枚で、すべてのk枚の部分集合を調べ、書き換えた超平面が元のXを通らないことです。正しい法線は検査 (i) を満たす必要があります。</p>
 <p data-i18n="lesson9General">同じ条件を一般化すると、最大t枚の誤りを特定して訂正するにはk+2t枚あれば足ります。正しいシェアの法線は一般の位置にあり、全対象の組を調べるという条件つきです。</p>
 <p data-i18n="lesson9Invisible">書き換えても元のXを通る超平面なら、この一致の検査では改ざんとして検出できません。送信者の認証や、暗号学的な改ざん防止を提供する説明ではありません。</p>
-<p data-i18n="lesson9Linear">Shamirとこの形はどちらも線形です。選んだk枚についてs＝u·cと書けるので、右辺の1つを δ ずらすと、秘密も対応する係数の δ 倍だけずれます。</p>
-<p data-i18n="lesson9Coefficients">#1・#2ではu＝(8,3) です。#2を +1ずらすとsは5→8となります。Blakleyの素朴な形はシェアに法線も含むため、法線を書き換える自由もあります。</p>
+<p data-i18n="lesson9Linear">Shamirとこの形はどちらも線形です。選んだk枚についてs＝u·cと書けるので、右辺の1つをδずらすと、計算される第1座標も対応する係数のδ倍だけずれます。</p>
+<p data-i18n="lesson9Coefficients">#1・#2ではu＝(8,3)です。#2の右辺を+1ずらすと、計算値sは5→8となります。Blakleyの素朴な形はシェアに法線も含むため、その成分を書き換える余地もあります。</p>
 <p data-i18n="lesson9Source">数値は画面の固定教材例と同じです。検出・訂正の説明は、正しい法線の独立性からこのツールで整理したものです。Shamirの多項式による方式の一次資料を下に示します。</p>
 <ul class="lesson-sources">
 <li>
@@ -897,7 +950,7 @@
 </details>
 <details id="lesson-10" class="lesson">
 <summary data-i18n="lesson10Title">10. 関連ツール</summary>
-<p class="reading-guide" data-i18n="lesson10Guide"></p>
+<p class="reading-guide" data-i18n="lesson10Guide">次に学ぶ内容と、実用のバックアップを扱うツールを選ぶ案内です。表で、目的と操作の違いを確認してください。</p>
 <p data-i18n="lesson10Intro">このツールは、小さな有限体で秘密分散の式と候補を学ぶ教材です。パスワード・シード・鍵などの本物の秘密は入力しないでください。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson10ToolsCaption">目的に合わせた4つの関連ツール</caption>

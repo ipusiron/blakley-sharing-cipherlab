@@ -1639,4 +1639,8 @@
   bindPitfalls();
   bindCompare();
   render();
+  document.getElementById('startup-tools').disabled = false;
+  document.getElementById('startup-controls').disabled = false;
+  document.getElementById('startup-note').hidden = true;
+  document.documentElement.dataset.appReady = 'true';
 }());

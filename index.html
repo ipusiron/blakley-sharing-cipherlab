@@ -49,11 +49,20 @@
             <figure><figcaption data-i18n="realStep"></figcaption><svg id="real-grid" class="coordinate-plane" role="img" data-label="realStep"></svg>
               <details><summary data-i18n="graphTable"></summary><div id="real-table"></div></details></figure>
             <figure><figcaption data-i18n="integerStep"></figcaption><svg id="integer-grid" class="coordinate-plane" role="img" data-label="integerStep"></svg>
+              <p id="integer-explanation"></p>
               <details><summary data-i18n="graphTable"></summary><div id="integer-table"></div></details></figure>
             <figure><figcaption data-i18n="modStep"></figcaption><svg id="mod-grid" class="coordinate-plane" role="img" data-label="modStep"></svg>
+              <fieldset class="mod-approaches">
+                <legend data-i18n="modApproaches"></legend>
+                <label class="choice"><input id="math-folded" type="radio" name="math-approach" value="folded" checked aria-controls="mod-grid mod-rule mod-example"><span data-i18n="foldedApproach"></span></label>
+                <label class="choice"><input id="math-x-order" type="radio" name="math-approach" value="x-order" aria-controls="mod-grid mod-rule mod-example"><span data-i18n="xOrderApproach"></span></label>
+              </fieldset>
+              <label class="choice"><input id="math-guides" type="checkbox" checked><span data-i18n="guides"></span></label>
+              <p id="mod-rule" class="mod-explanation"></p>
+              <p id="mod-example" class="mod-explanation formula"></p>
+              <p id="mod-note" class="mod-note" data-i18n="modApproachNote"></p>
               <details><summary data-i18n="graphTable"></summary><div id="mod-table"></div></details></figure>
-          </div><p id="integer-explanation"></p><p id="mod-rule"></p>
-          <label class="choice"><input id="math-guides" type="checkbox"><span data-i18n="guides"></span></label>
+          </div>
         </section>
       </details>
       <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">

@@ -61,6 +61,14 @@ Its fixed GF(13) example compares real numbers, integers and congruences, indepe
 The integer graph shows four points with coordinates in 0–12 satisfying `x₁+3x₂=29`.
 The modular graph checks all grid points in that range for `x₁+3x₂≡3 (mod 13)`, giving 13 points.
 
+Step 3 defaults to “Wrap the original line”, with guides visible.
+Extend the descending line from step 1 beyond the graph and wrap both axes with period 13.
+Extracting the integer-coordinate points on the wrapped line gives 13 points. On the original line, integer points run right 3 and down 1.
+For example, `(14,5)→(1,5)` and `(32,−1)→(6,12)`. Wrapping only step 2’s four points cannot add points, so include those outside the graph.
+“Alternative: plot in x₁ order” uses `x₂≡1+4x₁ (mod 13)` to move right 1 and up 4, wrapping x₂ modulo 13.
+This is easier to plot because points follow horizontal-axis order, x₁=0–12, as in `(0,1)→(1,5)→(2,9)→(3,0)`.
+The guide paths differ, but the set of points is the same. They do not represent continuous lines between points in GF(13).
+
 n is the total share count, and k is the number needed for recovery. Correctly generated shares allow recovery from any k.
 The introduction before the graph explains this relationship and shows the current k and n.
 The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.

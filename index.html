@@ -85,9 +85,9 @@
         </section>
       </details>
       <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
-        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚で復元</h3>
-        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚で復元できます。</p>
-        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚を集めても秘密sを復元できます。</p>
+        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
+        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
+        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
         <p data-i18n="learningRoute">まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。</p>
         <p id="threshold-summary" class="threshold-current"></p>
       </section>
@@ -460,7 +460,7 @@
       <dl class="beginner-glossary">
         <dt data-i18n="termShareName">シェア</dt><dd data-i18n="termShareDefinition">秘密から作り、各人に配る情報です。この教材のBlakleyでは、係数と右辺で表す1本の式に当たります。</dd>
         <dt data-i18n="termSecretName">秘密 s</dt><dd data-i18n="termSecretDefinition">必要な枚数を集めて求めたい元の値です。この教材では点Xの第1座標に置きます。</dd>
-        <dt data-i18n="termThresholdName">しきい値 k と総数 n</dt><dd data-i18n="termThresholdDefinition">nは配る枚数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚でも復元できます。</dd>
+        <dt data-i18n="termThresholdName">しきい値 k と総数 n</dt><dd data-i18n="termThresholdDefinition">nは配る枚数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上で復元できます。</dd>
         <dt data-i18n="termCandidateName">候補</dt><dd data-i18n="termCandidateDefinition">集めたシェアと、わかっている生成条件に矛盾しない値や点です。候補を選ぶ操作は、答えの入力ではありません。</dd>
         <dt data-i18n="termRandomName">乱数</dt><dd data-i18n="termRandomDefinition">秘密と別に選ぶ補助の数です。全体から同じ確率で選ぶことを「一様に選ぶ」と呼びます。</dd>
         <dt data-i18n="termFieldName">有限体 GF(p)</dt><dd data-i18n="termFieldDefinition">この教材ではpを素数とし、0〜p−1を使って、pで割った余りで計算します。0以外の数での割り算も定義できます。</dd>
@@ -473,7 +473,7 @@
       <div id="lessons">
 <details id="lesson-1" class="lesson">
 <summary data-i18n="lesson1Title">1. しきい値法と1979年の2つの提案</summary>
-<p data-i18n="lesson1Intro">秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚で秘密を戻せます。</p>
+<p data-i18n="lesson1Intro">秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚以上で秘密を戻せます。</p>
 <p data-i18n="lesson1Privacy">完全な秘密分散では、k枚未満を見ても秘密についての確率は変わりません。候補が複数残るだけでは、この性質を示したことにはなりません。</p>
 <p data-i18n="lesson1History">ShamirとBlakleyは1979年に、しきい値法を独立に提案しました。このツールでは、有限体での超平面の交点を使う形を学びます。</p>
 <table class="responsive-table">
@@ -481,7 +481,7 @@
 <thead><tr>
 <th data-i18n="lesson1TableH1" scope="col">方式</th>
 <th data-i18n="lesson1TableH2" scope="col">学習用の表し方</th>
-<th data-i18n="lesson1TableH3" scope="col">k枚を集めたとき</th>
+<th data-i18n="lesson1TableH3" scope="col">k枚以上を集めたとき</th>
 </tr></thead><tbody>
 <tr>
 <td data-i18n="lesson1TableR1C1" data-cell-label="lesson1TableH1">Shamir</td>
@@ -715,7 +715,7 @@
 </details>
 <details id="lesson-6" class="lesson">
 <summary data-i18n="lesson6Title">6. 一般の位置を保証する作り方</summary>
-<p class="reading-guide" data-i18n="lesson6Guide">どのk枚でも復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。</p>
+<p class="reading-guide" data-i18n="lesson6Guide">任意のk枚以上で復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。</p>
 <p data-i18n="lesson6Intro">法線が乱数でも、検査 (i)(ii) が自動的に成り立つわけではありません。このツールでは、乱数を引いて検査する方法と、ヴァンデルモンドによる構成を選べます。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson6MethodsCaption">法線の構成と条件</caption>
@@ -892,7 +892,7 @@
 <td data-i18n="lesson8MapR5C3" data-cell-label="lesson8MapH3">第2節の乱数の前提で、sの情報が増えない</td>
 </tr>
 </tbody></table>
-<p data-i18n="lesson8Check">検査 (ii) は、k−1枚のどの集合もe₁ を作れないことを保証します。検査 (i) と合わせると、任意のk枚で復元できるしきい値の参加条件になります。</p>
+<p data-i18n="lesson8Check">検査 (ii) は、k−1枚のどの集合もe₁ を作れないことを保証します。検査 (i) と合わせると、任意のk枚以上で復元できるしきい値の参加条件になります。</p>
 <p data-i18n="lesson8Msp">行に参加者名を付け、目標ベクトルを作れるかで受理を決める表現を、モノトーン・スパン・プログラム（MSP）と呼びます。</p>
 <p data-i18n="lesson8History">BeimelのRemark 2は、Brickellが1989年に1人1行の場合を暗黙に定義し、Karchmer–Wigdersonが1993年にスパン・プログラムを明示的に定義したと説明しています。</p>
 <p data-i18n="lesson8Status">この説明はBeimelのClaim 2・Remark 2（二次・本文確認）に基づきます。BrickellとKarchmer–Wigdersonの原論文は書誌を確認しましたが、本文は未確認です。</p>

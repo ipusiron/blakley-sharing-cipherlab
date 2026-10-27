@@ -6,7 +6,7 @@
   'use strict';
   return {
     ja: {
-      secretSharingDefinition: "秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚で復元できます。",
+      secretSharingDefinition: "秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。",
       learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。",
       primerRoles: "シェアを作って配る人をディーラーと呼びます。受取人は自分の式を受け取り、復元時に式を持ち寄ります。この画面は、配る人の答えと、集めた式だけからわかることの両方を示します。",
       primerRandom: "rは秘密と別に選ぶ補助の数です。式にrを混ぜ、正しい係数の組を使い、乱数を全体から同じ確率で選ぶと、1枚ではsを絞れなくなります。",
@@ -28,7 +28,7 @@
       termSecretName: "秘密 s",
       termSecretDefinition: "必要な枚数を集めて求めたい元の値です。この教材では点Xの第1座標に置きます。",
       termThresholdName: "しきい値 k と総数 n",
-      termThresholdDefinition: "nは配る枚数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚でも復元できます。",
+      termThresholdDefinition: "nは配る枚数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上で復元できます。",
       termCandidateName: "候補",
       termCandidateDefinition: "集めたシェアと、わかっている生成条件に矛盾しない値や点です。候補を選ぶ操作は、答えの入力ではありません。",
       termRandomName: "乱数",
@@ -96,7 +96,7 @@
       lesson2Guide: "この節は「k枚なら復元、k−1枚なら情報が増えない」を証明します。一様な乱数の下で、どの秘密にも同じ数の乱数の組が対応することが要点です。下の行列はその確認に使います。",
       lesson3Guide: "1979年の論文と、この教材の有限体の式は同じ書き方ではありません。原文の記述と、教材で置いた条件を分けて読みます。原資料を詳しく確認したい人のための節です。",
       lesson5Guide: "1枚にいくつの数を入れる必要があるかを比べます。係数を毎回渡すか、番号から決めるかで量が変わります。表の単位は有限体の数1個で、保存容量のバイト数ではありません。",
-      lesson6Guide: "どのk枚でも復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。",
+      lesson6Guide: "任意のk枚以上で復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。",
       lesson8Guide: "線形とは、秘密と乱数をそれぞれ決まった数倍して足す形です。この見方を広げると、人数だけでなく「誰と誰がそろえば戻せるか」も表せます。下はそのための発展事項です。",
       lesson9Guide: "枚数を増やすと、式の答えが合わないことや、一定の条件でどの1枚が合わないかを調べられます。これは秘密を隠す性質とも、送信者を確かめる認証とも別の話です。",
       lesson10Guide: "次に学ぶ内容と、実用のバックアップを扱うツールを選ぶ案内です。表で、目的と操作の違いを確認してください。",
@@ -114,9 +114,9 @@
       practical: "実用のバックアップはDay124 Scatter Seedsへ。",
       intro: "下の図は、現在配っているシェア#1の式を満たす格子点です。",
       nearestGridPoint: "最寄りの格子点",
-      thresholdTitle: "n枚を配る → 任意のk枚で復元",
-      thresholdDefinition: "nは配るシェアの総数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚を集めても秘密sを復元できます。",
-      thresholdSummary: "現在の設定：GF({p})、復元に必要な枚数k={k}、配る総数n={n}。",
+      thresholdTitle: "n枚を配る → 任意のk枚以上で復元",
+      thresholdDefinition: "nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。",
+      thresholdSummary: "現在の設定：GF({p})、復元に必要な最小枚数k={k}、配る総数n={n}。",
       primerTitle: "最初の固定例：(k,n)=(2,4)",
       primerPeople: "4人に1枚ずつ配ります。どの2枚からも点Xの第1座標sが求まり、1枚ではsの13候補がすべて残ります。",
       primerPoint: "秘密sと乱数rを組にして、点X=(s,r)を作ります。1枚のシェアは、この点を通る直線を表す1本の式です。",
@@ -380,13 +380,13 @@
       compareLinearGeneralization: "集まったシェアから秘密の座標を求められるかを行列で決める考え方は、線形秘密分散につながります。",
       compareLesson: "座学8：線形秘密分散への橋",
       lesson1Title: "1. しきい値法と1979年の2つの提案",
-      lesson1Intro: "秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚で秘密を戻せます。",
+      lesson1Intro: "秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚以上で秘密を戻せます。",
       lesson1Privacy: "完全な秘密分散では、k枚未満を見ても秘密についての確率は変わりません。候補が複数残るだけでは、この性質を示したことにはなりません。",
       lesson1History: "ShamirとBlakleyは1979年に、しきい値法を独立に提案しました。このツールでは、有限体での超平面の交点を使う形を学びます。",
       lesson1TableCaption: "秘密とシェアの見せ方",
       lesson1TableH1: "方式",
       lesson1TableH2: "学習用の表し方",
-      lesson1TableH3: "k枚を集めたとき",
+      lesson1TableH3: "k枚以上を集めたとき",
       lesson1TableR1C1: "Shamir",
       lesson1TableR1C2: "秘密は多項式の定数項。シェアは曲線上の点",
       lesson1TableR1C3: "多項式を定めて定数項を読む",
@@ -616,7 +616,7 @@
       lesson8MapR5C1: "e₁ を作れない集合",
       lesson8MapR5C2: "資格のない集合",
       lesson8MapR5C3: "第2節の乱数の前提で、sの情報が増えない",
-      lesson8Check: "検査 (ii) は、k−1枚のどの集合もe₁ を作れないことを保証します。検査 (i) と合わせると、任意のk枚で復元できるしきい値の参加条件になります。",
+      lesson8Check: "検査 (ii) は、k−1枚のどの集合もe₁ を作れないことを保証します。検査 (i) と合わせると、任意のk枚以上で復元できるしきい値の参加条件になります。",
       lesson8Msp: "行に参加者名を付け、目標ベクトルを作れるかで受理を決める表現を、モノトーン・スパン・プログラム（MSP）と呼びます。",
       lesson8History: "BeimelのRemark 2は、Brickellが1989年に1人1行の場合を暗黙に定義し、Karchmer–Wigdersonが1993年にスパン・プログラムを明示的に定義したと説明しています。",
       lesson8Status: "この説明はBeimelのClaim 2・Remark 2（二次・本文確認）に基づきます。BrickellとKarchmer–Wigdersonの原論文は書誌を確認しましたが、本文は未確認です。",
@@ -671,8 +671,9 @@
       lesson10Day125: "Day125 Overlay QR Shares",
     },
     en: {
-      secretSharingDefinition: "Secret sharing creates several shares from a secret and recovers it when enough shares are collected. In this tool, "
-        + "correctly generated shares leave every secret possible with fewer than k shares and recover it with any k.",
+      secretSharingDefinition: "Secret sharing creates several shares from a secret and recovers it when enough shares are collected. In this "
+        + "tool, correctly generated shares leave every secret possible with fewer than k shares and recover it with any "
+        + "set of at least k shares.",
       learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Continue to “Compare with Shamir” and then “Pitfalls”. "
         + "Higher dimensions and the proofs can wait until you have tried the basics.",
       primerRoles: "The dealer creates and distributes the shares. Each recipient receives their own equation; recipients bring equations together for "
@@ -707,7 +708,8 @@
       termSecretName: "Secret s",
       termSecretDefinition: "The original value to recover by collecting enough shares. This tool places it in the first coordinate of X.",
       termThresholdName: "Threshold k and total n",
-      termThresholdDefinition: "n is the number distributed; k is the number needed for recovery. With correctly generated shares, any k suffice.",
+      termThresholdDefinition: "n is the number distributed; k is the minimum number needed for recovery. With correctly generated shares, any"
+        + " set of at least k shares suffices.",
       termCandidateName: "Candidate",
       termCandidateDefinition: "A value or point consistent with the collected shares and known generation rules. Selecting a candidate does not enter "
         + "the answer.",
@@ -802,8 +804,9 @@
         + "the conditions used here, for readers who want to examine the original source.",
       lesson5Guide: "Compare how many numbers one share needs. The count changes when coefficients are distributed each time or derived from indices. "
         + "The table counts field elements, not bytes of stored data.",
-      lesson6Guide: "Coefficients must allow any k shares to recover the secret while k−1 reveal no information under the stated randomness "
-        + "assumptions. This section distinguishes the two implemented methods from other constructions and bounds.",
+      lesson6Guide: "Coefficients must allow any set of at least k shares to recover the secret while k−1 reveal no information "
+        + "under the stated randomness assumptions. This section distinguishes the two implemented methods from other "
+        + "constructions and bounds.",
       lesson8Guide: "Linear means multiplying the secret and random values by fixed coefficients and adding them. Extending this view can describe "
         + "which people must join together, not just how many. The material below develops this idea.",
       lesson9Guide: "Extra shares can reveal inconsistent answers and, under stated conditions, identify one faulty share. This is separate both from "
@@ -825,10 +828,10 @@
       practical: "For practical backups, see Day124 Scatter Seeds.",
       intro: "The graph below shows the grid points satisfying the equation of share #1 in the current distribution.",
       nearestGridPoint: "Nearest grid point",
-      thresholdTitle: "Distribute n shares → Recover from any k",
-      thresholdDefinition: "n is the total number of shares; k is the number needed for recovery. With correctly generated shares, any k recover "
-        + "the secret s.",
-      thresholdSummary: "Current settings: GF({p}), k={k} shares needed for recovery, n={n} shares distributed.",
+      thresholdTitle: "Distribute n shares → Recover from any k or more",
+      thresholdDefinition: "n is the total number of shares; k is the minimum number needed for recovery. With correctly generated shares,"
+        + " any set of at least k shares recovers the secret s.",
+      thresholdSummary: "Current settings: GF({p}), minimum k={k} shares needed for recovery, n={n} shares distributed.",
       primerTitle: "Initial fixed example: (k,n)=(2,4)",
       primerPeople: "Give one share to each of four people. Any two recover the first coordinate s of X; one share leaves all 13 "
         + "candidates for s.",
@@ -1136,8 +1139,8 @@
         + "secret sharing.",
       compareLesson: "Theory 8: a bridge to linear secret sharing",
       lesson1Title: "1. Threshold schemes and the two proposals of 1979",
-      lesson1Intro: "Secret sharing creates several shares from a secret. In a (k,n) threshold scheme, any k of the n shares "
-        + "recover the secret.",
+      lesson1Intro: "Secret sharing creates several shares from a secret. In a (k,n) threshold scheme, any set of at least k of the"
+        + " n shares can recover the secret.",
       lesson1Privacy: "Perfect secrecy means that fewer than k shares do not change the probabilities of the secret. Having "
         + "several remaining candidates alone is insufficient.",
       lesson1History: "Shamir and Blakley independently proposed threshold schemes in 1979. This tool explores a form using "
@@ -1145,7 +1148,7 @@
       lesson1TableCaption: "Two ways to represent a secret and its shares",
       lesson1TableH1: "Scheme",
       lesson1TableH2: "Educational representation",
-      lesson1TableH3: "With k shares",
+      lesson1TableH3: "With at least k shares",
       lesson1TableR1C1: "Shamir",
       lesson1TableR1C2: "The secret is the constant coefficient; shares are points on the polynomial",
       lesson1TableR1C3: "Determine the polynomial and read its constant coefficient",
@@ -1423,8 +1426,8 @@
       lesson8MapR5C1: "A set that cannot span e₁",
       lesson8MapR5C2: "Unqualified set",
       lesson8MapR5C3: "Reveals no information about s under Section 2’s randomness assumptions",
-      lesson8Check: "Check (ii) ensures that no set of k−1 shares spans e₁. Together with (i), it gives a threshold access "
-        + "rule: any k shares can reconstruct.",
+      lesson8Check: "Check (ii) ensures that no set of k−1 shares spans e₁. Together with (i), it gives a threshold access rule: "
+        + "any set of at least k shares can reconstruct.",
       lesson8Msp: "A monotone span program (MSP) labels rows by participants and accepts a set when its rows span the target "
         + "vector.",
       lesson8History: "Beimel’s Remark 2 credits Brickell (1989) with the implicit one-row-per-party case, and "

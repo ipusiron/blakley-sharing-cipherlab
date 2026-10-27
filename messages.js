@@ -6,6 +6,101 @@
   'use strict';
   return {
     ja: {
+      secretSharingDefinition: "秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚で復元できます。",
+      learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。",
+      primerRoles: "シェアを作って配る人をディーラーと呼びます。受取人は自分の式を受け取り、復元時に式を持ち寄ります。この画面は、配る人の答えと、集めた式だけからわかることの両方を示します。",
+      primerRandom: "rは秘密と別に選ぶ補助の数です。式にrを混ぜ、正しい係数の組を使い、乱数を全体から同じ確率で選ぶと、1枚ではsを絞れなくなります。",
+      exploreInstruction: "シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。",
+      editIntro: "右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。",
+      dealerIntro: "ここはシェアを作る側の画面です。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。",
+      primeLabel: "計算に使う素数 p",
+      shareCountLabel: "配る総数 n",
+      coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。",
+      randomnessPlain: "秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。",
+      checkPlain: "(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。",
+      methodIntro: "「乱数＋検査」は係数を引いて条件を調べ、不合格なら引き直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。",
+      helpLearningTitle: "初めて読むとき",
+      helpLearningRoute: "最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。",
+      helpTerms: "この教材の用語",
+      helpTheoryRoute: "座学は1→4→7の順で、方式・候補数・乱数の範囲を読むと進めやすくなります。2は証明、3は原論文、5・6・8は発展事項です。9は改ざん検査の限界、10は関連ツールを扱います。",
+      termShareName: "シェア",
+      termShareDefinition: "秘密から作り、各人に配る情報です。この教材のBlakleyでは、係数と右辺で表す1本の式に当たります。",
+      termSecretName: "秘密 s",
+      termSecretDefinition: "必要な枚数を集めて求めたい元の値です。この教材では点Xの第1座標に置きます。",
+      termThresholdName: "しきい値 k と総数 n",
+      termThresholdDefinition: "nは配る枚数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚でも復元できます。",
+      termCandidateName: "候補",
+      termCandidateDefinition: "集めたシェアと、わかっている生成条件に矛盾しない値や点です。候補を選ぶ操作は、答えの入力ではありません。",
+      termRandomName: "乱数",
+      termRandomDefinition: "秘密と別に選ぶ補助の数です。全体から同じ確率で選ぶことを「一様に選ぶ」と呼びます。",
+      termFieldName: "有限体 GF(p)",
+      termFieldDefinition: "この教材ではpを素数とし、0〜p−1を使って、pで割った余りで計算します。0以外の数での割り算も定義できます。",
+      termEquationName: "式と係数",
+      termEquationDefinition: "式は座標が満たす条件です。a x₁+b x₂≡cでは、a,bが座標に掛ける係数、cが右辺の値です。",
+      termHyperplaneName: "超平面",
+      termHyperplaneDefinition: "2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。",
+      compareBasics: "Shamir方式は、たとえばf(x)=s+a₁xという式を作ります。秘密sはx=0の値、a₁は乱数です。各人には、0以外の番号iと値f(i)の組を1枚のシェアとして渡します。",
+      compareRandomRoles: "ここでa₁,a₂は乱数で、点Xの第2・第3座標に当たります。前のタブで各人に配る式の係数a,bとは役割が違います。",
+      compareCandidateMeaning: "候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。",
+      compareK2Task: "相手が知るのは(1,9)の1枚だけです。候補を送り、sを変えてもf(1)=9となる式が残ることを確かめてください。",
+      compareK3Task: "相手が知るのは(1,11)と(2,8)の2枚だけです。必要な3枚には足りません。sの行を選び、同じ2枚に合う候補を比べてください。",
+      compareViews: "多項式の図、切り口の図、対応表は、同じ候補を別の形で示します。表の(s,a₁,a₂)が多項式の係数になり、切り口ではsを固定した(a₁,a₂)の点になります。",
+      compareSizePurpose: "同じ量の秘密を分けても、式の係数を毎回渡すか、番号から決めるかで、1枚に含める数の個数が変わります。",
+      pitBTask: "秘密を点全体Xとする場合と、第1座標sだけにする場合を比べます。0枚から順に枚数を増やし、2種類の候補数がどう減るかを見てください。",
+      pitCTask: "整数のまま配る場合と、乱数の範囲を狭める場合を切り替え、1枚から何がわかるかを調べます。正しい生成条件との比較であり、すでに漏れた情報を後の検査で消す操作ではありません。",
+      pitATask: "1枚で秘密がわかる式や、同じ条件を重ねた式など、失敗の例を切り替えます。出力が1個でも、秘密が正しく求まったとは限らないことを確かめます。",
+      pitDTask: "#2の式の右辺を変え、集める枚数を2→3→4と増やします。間違いに気づくことと、間違った1枚を特定することの違いを見てください。δは変更する量で、0なら変更なしです。",
+      pitBWholeCase: "点全体を秘密にした場合",
+      pitCRestrictedCase: "整数・狭い範囲で作った場合",
+      pitBComparison: "第1座標だけを秘密にした場合",
+      pitCComparison: "正しい生成条件との比較",
+      pitTamperAuthentication: "ここで調べるのは式どうしの一致です。送信者が誰かや、シェアが一度も書き換えられていないことを保証する認証ではありません。",
+      calculationDetails: "計算の詳細",
+      exploreK3: "2枚では候補が残り、3枚で1点へ",
+      exploreHigher: "{k}枚の式を集めて復元する",
+      dimensionTitleHigher: "k={k}：図から式の表へ",
+      dimensionIntroK2: "k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。",
+      dimensionIntroK3: "現在はGF({p})、k=3、n={n}です。点X=(s,x₂,x₃)の後ろ2座標が乱数で、1枚のシェアはこの点を通る平面です。",
+      dimensionIntroHigher: "現在はGF({p})、k={k}、n={n}です。点には{k}個の座標があるため、式と計算の表で候補や復元を追います。",
+      selectionNone: "0枚なので、条件はまだありません。GF({p})の点{points}個がすべて候補です。図にはシェアの点をまだ描いていないため、空欄になっています。",
+      selectionPartial: "選んだ式をすべて満たす点が{points}個あります。その第1座標には{secrets}種類の値があり、これが秘密sの候補です。",
+      selectionUnique: "選んだ式をすべて満たす点は1個です。その第1座標から計算値s={s}を読み取ります。",
+      selectionExtra: "任意の{k}枚の組から求めた結果も、下の表で比べてください。",
+      selectionNoSolution: "選んだ式をすべて満たす点がありません。式の条件が食い違っています。",
+      selectionEdited: "変更した写しから計算した結果です。元の配布時の秘密と一致する保証はありません。",
+      selectionReset: "「元に戻す」で、編集した写しを元の配布値へ戻せます。",
+      editedOnePoint: "変更した写しの交点X=({point})、計算された値s={s}。元の秘密と一致する保証はありません。",
+      candidateColumnCount: "s={s}と仮定した列には、条件を満たす点が{count}個あります。候補を変えても、配布値は変わりません。",
+      candidateTry2: "いま試している候補はs={s}です。対応するx₂={x2}を調べます。候補を変えても、配布値は変わりません。",
+      candidateInverse: "{b}×{inverse}≡1 (mod {p})なので、{b}で割る代わりに{inverse}を掛けます。",
+      candidateTry3: "s={s}と仮定した切り口を見ています。これは答えの入力ではなく、配布値も変わりません。",
+      sliceIntro: "各札はsを1つに固定して、残る(x₂,x₃)の候補を示します。{p}枚すべての札に点があれば、どのsも除外できません。",
+      sliceCurrent: "いま見ている切り口はs={s}、条件を満たす点は{count}個です。",
+      sliceRecoveredElsewhere: "いまはs={s}の切り口です。復元された点は別のs={recovered}の切り口にあります。",
+      goRecoveredSlice: "復元されたs={s}の切り口へ",
+      realNoPoint: "この実数の切り口には、すべての条件を満たす点がありません。",
+      matrixIntro: "{k}個の座標を求める式を表にします。1行が1本の式で、xの列は係数、cは右辺です。mod {p}で、解を変えない行の操作を進めます。",
+      matrixScope: "選んだ{total}枚のうち、先頭の{used}枚をこの表で使います。すべての組の結果は上の表で確認できます。",
+      matrixMeaning: "表示中の1行目を式として読むと、{equation}です。",
+      matrixInProgress: "「次へ」で係数を整理します。途中の表でも、条件を満たす点の集合は変わりません。",
+      matrixUnique: "整理すると、点X={point}が1つに決まります。第1座標の計算値はs={s}です。",
+      matrixRemaining: "まだ点は1つに決まりません。点の候補は{points}個、第1座標sの候補は{secrets}個です。",
+      matrixEmpty: "シェアを選ぶと、その式を表に入れて計算できます。",
+      matrixNoSolution: "0が0以外に等しいという行が現れます。この式の組には解がありません。",
+      introCurrentExample: "現在の図：GF({p})、k={k}、n={n}。配布したシェア#1は{equation}です。",
+      coefficients: "係数の組",
+      compareKnownShares: "この実験で相手が知っているのは{count}枚だけ：{values}",
+      compareAllShares: "配布側の全シェア（答えの確認用）：{values}",
+      compareDealerAnswer: "配布側の答え：{polynomial} (mod {p})、係数の点X={point}",
+      compareDealerSource: "配布側の答えを見る",
+      lesson2Guide: "この節は「k枚なら復元、k−1枚なら情報が増えない」を証明します。一様な乱数の下で、どの秘密にも同じ数の乱数の組が対応することが要点です。下の行列はその確認に使います。",
+      lesson3Guide: "1979年の論文と、この教材の有限体の式は同じ書き方ではありません。原文の記述と、教材で置いた条件を分けて読みます。原資料を詳しく確認したい人のための節です。",
+      lesson5Guide: "1枚にいくつの数を入れる必要があるかを比べます。係数を毎回渡すか、番号から決めるかで量が変わります。表の単位は有限体の数1個で、保存容量のバイト数ではありません。",
+      lesson6Guide: "どのk枚でも復元し、k−1枚では秘密を絞らないように、式の係数を選ぶ必要があります。ここでは実装済みの2つの作り方と、関連する別の構成・上限を分けて説明します。",
+      lesson8Guide: "線形とは、秘密と乱数をそれぞれ決まった数倍して足す形です。この見方を広げると、人数だけでなく「誰と誰がそろえば戻せるか」も表せます。下はそのための発展事項です。",
+      lesson9Guide: "枚数を増やすと、式の答えが合わないことや、一定の条件でどの1枚が合わないかを調べられます。これは秘密を隠す性質とも、送信者を確かめる認証とも別の話です。",
+      lesson10Guide: "次に学ぶ内容と、実用のバックアップを扱うツールを選ぶ案内です。表で、目的と操作の違いを確認してください。",
+      pitParallelDetail: "同じ直線を配る模型では、(6,5)=6·(1,3) mod 13、右辺も5≡6·3です。detの逆元をa^(p−2)だけで求めると、0^(p−2)=0を返して不成立を見落とします。",
       theme: "明暗を切り替える",
       language: "言語を切り替える",
       help: "ヘルプと座学",
@@ -21,7 +116,7 @@
       nearestGridPoint: "最寄りの格子点",
       thresholdTitle: "n枚を配る → 任意のk枚で復元",
       thresholdDefinition: "nは配るシェアの総数、kは復元に必要な枚数です。正しく作ったシェアなら、どのk枚を集めても秘密sを復元できます。",
-      thresholdSummary: "現在の設定：復元に必要な枚数k={k}、配る総数n={n}。",
+      thresholdSummary: "現在の設定：GF({p})、復元に必要な枚数k={k}、配る総数n={n}。",
       primerTitle: "最初の固定例：(k,n)=(2,4)",
       primerPeople: "4人に1枚ずつ配ります。どの2枚からも点Xの第1座標sが求まり、1枚ではsの13候補がすべて残ります。",
       primerPoint: "秘密sと乱数rを組にして、点X=(s,r)を作ります。1枚のシェアは、この点を通る直線を表す1本の式です。",
@@ -30,8 +125,8 @@
       primerDistribution: "4人に配る4本の式（最初の固定例）",
       primerShare: "配るシェア",
       initialExample: "既定の例（手で選んだ値）：GF(13)、k=2、n=4。",
-      compareIntro: "Day123ではシェアが点で、候補が直線（多項式）でした。ここではシェアが直線（平面）で、候補が点です。",
-      pitfallsIntro: "点全体・整数と狭い乱数・検査・改ざんを、わざと無防備な模型と並べて確かめます。",
+      compareIntro: "シェアから秘密を絞れないことを、Shamirの式とBlakleyの点の両方で見ます。同じシェアを2通りに読む比較です。",
+      pitfallsIntro: "正しく作るための条件を1つずつ変え、何がわかってしまうか、復元器がどこで間違うかを試します。各カードで操作し、結果と理由を読んでください。",
       helpIntro: "タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。",
       premise: "x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。",
       reuse: "法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。",
@@ -58,15 +153,15 @@
       chooseShares: "シェアを選ぶ",
       previousCandidate: "前の候補",
       nextCandidate: "次の候補",
-      allCandidates: "全部を重ねる",
+      allCandidates: "全候補の点を強調",
       coordinatePlane: "選んだシェアの座標平面",
       editCopy: "選んだシェアの写しをいじる",
       editShare: "いじるシェア",
       editKeys: "矢印キー: 上下で平行移動、左右で方向を変更",
-      shiftMinus: "平行移動 −1",
-      shiftPlus: "平行移動 +1",
-      directionMinus: "方向を変える ◁",
-      directionPlus: "方向を変える ▷",
+      shiftMinus: "右辺c −1（平行移動）",
+      shiftPlus: "右辺c +1（平行移動）",
+      directionMinus: "係数b −1（方向を変える）",
+      directionPlus: "係数b +1（方向を変える）",
       undoEdit: "元に戻す",
       nextDimension: "k=3では、直線が平面になる",
       columnsToSlices: "k=2の列が、k=3では切り口になります。",
@@ -79,7 +174,7 @@
       pitchUp: "上へ10°回す",
       pitchDown: "下へ10°回す",
       cameraReset: "正面に戻す",
-      real3dNote: "板と切り口一覧は同じsを選びます。実数の交点とGF(p)の点は一般には異なり、候補の数は下のGF(p)の一覧で確かめます。",
+      real3dNote: "上は実数の等式、下はGF(p)の合同式で、一般に交点は異なります。同じsで連動しますが、候補数は下の一覧で読みます。平面の表示切替は見え方だけを変え、計算する枚数は変えません。",
       finiteSlices: "GF(p)の切り口一覧",
       chooseSlice: "切り口を選ぶ",
       sliceGraph: "選んだ切り口の座標平面",
@@ -91,7 +186,7 @@
       secretLabel: "秘密情報 s",
       generate: "新しい乱数で作る",
       resetDefault: "既定の例に戻す",
-      manualNote: "いまは手で入れた値なので保証の外です。",
+      manualNote: "手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。",
       advanced: "詳しく",
       normalMethod: "法線の作り方",
       randomMethod: "乱数＋検査",
@@ -191,7 +286,7 @@
       pitFirst: "第1座標だけの候補",
       pitWholeResult: "点全体を秘密とすると、候補は{count}点です。",
       pitCoordinateResult: "第1座標を秘密とすると、秘密の候補は{count}個です。",
-      pitWholeWithout: "点全体を返す復元器は、枚数が足りないときに残る候補数を、そのまま秘密の候補数として扱います。",
+      pitWholeWithout: "点全体Xを秘密とみなす模型です。シェアを増やすと、点のどの成分の組が候補から消えるかを調べます。",
       pitWholeLesson: "点全体を秘密にした版では、1枚増えるごとに候補がp分の1になります。第1座標だけを秘密にする版は、検査(i)(ii)と一様な乱数の前提の下で、k枚未満なら秘密の全候補を残します。HACの原文は座学4で確認できま"
         + "す。",
       pitBGraph: "点全体の候補の座標平面",
@@ -202,7 +297,7 @@
       pitIntegerInput: "X=(5,8)、座標は0〜12と分かっている例です。右辺を整数のまま配ります。",
       pitNarrowInput: "この模型の固定例はs=0、x₂=1です。x₂を0〜3から選ぶと分かっている場合を調べます。シェア#1の式は通常の既定例と同じです。",
       pitRestrictedResult: "秘密の候補は{count}個：{secrets}。",
-      pitFullResult: "有限体の式として読み、乱数をGF(13)全体から一様に選ぶ前提なら、同じシェアから秘密の候補{count}個が残ります。",
+      pitFullResult: "対照例：初めから右辺をmod 13で配り、乱数をGF(13)全体から一様に選ぶ方式なら、秘密の候補は{count}個です。",
       pitCGraph: "整数または狭い乱数の前提で残る点",
       pitNarrowLesson: "生成範囲が知られているため、1枚だけでも秘密の候補は4個になります。0を含む有限体全体から一様に選ぶ前提が必要です。",
       pitIntegerLesson: "整数では合同式と範囲の両方から絞れます。#1はs≡2 (mod 3)、#4はx₂の範囲から4.2≤s≤6.6なのでs=5,6です。実数で交わる図だけでは、この差を見落とします。",
@@ -212,22 +307,22 @@
       pitParallel: "k=2：同じ直線2本",
       pitShort: "k=2：足りない1枚で値を返す",
       pitLeakedResult: "秘密の候補は{secrets}だけです。点全体は{count}点残ります。",
-      pitCramerResult: "det=0でも素のクラメルの解き方は{point}を返します。",
-      pitFreeZeroResult: "自由な変数を0と置く解き方は、足りない枚数でも{point}を返します。",
-      pitLeakCheck: "検査(ii)は不合格です。秘密sを決めたときに残りの式がいつもちょうど1点になる、という条件を満たしません。",
-      pitParallelCheck: "生成時の検査(i)は不合格です。復元時も階数が足りないため、一意の点として受理しません。",
+      pitCramerResult: "点が1つに決まらないのに、確認なしのクラメルの計算は{point}を返します。ここではdet=0です。",
+      pitFreeZeroResult: "決まっていない座標を0と置くだけで、枚数が足りなくても{point}を返します。",
+      pitLeakCheck: "検査(ii)は不合格です。必要な枚数が集まる前に、秘密sを絞れてしまう係数の組です。",
+      pitParallelCheck: "生成時の検査(i)は不合格です。2枚が同じ条件なので、復元時にも点は1つに決まらず受理しません。",
       pitShortCheck: "1枚はしきい値k=2に足りません。復元を受理せず、残る13候補を示します。",
-      pitVerticalLesson: "4s≡7 (mod 13)なのでs=5です。点全体は13点のままでも、秘密の第1座標は1本で決まります。",
+      pitVerticalLesson: "x₂の項がないので、1本の式4s≡7 (mod 13)だけでs=5とわかります。点全体は13点残っても、秘密の第1座標は隠せません。",
       pitLeak3Lesson: "第2の式から第1の式の2倍を引くと3s≡9−10≡10 (mod 11)、つまりs=7です。s=7の切り口だけに11点が残ります。",
-      pitParallelLesson: "(6,5)=6·(1,3) mod 13、右辺も5≡6·3なので同じ直線です。detの逆元をa^(p−2)だけで求めると、0^(p−2)=0を返して不成立を見落とします。",
-      pitShortLesson: "1つの候補を選んで値を出しても、秘密が一意に決まったことにはなりません。枚数と階数を確かめる必要があります。",
+      pitParallelLesson: "同じ条件を2回数えているだけなので、候補は1点に減りません。2枚集まったことと、復元に必要な別々の条件がそろったことは区別します。",
+      pitShortLesson: "候補を1つ選んで値を出しても、秘密が一意に決まったことにはなりません。必要な枚数と、別々の条件がそろうことを確かめます。",
       pitChooseSlice: "切り口のs",
       pitAGraph: "検査に通らない配置の有限体の座標平面",
       pitPassRateIntro: "係数の各成分をGF(p)全体から独立に一様に選び、全組の検査に合格する割合です。次の値は事前の計算値です。",
       pitPassRate: "全組に合格する割合",
       pitRateApprox: "約0.0001",
       pitDelta: "#2の右辺への変化δ",
-      pitTamperInput: "#2の右辺を{before}から{after}へ（+{delta} mod 13）。{count}枚を使います。",
+      pitTamperInput: "#2の右辺を{before}から{after}へ（+{delta} mod 13）。#1から順に{count}枚を使います。",
       pitFirstKResult: "最初の2枚だけから{point}を返します。秘密の復元値はs={s}です。",
       pitFirstKOnly: "この模型は、後ろに追加したシェアを確認しません。",
       pitTamperK: "2枚では{point}が1点に決まり、s={s}を受理します。この枚数では改ざんに気づけません。",
@@ -236,8 +331,7 @@
       pitTamperUnchanged: "δ=0なので書き換えていません。組ごとの復元結果は同じ点(5,8)です。",
       pitDGraph: "右辺を書き換えたシェアの有限体の座標平面",
       pitTamperConditions: "条件は、改ざんが1枚だけで、全ての部分集合を調べ、書き換えた直線が元のXを通らないことです。正しい法線が検査(i)を満たす場合、最大t枚の誤りにはk+2t枚あれば足ります。",
-      pitLinearity: "どちらも線形で、右辺を δ ずらすと秘密も決まった係数倍だけずれる（#1・#2 では u＝(8,3)、#2 を +1 ずらすと s は 5→8）。違いは、Blakley "
-        + "の素朴な形ではシェアに法線も入っているので、法線を書き換える自由もあること",
+      pitLinearity: "Shamir方式とこのBlakley方式はどちらも線形です。#1・#2ではsを読む係数がu=(8,3)で、#2の右辺を+1すると計算値は5→8へ変わります。素朴なBlakleyのシェアには法線も含まれ、その成分を書き換える余地もあります。",
       pitAllDelta: "δ=0〜12の復元値をすべて見る",
       pitParameters: "p, k, n",
       comparePointHeading: "点 (s,a₁,a₂)",
@@ -261,14 +355,14 @@
       compareShamirObject: "シェアが点、候補が多項式",
       compareBlakleyObject: "シェアが平面、候補が点",
       compareK2Title: "① k=2：13本の候補を13個の点へ",
-      compareK2Intro: "Day123の導入と同じ例です。p=13、秘密s=5、乱数の係数a₁=4、f(x)=5+4x。",
+      compareK2Intro: "k=2ではf(x)=s+a₁xを使います。sとa₁の組を決めると1本の式が決まり、同じ組を点X=(s,a₁)としても表せます。",
       comparePrevious: "前の候補を選ぶ",
       compareNext: "次の候補を選ぶ",
       compareK2Graph: "シェア1枚と矛盾しない13個の点 (s,a₁)",
       compareK2Correspondence: "シェア (1,9) を通る13本の候補の直線と、s+a₁≡9 の上の13点 (s,9−s) が1対1に並びます。",
       compareK3Title: "② k=3：多項式の係数が、そのまま点になる",
-      compareK3Intro: "Day123の「(k,n)を手で追う」と同じ例です。点X=(s,a₁,a₂)の成分が、多項式の係数です。",
-      compareVandermonde: "係数の組 (1,i,i²) はヴァンデルモンドの行です。この構成は検査(i)(ii)を満たします。",
+      compareK3Intro: "k=3ではf(x)=s+a₁x+a₂x²を使います。x²の前の数a₂も乱数です。3つの係数の組を点X=(s,a₁,a₂)として見ます。",
+      compareVandermonde: "番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)はヴァンデルモンドの行で、この構成は検査(i)(ii)を満たします。",
       compareNonzero: "乱数の座標を0以外に限る",
       compareNonzeroExplanation: "この切り替えはa₁とa₂の両方を0以外に限ります。0を含むGF(13)全体から選ぶ前提を壊すと、秘密の候補が消えます。",
       comparePolynomialGraph: "Shamir：候補の多項式",
@@ -281,7 +375,7 @@
       compareZeroTopExplanation: "(1,10,0) は最高次の係数が0の候補です。最高次を0以外に限る実装では消えます。Day123の座学でも説明しています。",
       compareSliceExplanation: "2枚の平面をx₁=sで切った直線です。◎は両方を満たす1点を表します。ここではa₁が横軸、a₂が縦軸です。",
       compareSizeTitle: "1枚のシェアは何要素か",
-      compareSizeIntro: "秘密がm要素、k=3の場合です。法線を正規化し、1にした成分を省いた体の要素数です。公開の番号と省いた成分の位置情報は数えません。バイト数の比較ではありません。",
+      compareSizeIntro: "秘密を0〜p−1の数m個で表し、k=3とした例です。「要素」はその数1個です。式全体に0以外の数を掛け、係数の1つを1にそろえて（正規化して）、その1は省いて数えます。公開番号や省いた位置の情報は含まず、バイト数でもありません。",
       compareSizeNote: "公開の番号iから (1,i,i²) を決めれば、渡す値は多項式の値だけになり、Shamirと同じ大きさです。",
       compareLinearGeneralization: "集まったシェアから秘密の座標を求められるかを行列で決める考え方は、線形秘密分散につながります。",
       compareLesson: "座学8：線形秘密分散への橋",
@@ -531,7 +625,7 @@
       lesson8Beimel: "Beimelサーベイ本文：Claim 2・Remark 2（二次・本文確認）",
       lesson9Title: "9. 改ざんの検出と、誤りのあるシェアの特定",
       lesson9Intro: "秘密分散の完全性は、シェアの改ざんを防ぐ性質ではありません。ちょうどk枚で式が解けても、その答えが元の秘密かどうかは、それだけではわかりません。",
-      lesson9Example: "最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で復元すると (8,7) となり、秘密は5から8へ変わります。",
+      lesson9Example: "最初の教材例で、#2の右辺を11から12へ変えます。法線はそのままにして、#1・#2の2枚で計算すると(8,7)となり、計算された秘密の値は5から8へ変わります。元の秘密は5のままです。",
       lesson9CountsCaption: "1枚を書き換えた固定教材例",
       lesson9CountsH1: "集める枚数",
       lesson9CountsH2: "得られる結果",
@@ -548,8 +642,8 @@
       lesson9Conditions: "表の条件は、改ざんが1枚で、すべてのk枚の部分集合を調べ、書き換えた超平面が元のXを通らないことです。正しい法線は検査 (i) を満たす必要があります。",
       lesson9General: "同じ条件を一般化すると、最大t枚の誤りを特定して訂正するにはk+2t枚あれば足ります。正しいシェアの法線は一般の位置にあり、全対象の組を調べるという条件つきです。",
       lesson9Invisible: "書き換えても元のXを通る超平面なら、この一致の検査では改ざんとして検出できません。送信者の認証や、暗号学的な改ざん防止を提供する説明ではありません。",
-      lesson9Linear: "Shamirとこの形はどちらも線形です。選んだk枚についてs＝u·cと書けるので、右辺の1つを δ ずらすと、秘密も対応する係数の δ 倍だけずれます。",
-      lesson9Coefficients: "#1・#2ではu＝(8,3) です。#2を +1ずらすとsは5→8となります。Blakleyの素朴な形はシェアに法線も含むため、法線を書き換える自由もあります。",
+      lesson9Linear: "Shamirとこの形はどちらも線形です。選んだk枚についてs＝u·cと書けるので、右辺の1つをδずらすと、計算される第1座標も対応する係数のδ倍だけずれます。",
+      lesson9Coefficients: "#1・#2ではu＝(8,3)です。#2の右辺を+1ずらすと、計算値sは5→8となります。Blakleyの素朴な形はシェアに法線も含むため、その成分を書き換える余地もあります。",
       lesson9Source: "数値は画面の固定教材例と同じです。検出・訂正の説明は、正しい法線の独立性からこのツールで整理したものです。Shamirの多項式による方式の一次資料を下に示します。",
       lesson9Shamir: "Shamir, “How to share a secret”, 1979（一次・DOI）",
       lesson10Title: "10. 関連ツール",
@@ -577,6 +671,147 @@
       lesson10Day125: "Day125 Overlay QR Shares",
     },
     en: {
+      secretSharingDefinition: "Secret sharing creates several shares from a secret and recovers it when enough shares are collected. In this tool, "
+        + "correctly generated shares leave every secret possible with fewer than k shares and recover it with any k.",
+      learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Continue to “Compare with Shamir” and then “Pitfalls”. "
+        + "Higher dimensions and the proofs can wait until you have tried the basics.",
+      primerRoles: "The dealer creates and distributes the shares. Each recipient receives their own equation; recipients bring equations together for "
+        + "recovery. This page shows both the dealer’s answer and what the collected equations reveal.",
+      primerRandom: "The value r is an extra number chosen separately from the secret. Mixing it into the equation, using suitable coefficients and "
+        + "choosing every random value with equal probability, prevents one share from narrowing down s.",
+      exploreInstruction: "Press a share button to add or remove its equation. Increase the count one at a time and see how the points satisfying "
+        + "every equation change. A number on a plotted point counts the equations that meet there.",
+      editIntro: "Change the right-hand value c by ±1 or edit coefficient b to try an altered equation. Only the experimental copy changes; the "
+        + "distribution table keeps its values. The result may differ from the original secret.",
+      dealerIntro: "This is the dealer’s view. Changing p, n or s regenerates the shares. “Generate with fresh randomness” keeps s and rebuilds the "
+        + "coefficients and random coordinates. The dealer’s answer is also shown below.",
+      primeLabel: "Prime modulus p",
+      shareCountLabel: "Total shares n",
+      coordinatesIntro: "The first coordinate of X is the secret s; the remaining coordinates are random values. Manual input lets you try a "
+        + "calculation, but does not meet the random-sampling requirement.",
+      randomnessPlain: "Each new sharing uses fresh extra numbers, with every value from 0 to p−1 equally likely. Restricting their range or reusing "
+        + "earlier values can reveal information.",
+      checkPlain: "Check (i) asks whether any k equations determine one point. Check (ii) tests the coefficients needed to keep k−1 shares from "
+        + "narrowing s. Uniform randomness over the whole field is also required.",
+      methodIntro: "“Random sampling + checks” retries coefficient sets that fail the conditions. “Vandermonde” derives coefficients from share "
+        + "indices using a fixed rule. Both choose the random coordinates of X separately.",
+      helpLearningTitle: "Where to start",
+      helpLearningRoute: "Start in “Follow intersections”: one share leaves candidates, and enough shares determine one point. Use the glossary below "
+        + "for terms and the page’s opening mathematical background for the arithmetic.",
+      helpTerms: "Terms used in this tool",
+      helpTheoryRoute: "Read Sections 1, 4 and 7 first for the scheme, candidate counts and randomness. Section 2 proves the conditions; 3 examines "
+        + "the original paper; 5, 6 and 8 go further. Section 9 covers tampering checks and 10 lists related tools.",
+      termShareName: "Share",
+      termShareDefinition: "Information derived from the secret and given to a recipient. In this tool’s Blakley model, one share is an equation "
+        + "represented by its coefficients and right-hand value.",
+      termSecretName: "Secret s",
+      termSecretDefinition: "The original value to recover by collecting enough shares. This tool places it in the first coordinate of X.",
+      termThresholdName: "Threshold k and total n",
+      termThresholdDefinition: "n is the number distributed; k is the number needed for recovery. With correctly generated shares, any k suffice.",
+      termCandidateName: "Candidate",
+      termCandidateDefinition: "A value or point consistent with the collected shares and known generation rules. Selecting a candidate does not enter "
+        + "the answer.",
+      termRandomName: "Random value",
+      termRandomDefinition: "An extra number chosen separately from the secret. Uniform sampling means that every value in the set has the same "
+        + "probability.",
+      termFieldName: "Finite field GF(p)",
+      termFieldDefinition: "Here p is prime. Calculations use 0 through p−1 and reduce results modulo p. Division by every nonzero value is defined.",
+      termEquationName: "Equation and coefficients",
+      termEquationDefinition: "An equation gives a condition on the coordinates. In a x₁+b x₂≡c, a and b multiply the coordinates and c is the "
+        + "right-hand value.",
+      termHyperplaneName: "Hyperplane",
+      termHyperplaneDefinition: "The points satisfying one linear equation: a line in two coordinates or a plane in three. Over a finite field, these "
+        + "are discrete points.",
+      compareBasics: "For example, Shamir’s scheme uses f(x)=s+a₁x. The secret s is its value at x=0, and a₁ is random. Each recipient gets one share: "
+        + "a nonzero index i together with f(i).",
+      compareRandomRoles: "Here a₁ and a₂ are random values and become the second and third coordinates of X. Their role differs from coefficients a,b "
+        + "in the equations distributed in the previous tab.",
+      compareCandidateMeaning: "A candidate is a secret and random values consistent with the shares known to the observer and the selected generation "
+        + "rule. The dealer’s answer is shown separately for reference. Selecting candidates does not change the shares.",
+      compareK2Task: "The observer knows only share (1,9). Step through candidates to see that different values of s still give equations with f(1)=9.",
+      compareK3Task: "The observer knows only (1,11) and (2,8), fewer than the three shares required. Select an s row to compare candidates that fit "
+        + "those same two shares.",
+      compareViews: "The polynomial plot, slice plot and table show the same candidate in different forms. The table’s (s,a₁,a₂) gives the polynomial "
+        + "coefficients; fixing s leaves point (a₁,a₂) in the slice.",
+      compareSizePurpose: "For the same amount of secret data, the count of numbers in one share depends on whether equation coefficients are "
+        + "distributed or derived from indices.",
+      pitBTask: "Compare keeping the whole point X secret with keeping only its first coordinate s secret. Start at zero shares and increase the count "
+        + "to see how the two candidate counts change.",
+      pitCTask: "Switch between integer shares and a restricted random range to see what one share reveals. The comparison uses different generation "
+        + "rules; a later check does not erase information already revealed.",
+      pitATask: "Switch among failures such as one equation revealing the secret or two equations repeating one condition. A routine returning one "
+        + "value does not mean that the secret was correctly determined.",
+      pitDTask: "Change share #2’s right-hand value, then increase the collected count from 2 to 3 to 4. Compare detecting a mismatch with identifying "
+        + "one faulty share. δ is the amount changed; zero makes no change.",
+      pitBWholeCase: "Keeping the whole point secret",
+      pitCRestrictedCase: "Using integers or a restricted range",
+      pitBComparison: "Keeping only the first coordinate secret",
+      pitCComparison: "Comparison with the required generation rules",
+      pitTamperAuthentication: "These checks test consistency between equations. They do not authenticate the sender or guarantee that a share has "
+        + "never been altered.",
+      calculationDetails: "Calculation details",
+      exploreK3: "Two shares leave candidates; three determine one point",
+      exploreHigher: "Collect {k} equations to recover the secret",
+      dimensionTitleHigher: "k={k}: move from plots to equation tables",
+      dimensionIntroK2: "For k=3, the secret and two random values form three coordinates. Each share becomes a plane instead of a line; recovery "
+        + "examines the intersection of three planes.",
+      dimensionIntroK3: "Current settings: GF({p}), k=3, n={n}. In X=(s,x₂,x₃), the last two coordinates are random values. Each share is a plane "
+        + "through this point.",
+      dimensionIntroHigher: "Current settings: GF({p}), k={k}, n={n}. The point has {k} coordinates, so equations and calculation tables show the "
+        + "candidates and recovery.",
+      selectionNone: "No shares are selected, so all {points} points over GF({p}) remain candidates. The graph is blank because no share’s points have "
+        + "been drawn yet.",
+      selectionPartial: "{points} points satisfy every selected equation. Their first coordinates contain {secrets} different values: the candidates "
+        + "for secret s.",
+      selectionUnique: "Exactly one point satisfies every selected equation. Its first coordinate gives calculated value s={s}.",
+      selectionExtra: "Also compare the results from every group of {k} shares in the table below.",
+      selectionNoSolution: "No point satisfies every selected equation. The conditions are inconsistent.",
+      selectionEdited: "This result uses the altered copies. It is not guaranteed to match the secret used for the original distribution.",
+      selectionReset: "Use “Undo edits” to restore the copies to their originally distributed values.",
+      editedOnePoint: "The altered copies intersect at X=({point}), giving calculated value s={s}. It is not guaranteed to be the original secret.",
+      candidateColumnCount: "Assuming s={s}, this column contains {count} points satisfying the conditions. Changing candidates does not change the "
+        + "distributed values.",
+      candidateTry2: "The candidate being tried is s={s}. Its corresponding value is x₂={x2}. Changing candidates does not change the distributed "
+        + "values.",
+      candidateInverse: "Since {b}×{inverse}≡1 (mod {p}), multiply by {inverse} instead of dividing by {b}.",
+      candidateTry3: "This slice assumes s={s}. It is a trial value, not an entered answer, and the distributed values do not change.",
+      sliceIntro: "Each tile fixes one value of s and shows the remaining (x₂,x₃) candidates. If all {p} tiles contain a point, no value of s can be "
+        + "ruled out.",
+      sliceCurrent: "The current slice is s={s}, containing {count} points satisfying the conditions.",
+      sliceRecoveredElsewhere: "You are viewing the s={s} slice. The recovered point is in the different slice s={recovered}.",
+      goRecoveredSlice: "Go to recovered slice s={s}",
+      realNoPoint: "No point in this real-number slice satisfies all the conditions.",
+      matrixIntro: "The table contains equations for {k} coordinates. Each row is one equation; the x columns hold coefficients and c is the "
+        + "right-hand value. Row operations modulo {p} preserve the solutions.",
+      matrixScope: "This table uses the first {used} of the {total} selected shares. The table above compares every subset’s result.",
+      matrixMeaning: "The first row currently shown represents {equation}.",
+      matrixInProgress: "Use “Next” to simplify the coefficients. Intermediate tables still describe the same set of solutions.",
+      matrixUnique: "After simplification, the unique point is X={point}. Its first coordinate gives calculated value s={s}.",
+      matrixRemaining: "The point is not uniquely determined. There are {points} candidate points and {secrets} candidates for first coordinate s.",
+      matrixEmpty: "Select shares to put their equations in the table and follow the calculation.",
+      matrixNoSolution: "A row says that zero equals a nonzero value. These equations have no solution.",
+      introCurrentExample: "Current graph: GF({p}), k={k}, n={n}. Distributed share #1 is {equation}.",
+      coefficients: "Coefficient vector",
+      compareKnownShares: "The observer in this experiment knows only {count} shares: {values}",
+      compareAllShares: "All shares from the dealer, for reference: {values}",
+      compareDealerAnswer: "Dealer’s answer: {polynomial} (mod {p}), coefficient point X={point}",
+      compareDealerSource: "View the dealer’s answer",
+      lesson2Guide: "This section proves recovery with k shares and no extra information with k−1. With uniform randomness, each secret must have the "
+        + "same number of compatible random choices. The matrices below establish that condition.",
+      lesson3Guide: "The 1979 paper and this tool’s finite-field equations use different formulations. This section separates the original text from "
+        + "the conditions used here, for readers who want to examine the original source.",
+      lesson5Guide: "Compare how many numbers one share needs. The count changes when coefficients are distributed each time or derived from indices. "
+        + "The table counts field elements, not bytes of stored data.",
+      lesson6Guide: "Coefficients must allow any k shares to recover the secret while k−1 reveal no information under the stated randomness "
+        + "assumptions. This section distinguishes the two implemented methods from other constructions and bounds.",
+      lesson8Guide: "Linear means multiplying the secret and random values by fixed coefficients and adding them. Extending this view can describe "
+        + "which people must join together, not just how many. The material below develops this idea.",
+      lesson9Guide: "Extra shares can reveal inconsistent answers and, under stated conditions, identify one faulty share. This is separate both from "
+        + "hiding the secret and from authenticating the sender.",
+      lesson10Guide: "Use this section to choose what to learn next or find a tool for practical backups. The table distinguishes their purposes and "
+        + "operations.",
+      pitParallelDetail: "In the coincident-line model, (6,5)=6·(1,3) mod 13 and 5≡6·3. Computing the inverse of det only as a^(p−2) returns 0^(p−2)=0 "
+        + "and misses the invalid case.",
       theme: "Switch light and dark",
       language: "Switch language",
       help: "Help and theory",
@@ -593,7 +828,7 @@
       thresholdTitle: "Distribute n shares → Recover from any k",
       thresholdDefinition: "n is the total number of shares; k is the number needed for recovery. With correctly generated shares, any k recover "
         + "the secret s.",
-      thresholdSummary: "Current settings: k={k} shares needed for recovery, n={n} shares distributed.",
+      thresholdSummary: "Current settings: GF({p}), k={k} shares needed for recovery, n={n} shares distributed.",
       primerTitle: "Initial fixed example: (k,n)=(2,4)",
       primerPeople: "Give one share to each of four people. Any two recover the first coordinate s of X; one share leaves all 13 "
         + "candidates for s.",
@@ -604,10 +839,10 @@
       primerDistribution: "Four equations for four people (initial fixed example)",
       primerShare: "Share given",
       initialExample: "Default example (hand-picked values): GF(13), k=2, n=4.",
-      compareIntro: "In Day123, shares were points and candidates were lines (polynomials). Here, shares are lines (planes) "
-        + "and candidates are points.",
-      pitfallsIntro: "Compare deliberately unprotected models of whole-point secrets, integers, narrow randomness, missing "
-        + "checks and tampering.",
+      compareIntro: "See why the known shares leave every secret possible, using both Shamir equations and Blakley points. The comparison reads the "
+        + "same shares in two ways.",
+      pitfallsIntro: "Change the required conditions one at a time to see what information is revealed and where a recovery routine can go wrong. Try "
+        + "each card, then read its results and explanation.",
       helpIntro: "Switch tabs with Left, Right, Home and End. Close help with Esc.",
       premise: "Choose x₂…x_k uniformly from all of GF(p), including 0, freshly for each secret and independently of the "
         + "normals.",
@@ -640,15 +875,15 @@
       chooseShares: "Choose shares",
       previousCandidate: "Previous candidate",
       nextCandidate: "Next candidate",
-      allCandidates: "Show all candidates",
+      allCandidates: "Highlight all candidate points",
       coordinatePlane: "Coordinate plane for selected shares",
       editCopy: "Edit a copy of a selected share",
       editShare: "Share to edit",
       editKeys: "Arrow keys: up/down shift, left/right change direction",
-      shiftMinus: "Shift −1",
-      shiftPlus: "Shift +1",
-      directionMinus: "Direction ◁",
-      directionPlus: "Direction ▷",
+      shiftMinus: "Right side c −1 (shift)",
+      shiftPlus: "Right side c +1 (shift)",
+      directionMinus: "Coefficient b −1 (change direction)",
+      directionPlus: "Coefficient b +1 (change direction)",
       undoEdit: "Undo edits",
       nextDimension: "At k=3, lines become planes",
       columnsToSlices: "Columns at k=2 become slices at k=3.",
@@ -661,8 +896,8 @@
       pitchUp: "Rotate up 10°",
       pitchDown: "Rotate down 10°",
       cameraReset: "Reset view",
-      real3dNote: "The plane and slice list select the same s. Real intersections and GF(p) points can differ. Count the "
-        + "candidates in the GF(p) slices below.",
+      real3dNote: "The upper view uses real-number equalities; the lower view uses GF(p) congruences. Their intersections can differ. Both follow the "
+        + "same s, but count candidates below. Plane visibility changes the display, not the shares used in calculations.",
       finiteSlices: "GF(p) slices",
       chooseSlice: "Choose a slice",
       sliceGraph: "Coordinate plane of the selected slice",
@@ -674,7 +909,7 @@
       secretLabel: "Secret s",
       generate: "Generate with fresh randomness",
       resetDefault: "Restore default example",
-      manualNote: "These manually entered coordinates are outside the uniform-random guarantee.",
+      manualNote: "Manually entered values do not establish that randomness was sampled with equal probability from the entire field.",
       advanced: "More details",
       normalMethod: "Constructing normals",
       randomMethod: "Randomness + checks",
@@ -778,8 +1013,8 @@
       pitFirst: "First-coordinate candidates",
       pitWholeResult: "Treating the whole point as the secret leaves {count} candidate points.",
       pitCoordinateResult: "Treating only the first coordinate as the secret leaves {count} candidates.",
-      pitWholeWithout: "A reconstruction routine returning the whole point treats the remaining point count as the secret "
-        + "candidate count when too few shares are available.",
+      pitWholeWithout: "This model treats the entire point X as the secret. As shares are added, examine which combinations of coordinates are ruled "
+        + "out.",
       pitWholeLesson: "In the whole-point version, each additional share divides the candidate count by p. With checks (i) and "
         + "(ii) and uniform randomness, the first-coordinate version retains every secret candidate until k shares "
         + "arrive. See lesson 4 for the HAC quotation.",
@@ -794,8 +1029,8 @@
       pitNarrowInput: "This fixed model uses s=0 and x₂=1. The observer knows x₂ was chosen from 0–3. Share #1 has the same "
         + "equation as the ordinary default example.",
       pitRestrictedResult: "Remaining secret candidates: {count}: {secrets}.",
-      pitFullResult: "Reading the finite-field equation under uniform randomness over all of GF(13) leaves {count} secret "
-        + "candidates for the same share.",
+      pitFullResult: "For comparison, a scheme that distributes right-hand values modulo 13 from the outset and samples randomness uniformly over all "
+        + "of GF(13) leaves {count} secret candidates.",
       pitCGraph: "Points remaining under integer or narrow-randomness assumptions",
       pitNarrowLesson: "Knowing the generation range reduces the secret to four candidates after only one share. Uniform sampling "
         + "from the entire field, including zero, is required.",
@@ -807,22 +1042,20 @@
       pitParallel: "k=2: two coincident lines",
       pitShort: "k=2: return a value from one share",
       pitLeakedResult: "Only secret candidate {secrets} remains, although {count} whole points remain.",
-      pitCramerResult: "Even with det=0, the naive Cramer routine returns {point}.",
-      pitFreeZeroResult: "Setting free variables to zero returns {point}, even with too few shares.",
-      pitLeakCheck: "Check (ii) fails: fixing the secret does not always leave exactly one solution for the remaining "
-        + "coordinates.",
-      pitParallelCheck: "Generation check (i) fails. Reconstruction also rejects the result as nonunique because the rank is too "
-        + "small.",
+      pitCramerResult: "The unchecked Cramer calculation returns {point} even though no unique point is determined. Here det=0.",
+      pitFreeZeroResult: "The routine sets undetermined coordinates to zero and returns {point}, even though there are too few shares.",
+      pitLeakCheck: "Check (ii) fails. These coefficients allow the secret s to be narrowed down before enough shares are collected.",
+      pitParallelCheck: "Generation check (i) fails. Both shares repeat the same condition, so recovery also rejects the nonunique result.",
       pitShortCheck: "One share is below the threshold k=2. Reconstruction is rejected and all 13 remaining candidates are "
         + "shown.",
-      pitVerticalLesson: "4s≡7 (mod 13) gives s=5. Thirteen whole points remain, but one line determines the secret first "
-        + "coordinate.",
+      pitVerticalLesson: "There is no x₂ term, so the single equation 4s≡7 (mod 13) gives s=5. Thirteen whole points remain, but the secret first "
+        + "coordinate is revealed.",
       pitLeak3Lesson: "Subtracting twice the first equation from the second gives 3s≡9−10≡10 (mod 11), hence s=7. Only the s=7 "
         + "slice retains 11 points.",
-      pitParallelLesson: "(6,5)=6·(1,3) mod 13 and 5≡6·3, so both equations describe the same line. Computing the inverse only as "
-        + "a^(p−2) silently returns 0^(p−2)=0 and misses the invalid case.",
-      pitShortLesson: "Returning one chosen candidate does not establish a unique secret. Both the share count and the rank must "
-        + "be checked.",
+      pitParallelLesson: "Repeating the same condition twice does not reduce the candidates to one point. Having two shares is different from having "
+        + "two independent conditions needed for recovery.",
+      pitShortLesson: "Returning one chosen candidate does not establish a unique secret. Check both the required share count and whether the "
+        + "equations give independent conditions.",
       pitChooseSlice: "Slice value s",
       pitAGraph: "Finite-field plane for a configuration that fails the checks",
       pitPassRateIntro: "These precomputed values give the fraction passing every subset check when each coefficient is chosen "
@@ -830,7 +1063,7 @@
       pitPassRate: "Fraction passing every check",
       pitRateApprox: "About 0.0001",
       pitDelta: "Change δ to the right-hand side of #2",
-      pitTamperInput: "Change #2 from {before} to {after} (+{delta} mod 13), using {count} shares.",
+      pitTamperInput: "Change #2’s right-hand value from {before} to {after} (+{delta} mod 13). Use the first {count} shares, starting with #1.",
       pitFirstKResult: "The first two shares return {point}, giving reconstructed secret s={s}.",
       pitFirstKOnly: "This model does not inspect any shares added after the first two.",
       pitTamperK: "Two shares determine {point}, so the routine accepts s={s}. With only these shares, the alteration cannot "
@@ -844,9 +1077,9 @@
       pitTamperConditions: "This assumes exactly one altered share, examination of every subset, and an altered line that does not "
         + "contain the original X. If the correct normals satisfy check (i), k+2t shares suffice to correct up to t "
         + "errors.",
-      pitLinearity: "Both schemes are linear: changing a right-hand side by δ shifts the secret by a fixed multiple. For #1 "
-        + "and #2, u=(8,3), so adding 1 to #2 changes s from 5 to 8. In the naive Blakley representation, a share "
-        + "also contains its normal, which can be altered as well.",
+      pitLinearity: "Shamir and this Blakley construction are linear. For #1 and #2, the coefficients recovering s are u=(8,3); adding 1 to #2’s "
+        + "right-hand value changes the calculated result from 5 to 8. A naive Blakley share also contains a normal whose components can be "
+        + "altered.",
       pitAllDelta: "Show reconstructed values for every δ from 0 to 12",
       pitParameters: "p, k, n",
       comparePointHeading: "Point (s,a₁,a₂)",
@@ -870,15 +1103,16 @@
       compareShamirObject: "Shares are points; candidates are polynomials",
       compareBlakleyObject: "Shares are planes; candidates are points",
       compareK2Title: "① k=2: 13 candidate lines become 13 points",
-      compareK2Intro: "The introductory example from Day123: p=13, secret s=5, random coefficient a₁=4, and f(x)=5+4x.",
+      compareK2Intro: "For k=2, use f(x)=s+a₁x. Choosing s and a₁ determines one equation; the same pair can also be represented as point X=(s,a₁).",
       comparePrevious: "Select the previous candidate",
       compareNext: "Select the next candidate",
       compareK2Graph: "Thirteen points (s,a₁) consistent with one share",
       compareK2Correspondence: "The 13 candidate lines through share (1,9) correspond one to one to the 13 points (s,9−s) on s+a₁≡9.",
       compareK3Title: "② k=3: polynomial coefficients become a point",
-      compareK3Intro: "The example from Day123's threshold walkthrough. The coordinates of X=(s,a₁,a₂) are the polynomial "
-        + "coefficients.",
-      compareVandermonde: "The coefficient vectors (1,i,i²) are Vandermonde rows. This construction satisfies checks (i) and (ii).",
+      compareK3Intro: "For k=3, use f(x)=s+a₁x+a₂x². The coefficient a₂ multiplying x² is also random. Read the three coefficients as point "
+        + "X=(s,a₁,a₂).",
+      compareVandermonde: "Substituting index i gives the plane equation s+i a₁+i² a₂≡f(i). Its coefficients (1,i,i²) form a Vandermonde row. This "
+        + "construction satisfies checks (i) and (ii).",
       compareNonzero: "Restrict random coordinates to nonzero values",
       compareNonzeroExplanation: "Excluding zero from both a₁ and a₂ removes secret candidates. Uniform sampling must include all of "
         + "GF(13).",
@@ -893,8 +1127,9 @@
       compareZeroTopExplanation: "(1,10,0) has highest coefficient zero. A nonzero requirement excludes it; see Day123's theory section.",
       compareSliceExplanation: "The planes cut at x₁=s give these lines. ◎ marks their common point. Horizontal: a₁; vertical: a₂.",
       compareSizeTitle: "How many elements are in one share?",
-      compareSizeIntro: "For a secret of m elements and k=3. These field-element counts normalize each normal and omit its unit "
-        + "component. Public indices and the omitted component’s position are excluded. These are not byte sizes.",
+      compareSizeIntro: "The secret consists of m numbers from 0 to p−1, with k=3. One “element” is one such number. Multiply the entire equation by a "
+        + "nonzero value to make one coefficient 1 (normalization), then omit that 1 from the count. Public indices and omitted positions are "
+        + "excluded; these are not byte counts.",
       compareSizeNote: "Deriving (1,i,i²) from public index i leaves only the polynomial values to distribute, giving the same "
         + "share size as Shamir.",
       compareLinearGeneralization: "Deciding with a matrix whether the collected shares determine the secret coordinate leads to linear "
@@ -1202,8 +1437,8 @@
       lesson9Title: "9. Detecting tampering and identifying an erroneous share",
       lesson9Intro: "Perfect secrecy does not prevent share tampering. Solving exactly k equations does not by itself "
         + "establish that the result is the original secret.",
-      lesson9Example: "Change #2’s right-hand value from 11 to 12, retaining its normal. With #1 and #2, reconstruction gives "
-        + "(8,7), changing the secret from 5 to 8.",
+      lesson9Example: "Change #2’s right-hand value from 11 to 12, retaining its normal. Calculating with #1 and #2 gives (8,7), changing the "
+        + "calculated secret value from 5 to 8. The original secret remains 5.",
       lesson9CountsCaption: "Fixed example with one altered share",
       lesson9CountsH1: "Collected shares",
       lesson9CountsH2: "Result",
@@ -1223,10 +1458,10 @@
         + "shares when all relevant subsets are examined.",
       lesson9Invisible: "An altered hyperplane that still contains X is not detected by this agreement test. This is not sender "
         + "authentication or cryptographic tamper prevention.",
-      lesson9Linear: "Both Shamir and this form are linear. For k chosen shares, s = u·c; changing one right-hand value by δ "
-        + "changes the secret by its coefficient times δ.",
-      lesson9Coefficients: "For #1 and #2, u = (8,3). Adding 1 to #2 changes s from 5 to 8. A naive Blakley share also carries its "
-        + "normal, which can itself be altered.",
+      lesson9Linear: "Both Shamir and this form are linear. For k chosen shares, s=u·c; changing one right-hand value by δ shifts the calculated first "
+        + "coordinate by δ times the corresponding coefficient.",
+      lesson9Coefficients: "For #1 and #2, u=(8,3). Adding 1 to #2’s right-hand value changes calculated s from 5 to 8. A naive Blakley share also "
+        + "contains its normal, whose components can be altered.",
       lesson9Source: "The numbers match the fixed interface example. Detection and correction are derived here from "
         + "independence of correct normals. Shamir’s paper is linked below.",
       lesson9Shamir: "Shamir, “How to share a secret”, 1979 (primary; DOI)",

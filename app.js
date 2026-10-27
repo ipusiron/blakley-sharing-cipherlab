@@ -300,6 +300,7 @@
     node.textContent = text; svg.append(node);
   };
   const fmtPoint = point => '(' + point.join(',') + ')';
+  const fmtEquation = (row, rhs, p) => row.map((a, i) => `${a}x${'₁₂₃₄₅'[i]}`).join(' + ') + ` ≡ ${rhs} (mod ${p})`;
   const effective = () => state.edits ? { ...state.example, A: state.edits.A, c: state.edits.c } : state.example;
   const chosenSystem = () => {
     const example = effective();
@@ -505,7 +506,8 @@
     }));
   }
   function renderIntro(example) {
-    const { p, A, c } = example, line = G.linePoints(A[0], c[0], p);
+    const { p, k, n, A, c } = example, line = G.linePoints(A[0], c[0], p);
+    $('intro-current-example').textContent = t('introCurrentExample', { p, k, n, equation: fmtEquation(A[0], c[0], p) });
     graph($('intro-grid'), p, [{ id: 0, points: line }]); pointsTable('intro-table', p, [{ id: 0, points: line }]);
     $('intro-summary').textContent = t('columnCount', { p });
     $('edited-real-note').hidden = !state.edits;
@@ -547,10 +549,13 @@
       const button = E('button', `${marks[i]} #${i + 1}`); button.type = 'button'; button.id = 'pick-' + i;
       button.dataset.pick = String(i); button.setAttribute('aria-pressed', String(state.selected.includes(i))); return button;
     }));
-    $('legend').replaceChildren(...example.A.map((row, i) => E('span', `${marks[i]} #${i + 1}: ${row.join(',')} | ${example.c[i]}`)));
+    $('legend').replaceChildren(...example.A.map((row, i) =>
+      E('span', `${marks[i]} #${i + 1}: ${fmtEquation(row, example.c[i], example.p)}`)));
+    $('explore-title').textContent = t(example.k === 2 ? 'explore' : example.k === 3 ? 'exploreK3' : 'exploreHigher', { k: example.k });
     $('selected-summary').textContent = t('selectedCount', { count: state.selected.length, k: example.k });
     const candidateMode = state.selected.length === example.k - 1;
     $('candidate-controls').hidden = !candidateMode || example.k >= 4;
+    $('candidate-explanation').hidden = !candidateMode || example.k >= 4;
     $('candidate-all').textContent = t(example.k === 3 ? 'allSlices' : 'allCandidates');
     $('candidate-value').textContent = 's=' + state.candidate;
     $('candidate-all').setAttribute('aria-pressed', String(state.all));
@@ -579,9 +584,20 @@
     let result = t('candidateCountText', { secrets, points: count });
     if (!state.selected.length) result = t('noSelection') + ' ' + result;
     let point = null;
-    if (count === 1) { point = G.solutionPoints(chosen.A, chosen.c, p, k)[0]; result = t('onePoint', { point: point.join(','), s: point[0] }); }
+    if (count === 1) {
+      point = G.solutionPoints(chosen.A, chosen.c, p, k)[0];
+      result = t(state.edits ? 'editedOnePoint' : 'onePoint', { point: point.join(','), s: point[0] });
+    }
     if (count === 0) result = t('noSolution');
     $('recovery-result').textContent = result;
+    $('recovery-result').dataset.source = state.edits ? 'edited' : 'distributed';
+    const explanationKey = !state.selected.length ? 'selectionNone' : !count ? 'selectionNoSolution'
+      : point ? 'selectionUnique' : 'selectionPartial';
+    let explanation = point && state.edits ? t('selectionEdited') : t(explanationKey, { points: count, p, secrets, s: point?.[0] });
+    if (state.selected.length > k) explanation += ' ' + t('selectionExtra', { k });
+    if (state.edits && !point) explanation += ' ' + t('selectionEdited') + (!count ? ' ' + t('selectionReset') : '');
+    $('selection-explanation').textContent = explanation;
+    $('candidate-explanation').textContent = k === 3 ? t('candidateTry3', { s: state.candidate }) : '';
     $('combination-results').replaceChildren();
     if (state.selected.length > k) {
       const recovery = G.reconstruction(chosen.A, chosen.c, p);
@@ -596,6 +612,7 @@
     }
     $('k2-interactive').hidden = k !== 2;
     $('candidate-equation').textContent = '';
+    $('candidate-inverse-explanation').hidden = true; $('candidate-inverse-explanation').textContent = '';
     if (k === 2) {
       const series = state.selected.map(i => ({ id: i, points: G.linePoints(example.A[i], example.c[i], p) }));
       graph($('main-grid'), p, series, {
@@ -607,6 +624,12 @@
         const [a, b] = chosen.A[0], c = chosen.c[0];
         $('candidate-equation').textContent = b ? `x₂ = (${c} − ${a}×${state.candidate})·${G.inv(b, p)} mod ${p} = `
           + G.mod((c - a * state.candidate) * G.inv(b, p), p) : `${a}×s ≡ ${c} (mod ${p}) · ${t('pointCount', { count: counts[state.candidate] })}`;
+        if (b) {
+          const inverse = G.inv(b, p), x2 = G.mod((c - a * state.candidate) * inverse, p);
+          $('candidate-explanation').textContent = t('candidateTry2', { s: state.candidate, x2 });
+          $('candidate-inverse-explanation').hidden = false;
+          $('candidate-inverse-explanation').textContent = t('candidateInverse', { b, inverse, p });
+        } else $('candidate-explanation').textContent = t('candidateColumnCount', { s: state.candidate, count: counts[state.candidate] });
       }
     }
     return { chosen, counts, point };
@@ -625,7 +648,7 @@
     }
     return svg;
   }
-  function renderSlices(example, chosen) {
+  function renderSlices(example, chosen, recoveredPoint) {
     const { p } = example;
     $('slices').replaceChildren(...Array.from({ length: p }, (_, s) => {
       const points = G.slicePoints(chosen.A, chosen.c, p, s), button = E('button');
@@ -638,14 +661,22 @@
     }));
     const points = G.slicePoints(chosen.A, chosen.c, p, state.candidate);
     const series = state.selected.map(i => ({ id: i, points: G.slicePoints([example.A[i]], [example.c[i]], p, state.candidate) }));
-    const unique = G.solutionSpace(chosen.A, chosen.c, p, example.k).count === 1;
+    const unique = recoveredPoint !== null;
     graph($('slice-grid'), p, series, { slice: true, common: points, secret: unique && points.length === 1 ? points[0] : null });
     $('slice-grid').dataset.intersections = JSON.stringify(points);
     pointsTable('slice-table', p, series);
-    $('slice-equation').textContent = chosen.A.map((a, i) => `${a[1]}x₂+${a[2]}x₃≡${G.mod(chosen.c[i] - a[0] * state.candidate, p)}`).join('; ')
-      + ` (mod ${p}) → ` + points.map(fmtPoint).join(' ');
-    $('slice-result').textContent = t('sliceStatus', {
-      s: state.candidate, points: points.length ? points.map(fmtPoint).join(' ') : t('noPoint'), count: points.length
+    if (!series.length) table($('slice-table'), ['x₂', 'x₃'], points);
+    $('slice-explanation').textContent = t('sliceIntro', { p });
+    const elsewhere = unique && recoveredPoint[0] !== state.candidate;
+    $('slice-focus-note').hidden = !elsewhere;
+    $('slice-focus-note').textContent = elsewhere ? t('sliceRecoveredElsewhere', { s: state.candidate, recovered: recoveredPoint[0] }) : '';
+    $('slice-recovered').hidden = !elsewhere;
+    $('slice-recovered').textContent = t('goRecoveredSlice', { s: recoveredPoint?.[0] ?? state.candidate });
+    $('slice-recovered').dataset.s = String(recoveredPoint?.[0] ?? state.candidate);
+    const equations = chosen.A.map((a, i) => `${a[1]}x₂+${a[2]}x₃≡${G.mod(chosen.c[i] - a[0] * state.candidate, p)}`).join('; ');
+    $('slice-equation').textContent = equations ? equations + ` (mod ${p})` + (points.length === 1 ? ' → ' + fmtPoint(points[0]) : '') : '';
+    $('slice-result').textContent = points.length > 1 ? t('sliceCurrent', { s: state.candidate, count: points.length }) : t('sliceStatus', {
+      s: state.candidate, points: points.length ? fmtPoint(points[0]) : t('noPoint'), count: points.length
     });
     $('scene').dataset.yaw = String(state.yaw); $('scene').dataset.pitch = String(state.pitch); $('scene').dataset.slice = String(state.candidate);
     $('camera-description').textContent = t('cameraAngles', { yaw: state.yaw, pitch: state.pitch });
@@ -665,7 +696,7 @@
       table($('scene-table'), [t('chooseShares'), t('equation')], sceneRows);
       $('real-slice-value').textContent = real.realSlice
         ? t('realSlice', { point: real.realSlice.map(x => Number(x.toFixed(3))).join(',') }) + (real.outside ? ' · ' + t('outsideBox') : '')
-        : t('realUndetermined');
+        : t(real.sliceConsistent ? 'realUndetermined' : 'realNoPoint');
     }
   }
   function matrixTable(target, matrix, k) {
@@ -688,13 +719,28 @@
   }
   function renderMatrix(example, chosen) {
     const { p, k } = example, rows = chosen.A.slice(0, k), rhs = chosen.c.slice(0, k);
+    let intro = t('matrixIntro', { k, p });
+    if (chosen.A.length > rows.length) intro += ' ' + t('matrixScope', { used: rows.length, total: chosen.A.length });
+    $('matrix-intro').dataset.used = String(rows.length); $('matrix-intro').dataset.selected = String(chosen.A.length);
     const steps = rows.length ? G.gaussJordanSteps(rows, rhs, p) : [{ op: 'start', m: [] }];
     state.matrixStep = Math.max(0, Math.min(state.matrixStep, steps.length - 1));
     state.matrixCount = steps.length;
     const step = steps[state.matrixStep];
+    if (step.m.length) intro += ' ' + t('matrixMeaning', { equation: fmtEquation(step.m[0].slice(0, k), step.m[0][k], p) });
+    $('matrix-intro').textContent = intro;
     $('matrix-op').textContent = operation(step.op, p); $('matrix-step').textContent = `${state.matrixStep + 1}/${steps.length}`;
     matrixTable($('matrix-table'), step.m, k); $('matrix-prev').disabled = state.matrixStep === 0;
     $('matrix-next').disabled = state.matrixStep === steps.length - 1;
+    let explanation = t('matrixInProgress');
+    if (!rows.length) explanation = t('matrixEmpty');
+    else if (state.matrixStep === steps.length - 1) {
+      const counts = G.sCandidates(rows, rhs, p, k), count = counts.reduce((sum, value) => sum + value, 0);
+      if (count === 1) {
+        const point = G.solutionPoints(rows, rhs, p, k)[0];
+        explanation = t('matrixUnique', { point: fmtPoint(point), s: point[0] });
+      } else explanation = count ? t('matrixRemaining', { secrets: counts.filter(Boolean).length, points: count }) : t('matrixNoSolution');
+    }
+    $('matrix-explanation').textContent = explanation;
     $('matrix-all').replaceChildren(...steps.map(item => {
       const section = E('section', undefined, 'matrix-all-step matrix-frame'); section.append(E('h4', operation(item.op, p)));
       const holder = E('div'); matrixTable(holder, item.m, k); section.append(holder); return section;
@@ -716,7 +762,7 @@
     }));
     $('example-kind').textContent = t(state.kind === 'fixed' ? 'fixedExample' : state.kind === 'manual' ? 'manualExample' : 'randomExample');
     $('manual-note').hidden = state.kind !== 'manual';
-    table($('distribution-table'), [t('chooseShares'), t('coordinates'), t('equation')], A.map((row, i) => [
+    table($('distribution-table'), [t('chooseShares'), t('coefficients'), t('equation')], A.map((row, i) => [
       t('custodian', { i: i + 1 }), '(' + row.join(',') + ')', row.map((a, j) => `${a}x${'₁₂₃₄₅'[j]}`).join('+') + ` ≡ ${c[i]} (mod ${p})`
     ]));
     const checks = G.checkRows(example.A, p), first = checks.filter(row => row.kind === 'i'), second = checks.filter(row => row.kind === 'ii');
@@ -734,14 +780,18 @@
   }
   function renderIntersections() {
     const example = effective();
-    $('threshold-summary').textContent = t('thresholdSummary', { k: example.k, n: example.n });
+    $('threshold-summary').textContent = t('thresholdSummary', { p: example.p, k: example.k, n: example.n });
+    $('dimension-title').textContent = t(example.k >= 4 ? 'dimensionTitleHigher' : 'nextDimension', { k: example.k });
+    $('dimension-intro').textContent = t(example.k === 2 ? 'dimensionIntroK2' : example.k === 3 ? 'dimensionIntroK3' : 'dimensionIntroHigher', {
+      k: example.k, p: example.p, n: example.n
+    });
     renderMathPrimer();
     $('k2-view').hidden = example.k !== 2;
     if (example.k === 2) renderIntro(state.example);
     renderPicks(example);
-    const { chosen } = renderRecovery(example);
+    const { chosen, point } = renderRecovery(example);
     $('view-3d').hidden = example.k !== 3; $('matrix-view').hidden = example.k < 4;
-    if (example.k === 3) renderSlices(example, chosen);
+    if (example.k === 3) renderSlices(example, chosen, point);
     if (example.k >= 4) renderMatrix(example, chosen);
     renderDealer(example);
     if (state.busy) document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = true; });
@@ -838,6 +888,10 @@
     $('failures-only').addEventListener('change', event => { state.failuresOnly = event.target.checked; render(); });
     $('slices').addEventListener('click', event => {
       const button = event.target.closest('[data-slice]'); if (button) { state.candidate = Number(button.dataset.slice); render(); }
+    });
+    $('slice-recovered').addEventListener('click', () => {
+      state.candidate = Number($('slice-recovered').dataset.s); render();
+      $('slice-' + state.candidate).focus({ preventScroll: true });
     });
     $('plane-toggles').addEventListener('change', event => { state.visible[Number(event.target.dataset.plane)] = event.target.checked; render(); });
     for (const [id, yaw, pitch] of [['yaw-left', -10, 0], ['yaw-right', 10, 0], ['pitch-up', 0, 10], ['pitch-down', 0, -10]]) {
@@ -1130,7 +1184,7 @@
     const boardLabel = S('text', { x: 180, y: 25, 'text-anchor': 'middle', class: 'three-slice-label' });
     boardLabel.textContent = t('threeSliceLabel', { s: candidate });
     svg.append(boardLabel);
-    return { realSlice, outside, rank: space.rank };
+    return { realSlice, outside, rank: space.rank, sliceConsistent: slice.consistent };
   }
 
   const PITFIX = {
@@ -1316,7 +1370,7 @@
     const { p, k, A, c } = example, count = G.solutionSpace(A, c, p, k).count;
     const secrets = G.sCandidates(A, c, p, k).map((n, s) => n ? s : null).filter(s => s !== null);
     $('pit-a-mode').value = mode; $('pit-a-s-wrap').hidden = !is3; $('pit-a-s').value = String(state.pitASlice);
-    $('pit-a-input').textContent = A.map((row, i) => `#${i + 1} (${row.join(',')}) · X ≡ ${c[i]}`).join('; ') + ` (mod ${p})`;
+    $('pit-a-input').textContent = A.map((row, i) => `#${i + 1}: ${fmtEquation(row, c[i], p)}`).join('; ');
     if (mode === 'parallel') $('pit-a-unsafe').textContent = t('pitCramerResult', { point: fmtPoint(P.cramerUnchecked(A, c, p)) });
     else if (short) $('pit-a-unsafe').textContent = t('pitFreeZeroResult', { point: fmtPoint(P.freeVariablesZero(A, c, p)) });
     else $('pit-a-unsafe').textContent = t('pitLeakedResult', { secrets: secrets.join(', '), count });
@@ -1489,7 +1543,9 @@
     $('compare-k2-caption').textContent = t('compareK2Candidate', {
       point: fmtPoint(selectedLinear), polynomial: comparePolynomial(selectedLinear), value: compareValue(selectedLinear, 1, L.p)
     });
-    $('compare-k2-shares').textContent = t('compareShares', { values: L.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    $('compare-k2-shares').textContent = t('compareKnownShares', { count: 1, values: fmtPoint([1, L.c[0]]) });
+    $('compare-k2-all-shares').textContent = t('compareAllShares', { values: L.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    $('compare-k2-answer').textContent = t('compareDealerAnswer', { polynomial: comparePolynomial(L.X), p: L.p, point: fmtPoint(L.X) });
     graph($('compare-k2-grid'), L.p, [{ id: 0, points: linearPoints }], {
       candidate: selectedLinear[0], axisX: 's', axisY: 'a₁'
     });
@@ -1506,8 +1562,9 @@
     $('compare-guides').checked = state.compareGuides;
     $('compare-current').textContent = 's=' + point[0];
     $('compare-count').textContent = t(state.compareNonzero ? 'compareRestrictedCount' : 'compareCompleteCount', { count: points.length });
-    $('compare-k3-shares').textContent = t('compareShares', { values: D.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
-    $('compare-fixed-polynomial').textContent = comparePolynomial(D.X) + ' (mod ' + D.p + '), X=' + fmtPoint(D.X);
+    $('compare-k3-shares').textContent = t('compareKnownShares', { count: 2, values: D.c.slice(0, 2).map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    $('compare-k3-all-shares').textContent = t('compareAllShares', { values: D.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
+    $('compare-fixed-polynomial').textContent = t('compareDealerAnswer', { polynomial: comparePolynomial(D.X), p: D.p, point: fmtPoint(D.X) });
     $('compare-poly-caption').textContent = t('compareSelectedPolynomial', { polynomial: comparePolynomial(point) });
     $('compare-slice-caption').textContent = t('compareSelectedSlice', { s: point[0], point: fmtPoint(point.slice(1)) });
     renderComparePolynomial($('compare-poly'), point, points);

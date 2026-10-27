@@ -13,6 +13,9 @@ English · [日本語](README.md)
 BlakleySharing CipherLab is an educational tool for learning secret-sharing conditions through finite-field line and plane intersections.
 Select shares, compare whole-point candidates with first-coordinate secret candidates, and trace their correspondence with Shamir polynomials.
 
+Secret sharing creates several shares from a secret and recovers the original value when enough shares are collected.
+A share is information given to a recipient; in this tool, it is one equation. With suitable coefficients and randomness, fewer than k shares do not narrow the secret, while any k recover it.
+
 For learning only. Do not enter actual secrets, including passwords, seed phrases or keys.
 For a practical backup workflow, see [Day124 Scatter Seeds][day124].
 
@@ -33,7 +36,7 @@ These screenshots use the English interface and light theme. Each caption explai
 
 ![Thirteen rows connecting Shamir polynomials to Blakley points](assets/en/screenshot2.png)
 
-> *The 13-row correspondence for shares (1,11) and (2,8). Every row has f(1)=11 and f(2)=8.*
+> *The observer knows only shares (1,11) and (2,8). All 13 rows have f(1)=11 and f(2)=8. Select a row to compare candidates consistent with those same two shares.*
 
 ![Card A shows configurations that reveal the secret when checks are removed](assets/en/screenshot3.png)
 
@@ -54,6 +57,10 @@ For k=2, edit right-hand values or normal components to observe coincident lines
 
 ## 📖 Usage and fixed examples
 
+For a first visit, open the mathematical background as needed and try k=2 intersections.
+Continue to “Compare with Shamir” for the candidate correspondence, then change conditions in “Pitfalls”. Higher dimensions and proofs can wait until after the basics.
+Help includes a glossary and reading route. Start with Sections 1, 4 and 7 for the scheme, candidate counts and range of randomness.
+
 ### Follow intersections
 
 “Mathematical background” appears first and starts collapsed. It can be opened at any value of k.
@@ -70,10 +77,14 @@ This is easier to plot because points follow horizontal-axis order, x₁=0–12,
 The guide paths differ, but the set of points is the same. They do not represent continuous lines between points in GF(13).
 
 n is the total share count, and k is the number needed for recovery. Correctly generated shares allow recovery from any k.
-The introduction before the graph explains this relationship and shows the current k and n.
+The introduction before the graph explains this relationship and shows the current p, k and n.
 The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.
+The dealer creates and distributes shares. Recipients receive their own equations and bring them together for recovery.
+Although the page also shows the dealer’s answer, candidate counts describe what follows from only the collected shares and known generation rules.
 
-Combine secret s and random value r into `X=(s,r)`. Each share is a line through that point: `a x₁+b x₂≡c (mod p)`.
+Combine secret s and random value r into `X=(s,r)`. The value r is an extra number chosen separately from the secret.
+Suitable coefficients and randomness sampled with equal probability from the entire field keep one equation from narrowing down s.
+Each share is a line through that point: `a x₁+b x₂≡c (mod p)`.
 Choose a,b and calculate `c=a s+b r (mod p)`. With a common modulus p, giving a,b and the right-hand value c is equivalent to giving one equation.
 GF(p) uses 0 through p−1, reducing results to their remainder modulo p.
 All four initial equations are visible before the graph, connecting distribution to geometry. These equations are a fixed teaching example.
@@ -81,7 +92,10 @@ Changing settings updates the current k and n and the graph. At k=3 and higher, 
 
 The initial example uses GF(13), `k=2`, `n=4` and `X=(5,8)`. The secret is its first coordinate, `s=5`.
 Share #1 alone leaves 13 points satisfying `x₁+3x₂≡3 (mod 13)`.
-Step through the candidates to inspect each column; adding #2 determines the single point `(5,8)`.
+Stepping through candidates tries a value of s and its corresponding random coordinate. It does not enter the answer or change the distributed values.
+Press a share button to add or remove its equation. Adding #2 determines the single point `(5,8)`.
+Numbers on points count the equations meeting there. With zero shares, all points remain candidates, but the graph is blank because no share’s points have been drawn.
+Editing right-hand value c or coefficient b changes only the experimental copy. The value read from the altered intersection may differ from the original secret.
 Move the mouse over a coordinate graph to display the nearest grid point’s coordinates. Leave the graph or press Escape to clear the display.
 Keyboard users can read the values through “View the figure as a table”. Touch interaction preserves vertical scrolling over graphs.
 
@@ -94,8 +108,10 @@ Keyboard users can read the values through “View the figure as a table”. Tou
 | #3 | (4,2) | 10 | 36 |
 | #4 | (5,1) | 7 | 33 |
 
-The dealer settings contain the answer and generation controls. Normal checks examine every relevant subset.
-The detailed settings expose the check table and higher-dimensional calculations.
+The dealer settings contain the answer and generation controls. Changing p, n or s regenerates the shares.
+“Generate with fresh randomness” keeps s and rebuilds the coefficients and random coordinates. Manual entry does not establish uniform random sampling.
+Normal checks examine every relevant subset. Check (i) covers recovery with k shares; check (ii) tests the coefficients needed to protect s with k−1, under the randomness assumptions.
+Open the collapsible details to read the equations and checks.
 
 The fixed k=3 example uses GF(11) and `X=(7,2,9)`. Shares #1 and #2 leave one point in each of the 11 secret slices.
 Adding #3 leaves only `(x₂,x₃)=(2,9)` in the `s=7` slice.
@@ -112,11 +128,21 @@ Adding #3 leaves only `(x₂,x₃)=(2,9)` in the `s=7` slice.
 
 The real-number 3D view is an introduction. It follows the same s selection as the finite-field slices, but intersection coordinates can differ.
 Read finite-field candidate counts from the GF(p) slices and tables. The real view uses integer right-hand values.
+Changing plane visibility does not change how many shares are used in calculations.
+Each slice tile fixes s and shows the remaining coordinates. If the recovered s differs from the slice being viewed, use the button to go to the recovered slice.
+
+For k=4 and 5, equations and matrices replace coordinate plots. Each row is an equation, the x columns contain coefficients, and c is the right-hand value.
+Row operations simplify coefficients without changing the solutions. When more than k shares are selected, the step table uses the first k; a separate table compares all subsets.
 
 ### Compare with Shamir
 
-The k=2 example is `f(x)=5+4x (mod 13)`, matching the introduction in [Day123 ShamirSharing CipherLab][day123].
-The 13 candidate lines through share (1,9) correspond to the 13 points `(s,a₁)` satisfying `s+a₁≡9`.
+For example, Shamir’s scheme uses `f(x)=s+a₁x`, placing the secret at `f(0)=s`.
+Each recipient gets a nonzero index i and value f(i). The coefficient a₁ is random; for k=3, another random coefficient a₂ gives `f(x)=s+a₁x+a₂x²`.
+These a₁ and a₂ become the remaining coordinates of Blakley’s point X. Their role differs from a,b in the distributed equations of the previous tab.
+
+The k=2 dealer’s answer is `f(x)=5+4x (mod 13)`, matching the introduction in [Day123 ShamirSharing CipherLab][day123].
+The observer knows only (1,9). The 13 candidate lines through this point correspond to the 13 points `(s,a₁)` satisfying `s+a₁≡9`.
+The following table lists all five dealer shares for reference. In the interface, all distributed values and the original polynomial are kept separately under “View the dealer’s answer”.
 
 <!-- example: shamir-k2 -->
 
@@ -128,9 +154,9 @@ The 13 candidate lines through share (1,9) correspond to the 13 points `(s,a₁)
 | 4 | 8 |
 | 5 | 12 |
 
-For k=3, `f(x)=5+4x+2x² (mod 13)` has coefficient point `X=(5,4,2)`.
-Fixing shares (1,11) and (2,8) leaves the following 13 points and 13 corresponding polynomials.
-Select an s row to update the polynomial on the left and the slice on the right together.
+For k=3, the dealer’s answer `f(x)=5+4x+2x² (mod 13)` has coefficient point `X=(5,4,2)`.
+The observer knows only (1,11) and (2,8), fewer than the three shares required. The following 13 points and 13 polynomials fit those two shares.
+Select an s row to update the polynomial and slice plots together. Each is another representation of the same candidate.
 
 <!-- example: shamir-k3 -->
 
@@ -159,13 +185,16 @@ Finite-field points are discrete; the connecting guide lines merely help follow 
 
 ### Pitfalls
 
-Cards appear in the order B, C, A and D. Compare “Changed input”, “Without validation”, “Result of selected check” and “What this shows”.
+Cards appear in the order B, C, A and D. Read the purpose, change the input, then compare the result and its explanation.
+B compares a whole-point secret with a first-coordinate secret; C compares generation rules. A and D contrast unchecked routines with checks on the equations.
 
 - B: when the whole point is secret, each independent share divides the candidate count by p
 - C: integer ranges and narrow randomness reduce the secret’s candidate set
 - A: missing checks can reveal the secret or return a value even when no unique point is determined
 - D: alter #2’s right-hand value and compare detection and identification at different share counts
 
+In B, increase the share count from zero and compare how whole-point and first-coordinate candidates decrease.
+C’s comparison scheme distributes modulo 13 from the outset and samples randomness uniformly over all of GF(13). A later check does not erase information already revealed.
 The integer example keeps `X=(5,8)`, restricts coordinates to 0–12, and distributes right-hand values without reducing them modulo 13.
 
 <!-- example: integer -->
@@ -191,6 +220,7 @@ The narrow-randomness example is a separate fixed example generated with `x₂�
 Card A’s k=3 example uses normals `(1,2,3)` and `(5,4,6)`, with right-hand values `c=(5,9)`.
 Subtracting twice the first equation from the second gives `3s≡10 (mod 11)`, determining `s=7`.
 11 whole points still remain, so nonuniqueness of the point alone does not establish secrecy.
+Card A’s coincident-line case repeats one condition despite having two shares. Cramer’s calculation and the pass-rate figures remain under “Calculation details”, separate from the visible basic explanation.
 
 Card D changes the initial example’s share #2 right-hand value from 11 to 12.
 
@@ -209,11 +239,13 @@ Shares #1 and #2 accept the wrong point `(8,7)`. Adding #3 detects inconsistency
 With four shares, `(5,8)` occurs three times, and #2 alone misses that point.
 This assumes one alteration, correct normals passing check (i), examination of every relevant subset, and an altered line missing the original X.
 Under that independence condition, `k+2t` shares suffice to correct up to t erroneous shares.
+These checks establish consistency between equations; they do not authenticate senders or guarantee that shares were never altered.
+Set δ to zero in D to remove the change. “Calculation details” contains linearity and the results for every δ.
 
 <!-- example: linearity -->
 
 For shares #1 and #2, the coefficients that recover the secret are `u=(8,3)`: `s=8c₁+3c₂ (mod 13)`.
-Changing #2’s right-hand value by δ changes s by `3δ`; δ=1 changes 5 to 8.
+Changing #2’s right-hand value by δ changes calculated s by `3δ`; δ=1 changes the calculated value from 5 to 8, while the original secret remains 5.
 This u is not the change vector for the entire point X.
 Shamir is also linear, but a naive Blakley share additionally contains a normal whose components can be altered.
 
@@ -281,7 +313,8 @@ Lesson 8 also explains linear secret sharing and monotone span programs (MSPs), 
 
 ## 📏 Share size
 
-For a secret of m field elements with `k=3`, compare conceptual field-element counts after normalizing each normal and omitting its unit component.
+The secret consists of m numbers from 0 to p−1, with `k=3`. One field element means one such number.
+Normalization multiplies the entire equation by a nonzero value to make one coefficient 1. Compare conceptual field-element counts after omitting that 1.
 
 <!-- example: share-size -->
 

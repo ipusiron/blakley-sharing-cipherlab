@@ -18,6 +18,7 @@ A share is information given to a recipient; in this tool, it is one equation. W
 
 For learning only. Do not enter actual secrets, including passwords, seed phrases or keys.
 For a practical backup workflow, see [Day124 Scatter Seeds][day124].
+In the tool, this notice and link appear in Help.
 
 ## 🌐 Demo
 
@@ -34,9 +35,9 @@ If JavaScript is disabled or a required file cannot load, the explanatory text, 
 
 These screenshots use the English interface and light theme. Each caption explains what the displayed state shows.
 
-![Collapsed mathematical background, n/k definitions and four initial equations](assets/en/screenshot.png)
+![Dealer and recipients, mixed-value calculation, share contents and four recovery steps](assets/en/screenshot.png)
 
-> *The mathematical background starts collapsed. The page explains recovery from any set of at least k of n shares and shows the four equations of the initial (2,4) example.*
+> *A dealer and four recipients follow preparation, equation creation, distribution and recovery. Mixing the secret with randomness gives the remainder c=3, which becomes part of share (1,3,3).*
 
 ![Thirteen rows connecting Shamir polynomials to Blakley points](assets/en/screenshot2.png)
 
@@ -50,8 +51,9 @@ These screenshots use the English interface and light theme. Each caption explai
 
 | View | Operations and observations |
 | --- | --- |
-| Follow intersections | A finite-field coordinate plane for k=2; real 3D introduction and finite-field slices for k=3; matrices and elimination for k=4 and 5 |
-| Compare with Shamir | Read a share as a polynomial value and a hyperplane equation, with linked candidate polynomials and points |
+| Follow intersections | Follow k=2 lines and their intersection on a finite-field coordinate plane |
+| Planes (k=3) | Real 3D introduction and finite-field slices for k=3; matrices and elimination for k=4 and 5 |
+| Compare with Shamir secret sharing | Rewrite Shamir shares as line or plane equations and compare candidate polynomials with coefficient points |
 | Pitfalls | Compare four deliberately unsafe models: whole-point secrets, integers and narrow randomness, missing checks, and tampering |
 | Help and lessons | Ten illustrated sections with sources, covering the original paper, perfect secrecy and linear secret sharing |
 
@@ -62,7 +64,7 @@ For k=2, edit right-hand values or normal components to observe coincident lines
 ## 📖 Usage and fixed examples
 
 For a first visit, open the mathematical background as needed and try k=2 intersections.
-Continue to “Compare with Shamir” for the candidate correspondence, then change conditions in “Pitfalls”. Higher dimensions and proofs can wait until after the basics.
+Continue to “Compare with Shamir secret sharing” for the candidate correspondence, then change conditions in “Pitfalls”. Higher dimensions and proofs can wait until after the basics.
 Help includes a glossary and reading route. Start with Sections 1, 4 and 7 for the scheme, candidate counts and range of randomness.
 
 ### Follow intersections
@@ -83,7 +85,12 @@ The guide paths differ, but the set of points is the same. They do not represent
 n is the total share count, and k is the minimum number needed for recovery. Correctly generated shares allow recovery from any set of at least k shares.
 The introduction before the graph explains this relationship and shows the current p, k and n.
 The initial (2,4) example gives one share to each of four people, with any two sufficient for recovery.
-The dealer creates and distributes shares. Recipients receive their own equations and bring them together for recovery.
+The fixed example introduces a dealer and four recipients, then follows preparation of the secret and randomness, equation creation, distribution and recovery.
+The secret s=5 and random value r=8 form X=(5,8). Each share includes c, calculated by mixing the secret with the random value.
+For #1, 1×5+3×8=29 leaves the remainder c=3 when divided by 13. The table pairs the actual share (a,b,c)=(1,3,3) with its equation.
+Examples satisfying s+3r≡3 explain why one share leaves the secret unknown: every s produces c=3 with the same probability.
+In the initial graph, every horizontal-coordinate column from 0 to 12 contains one point. Since no column is empty, none of the 13 secret candidates can be ruled out.
+Accordion headers and expanded content have distinct backgrounds and borders that mark the end of each region.
 Although the page also shows the dealer’s answer, candidate counts describe what follows from only the collected shares and known generation rules.
 
 Combine secret s and random value r into `X=(s,r)`. The value r is an extra number chosen separately from the secret.
@@ -117,6 +124,11 @@ The dealer settings contain the answer and generation controls. Changing p, n or
 Normal checks examine every relevant subset. Check (i) covers recovery with k shares; check (ii) tests the coefficients needed to protect s with k−1, under the randomness assumptions.
 Open the collapsible details to read the equations and checks.
 
+### Planes (k=3)
+
+The “Planes (k=3)” tab extends the experiment to points with three coordinates.
+Switching between it and “Intersections” preserves each experiment’s selected shares and candidate. The default-example buttons reset the corresponding dimension.
+
 The fixed k=3 example uses GF(11) and `X=(7,2,9)`. Shares #1 and #2 leave one point in each of the 11 secret slices.
 Adding #3 leaves only `(x₂,x₃)=(2,9)` in the `s=7` slice.
 
@@ -138,11 +150,14 @@ Each slice tile fixes s and shows the remaining coordinates. If the recovered s 
 For k=4 and 5, equations and matrices replace coordinate plots. Each row is an equation, the x columns contain coefficients, and c is the right-hand value.
 Row operations simplify coefficients without changing the solutions. When more than k shares are selected, the step table uses the first k; a separate table compares all subsets.
 
-### Compare with Shamir
+### Compare with Shamir secret sharing
 
 For example, Shamir’s scheme uses `f(x)=s+a₁x`, placing the secret at `f(0)=s`.
 Each recipient gets a nonzero index i and value f(i). The coefficient a₁ is random; for k=3, another random coefficient a₂ gives `f(x)=s+a₁x+a₂x²`.
-These a₁ and a₂ become the remaining coordinates of Blakley’s point X. Their role differs from a,b in the distributed equations of the previous tab.
+The distributed share includes f(i), a value calculated by mixing the secret with the randomness; s, a₁ and a₂ are not given out directly.
+Arrange coefficients as coordinates to define X=(s,a₁) for k=2 and X=(s,a₁,a₂) for k=3. X differs from a share point (i,f(i)).
+Share (2,8) gives f(2)=8, which becomes s+2a₁+4a₂≡8 and then x₁+2x₂+4x₃≡8 (mod 13), a plane condition through X.
+In this comparison, its coefficients (1,i,i²) can be calculated from the index i.
 
 The k=2 dealer’s answer is `f(x)=5+4x (mod 13)`, matching the introduction in [Day123 ShamirSharing CipherLab][day123].
 The observer knows only (1,9). The 13 candidate lines through this point correspond to the 13 points `(s,a₁)` satisfying `s+a₁≡9`.
@@ -198,6 +213,9 @@ B compares a whole-point secret with a first-coordinate secret; C compares gener
 - D: alter #2’s right-hand value and compare detection and identification at different share counts
 
 In B, increase the share count from zero and compare how whole-point and first-coordinate candidates decrease.
+The whole-point count measures coordinate tuples; the secret count measures distinct first-coordinate values. At k=3, two shares leave 11 points but all 11 values of s from 0–10.
+Each slice tile fixes s. Add the dots across all tiles to count whole points; count nonempty tiles to count secret candidates.
+These tiles are for viewing. In “Planes (k=3)”, selecting a tile enlarges its slice.
 C’s comparison scheme distributes modulo 13 from the outset and samples randomness uniformly over all of GF(13). A later check does not erase information already revealed.
 The integer example keeps `X=(5,8)`, restricts coordinates to 0–12, and distributes right-hand values without reducing them modulo 13.
 

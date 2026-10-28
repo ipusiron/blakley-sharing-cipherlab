@@ -40,13 +40,13 @@
     <nav class="tabs" role="tablist" data-label="tablist" aria-label="学ぶ順番">
       <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
         aria-selected="true" tabindex="0" data-i18n="intersections">交点で追う</button>
+      <button id="tab-dimensions" role="tab" type="button" aria-controls="panel-dimensions"
+        aria-selected="false" tabindex="-1" data-i18n="dimensions">平面で追う（k=3）</button>
       <button id="tab-compare" role="tab" type="button" aria-controls="panel-compare"
-        aria-selected="false" tabindex="-1" data-i18n="compare">Shamir と並べる</button>
+        aria-selected="false" tabindex="-1" data-i18n="compare">Shamirの秘密分散法と比較する</button>
       <button id="tab-pitfalls" role="tab" type="button" aria-controls="panel-pitfalls"
         aria-selected="false" tabindex="-1" data-i18n="pitfalls">確かめる</button>
     </nav>
-    <p class="learning-note"><span data-i18n="educational">学習用。本物の秘密（パスワード・シード・鍵）は入れない。</span>
-      <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical">実用のバックアップはDay124 Scatter Seedsへ。</a></p>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
       <h2 data-i18n="intersections">交点で追う</h2>
       <details id="math-primer" class="math-primer">
@@ -88,40 +88,68 @@
         <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
         <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
         <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
-        <p data-i18n="learningRoute">まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。</p>
+        <p data-i18n="learningRoute">まず数学の前提を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。</p>
         <p id="threshold-summary" class="threshold-current"></p>
       </section>
       <div id="k2-view">
         <section id="initial-example-primer" class="primer-example" aria-labelledby="primer-title">
           <h3 id="primer-title" data-i18n="primerTitle">最初の固定例：(k,n)=(2,4)</h3>
-          <p data-i18n="primerPeople">4人に1枚ずつ配ります。どの2枚からも点Xの第1座標sが求まり、1枚ではsの13候補がすべて残ります。</p>
-          <p data-i18n="primerPoint">秘密sと乱数rを組にして、点X=(s,r)を作ります。1枚のシェアは、この点を通る直線を表す1本の式です。</p>
-          <p data-i18n="primerRandom">rは秘密と別に選ぶ補助の数です。式にrを混ぜ、正しい係数の組を使い、乱数を全体から同じ確率で選ぶと、1枚ではsを絞れなくなります。</p>
-          <p data-i18n="primerRoles">シェアを作って配る人をディーラーと呼びます。受取人は自分の式を受け取り、復元時に式を持ち寄ります。この画面は、配る人の答えと、集めた式だけからわかることの両方を示します。</p>
-          <p class="formula">a x₁ + b x₂ ≡ c (mod p)</p>
-          <p data-i18n="primerEquationDefinition">係数a,bを選び、共通の法pでc=a s+b r (mod p)を計算します。係数a,bと右辺cを渡すことは、各人に1本の式を渡すことに相当します。</p>
+          <p data-i18n="primerRoles">この例には、秘密を持ち、シェアを作って配る人（ディーラー）と、4人の受取人が登場します。</p>
+          <h4 data-i18n="primerPrepareTitle">① 配る人が秘密と乱数を用意する</h4>
+          <p data-i18n="primerRandom">ディーラーは秘密s=5を持っています。秘密とは別に、0〜12から同じ確率で乱数rを選びます。この固定例ではr=8です。</p>
+          <p data-i18n="primerPoint">ディーラーは秘密と乱数を座標として並べ、点X=(s,r)=(5,8)を作ります。この点が、これから作る4本の直線に共通する交点になります。</p>
+          <h4 data-i18n="primerBuildTitle">② 配る人が各人の式を作る</h4>
           <p data-i18n="primerField">GF(13)では0〜12を使い、計算結果を13で割った余りにします。たとえば12+2≡1 (mod 13)です。</p>
-          <table class="primer-equations">
+          <p data-i18n="primerEquationDefinition">ディーラーは、どの2枚からも復元でき、1枚では秘密を絞れない係数a,bを選びます。c=a s+b r (mod p)を計算して1本の式を作ります。この例ではp=13です。</p>
+          <p class="formula">a x₁ + b x₂ ≡ c (mod p)</p>
+          <p data-i18n="primerMixedValue">シェアには、秘密sと乱数rを混ぜて計算した値cを入れます。a,bは混ぜるときに掛ける係数で、受取人ごとに変えます。</p>
+          <p data-i18n="primerEquationExample">#1ではa=1,b=3を使います。秘密と乱数を混ぜた1×5+3×8=29を13で割り、その余りc=3を求めます。シェアの中身は(a,b,c)=(1,3,3)です。</p>
+          <h4 data-i18n="primerDistributeTitle">③ 配る人がシェアを渡す</h4>
+          <p data-i18n="primerDelivery">ディーラーは各人に、その人用のa,b,cの組を1枚のシェアとして渡します。全員が法p=13を知っていれば、この3つの数から式を組み立てられます。秘密sや乱数r、点Xの座標は渡しません。</p>
+          <table class="primer-equations responsive-table">
             <caption data-i18n="primerDistribution">4人に配る4本の式（最初の固定例）</caption>
-            <thead><tr><th scope="col" data-i18n="primerShare">配るシェア</th><th scope="col" data-i18n="equation">式</th></tr></thead>
+            <thead><tr><th scope="col" data-i18n="primerShare">配るシェア</th>
+              <th scope="col" data-i18n="primerShareContents">シェアの中身 (a,b,c)</th>
+              <th scope="col" data-i18n="equation">式</th></tr></thead>
             <tbody>
-              <tr><td data-cell-label="primerShare">#1</td><td data-cell-label="equation">x₁ + 3x₂ ≡ 3 (mod 13)</td></tr>
-              <tr><td data-cell-label="primerShare">#2</td><td data-cell-label="equation">2x₁ + 5x₂ ≡ 11 (mod 13)</td></tr>
-              <tr><td data-cell-label="primerShare">#3</td><td data-cell-label="equation">4x₁ + 2x₂ ≡ 10 (mod 13)</td></tr>
-              <tr><td data-cell-label="primerShare">#4</td><td data-cell-label="equation">5x₁ + x₂ ≡ 7 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#1</td>
+                <td data-cell-label="primerShareContents">(1,3,3)</td>
+                <td data-cell-label="equation">x₁ + 3x₂ ≡ 3 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#2</td>
+                <td data-cell-label="primerShareContents">(2,5,11)</td>
+                <td data-cell-label="equation">2x₁ + 5x₂ ≡ 11 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#3</td>
+                <td data-cell-label="primerShareContents">(4,2,10)</td>
+                <td data-cell-label="equation">4x₁ + 2x₂ ≡ 10 (mod 13)</td></tr>
+              <tr><td data-cell-label="primerShare">#4</td>
+                <td data-cell-label="primerShareContents">(5,1,7)</td>
+                <td data-cell-label="equation">5x₁ + x₂ ≡ 7 (mod 13)</td></tr>
             </tbody>
           </table>
+          <h4 data-i18n="primerRecoverTitle">④ 受取人がシェアを持ち寄る</h4>
+          <p data-i18n="primerPeople">受取人が任意の2枚以上を持ち寄ると、式をすべて満たす点X=(5,8)が求まります。その第1座標が秘密s=5です。1枚だけではsの13候補がすべて残ります。</p>
+          <details id="primer-privacy">
+            <summary data-i18n="primerPrivacyTitle">1枚では秘密を絞れない理由</summary>
+            <p data-i18n="primerPrivacyExample">#1のシェアからわかるのはs+3r≡3 (mod 13)です。(s,r)=(5,8)だけでなく、(0,1)でも(2,9)でもこの式を満たします。13個のどのsにも、式を満たすrがちょうど1個あります。</p>
+            <p data-i18n="primerPrivacyProbability">rを0〜12から同じ確率で選ぶと、どのsでも右辺c=3になる確率は1/13です。そのため、このシェアを受け取っても、どのsが選ばれた可能性が高いかは変わりません。s自体の選ばれ方を一様に変えるという意味ではありません。</p>
+            <p data-i18n="primerPrivacyCondition">ここでは法が13で、rに掛ける3が0以外なので、この対応が成り立ちます。たとえばrの係数が0の式x₁≡cなら、cから秘密sがわかります。秘密を隠せるかどうかは、式の形と乱数の選び方の両方に依存します。</p>
+          </details>
+          <p data-i18n="primerViewpoint">この画面では、仕組みを学ぶためにディーラーの答えも示します。受取人にわかる範囲は、集めたシェアから残る候補として示します。</p>
         </section>
         <p data-i18n="intro">下の図は、現在配っているシェア#1の式を満たす格子点です。</p>
         <p id="intro-current-example" class="formula"></p>
+        <p id="intro-graph-reading" data-i18n="introGraphReading">横軸x₁は秘密sの候補、縦軸x₂は乱数rの候補です。1つの点は、このシェアの式を満たす(s,r)の組を表します。</p>
         <svg id="intro-grid" class="coordinate-plane" role="img" data-label="initialGraph" viewBox="0 0 360 400" aria-label="シェア#1の座標平面">
   <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
   <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
 </svg>
-        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="intro-table"></div></details>
         <p id="intro-summary" class="result"></p>
+        <p id="intro-column-probability" data-i18n="introColumnsProbability">このように各sにrが1個ずつ対応するとき、rを秘密とは別に全範囲から同じ確率で選べば、シェアを受け取っても各sの選ばれやすさは変わりません。s自体を同じ確率で選ぶという意味ではありません。</p>
+        <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="intro-table"></div></details>
         <p id="edited-real-note" hidden data-i18n="editedReal">配布したシェア#1の図とディーラーの配布表は、配った値を表示します。操作図と検査には、編集した写しを使います。</p>
       </div>
+      <div id="intersections-workbench">
+      <div id="workbench" data-experiment="intersections">
       <section class="stage-card" aria-labelledby="explore-title">
         <h3 id="explore-title">1本から、2本で1点、3本目も同じ点へ</h3>
         <p data-i18n="exploreInstruction">シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。</p>
@@ -161,11 +189,12 @@
         </details>
       </section>
       <section class="stage-card">
-        <h3 id="dimension-title">k=3では、直線が平面になる</h3><p id="dimension-intro">k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>
+        <h3 id="dimension-title" hidden>k=3では、直線が平面になる</h3><p id="dimension-intro" hidden>k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>
         <div class="actions"><button id="k2-start" type="button" data-i18n="back2">k=2の既定の例</button>
           <button id="k3-start" type="button" data-i18n="start3">k=3の切り口を見る</button></div>
         <div id="view-3d" hidden>
           <h3 data-i18n="real3d">実数の導入図</h3>
+          <p id="k3-real-intro" data-i18n="k3RealIntro">まず、実数の3D図で平面の交わり方を見ます。これは形をつかむための導入図です。実際の候補は、合同式を使う下の切り口で数えます。</p>
           <svg id="scene" class="scene" role="img" tabindex="0" aria-describedby="camera-description" data-label="sceneLabel" viewBox="0 0 360 360" aria-label="実数の3D図。矢印キーで回転。">
   <text class="graph-loading" x="180" y="165" text-anchor="middle">図を準備しています</text>
   <text class="graph-loading" x="180" y="195" text-anchor="middle" lang="en">Preparing diagram</text>
@@ -183,6 +212,7 @@
           <h3 data-i18n="finiteSlices">GF(p)の切り口一覧</h3>
           <p id="slice-explanation"></p>
           <div id="slices" class="slice-list" role="group" data-label="chooseSlice" aria-label="切り口を選ぶ"></div>
+          <p id="slice-choice-reading" data-i18n="k3SliceChoice">札を選ぶと、そのsの切り口を下に大きく表示します。候補を見比べる操作で、秘密や配ったシェアの値は変わりません。</p>
           <p id="slice-focus-note" class="reading-guide"></p>
           <button id="slice-recovered" type="button" hidden></button>
           <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph" viewBox="0 0 360 400" aria-label="選んだ切り口の座標平面">
@@ -237,16 +267,25 @@
         <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
         <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer">Day123のGF(p)の前提知識へ</a>
       </details>
+      </div>
+      </div>
+    </section>
+    <section id="panel-dimensions" class="panel" role="tabpanel" aria-labelledby="tab-dimensions" hidden>
+      <h2 data-i18n="dimensions">平面で追う（k=3）</h2>
+      <p data-i18n="dimensionsIntro">k=3では、配る人が秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。k=4・5の実験は、下のディーラー設定の「詳しく」から開けます。</p>
+      <p id="dimensions-current" class="threshold-current"></p>
+      <div id="dimensions-workbench"></div>
     </section>
     <section id="panel-compare" class="panel" role="tabpanel" aria-labelledby="tab-compare" hidden>
-      <h2 data-i18n="compare">Shamir と並べる</h2>
-      <p data-i18n="compareIntro">シェアから秘密を絞れないことを、Shamirの式とBlakleyの点の両方で見ます。同じシェアを2通りに読む比較です。</p>
-      <p data-i18n="compareBasics">Shamir方式は、たとえばf(x)=s+a₁xという式を作ります。秘密sはx=0の値、a₁は乱数です。各人には、0以外の番号iと値f(i)の組を1枚のシェアとして渡します。</p>
-      <p data-i18n="compareRandomRoles">ここでa₁,a₂は乱数で、点Xの第2・第3座標に当たります。前のタブで各人に配る式の係数a,bとは役割が違います。</p>
+      <h2 data-i18n="compare">Shamirの秘密分散法と比較する</h2>
+      <p data-i18n="compareIntro">この比較では、ShamirのシェアをBlakleyの直線や平面の式に書き換えます。シェアが足りないときに、秘密の候補がどう残るかを2つの表し方で確かめます。</p>
+      <p data-i18n="compareBasics">Shamir方式では、たとえばf(x)=s+a₁xを作ります。秘密sはf(0)の値、a₁は乱数です。各人には、0以外の番号iと計算値f(i)の組(i,f(i))を1枚のシェアとして渡します。</p>
+      <p data-i18n="compareRandomRoles">f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。</p>
       <p data-i18n="compareCandidateMeaning">候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。</p>
       <section class="stage-card" aria-labelledby="compare-k2-title">
         <h3 id="compare-k2-title" data-i18n="compareK2Title">① k=2：13本の候補を13個の点へ</h3>
-        <p data-i18n="compareK2Intro">k=2ではf(x)=s+a₁xを使います。sとa₁の組を決めると1本の式が決まり、同じ組を点X=(s,a₁)としても表せます。</p>
+        <p data-i18n="compareK2Intro">k=2ではf(x)=s+a₁xを使います。係数s,a₁を座標として並べ、点X=(s,a₁)と定義します。これは、多項式のグラフ上の点(i,f(i))とは別の点です。</p>
+        <p data-i18n="compareK2ShareMeaning">シェア(1,9)はf(1)=9、つまりs+a₁≡9 (mod 13)という情報です。Xの座標をx₁=s,x₂=a₁と書くと、x₁+x₂≡9 (mod 13)になります。シェア1枚が、点Xを通る直線の式を表しています。</p>
         <p data-i18n="compareK2Task">相手が知るのは(1,9)の1枚だけです。候補を送り、sを変えてもf(1)=9となる式が残ることを確かめてください。</p>
         <details id="compare-k2-source"><summary data-i18n="compareDealerSource">配布側の答えを見る</summary>
           <p id="compare-k2-answer" class="formula"></p>
@@ -265,11 +304,13 @@
 </svg>
         <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="compare-linear-table"></div></details>
         <p id="compare-k2-caption" class="result" role="status"></p>
-        <p data-i18n="compareK2Correspondence">シェア (1,9) を通る13本の候補の直線と、s+a₁≡9 の上の13点 (s,9−s) が1対1に並びます。</p>
+        <p data-i18n="compareK2Correspondence">「シェア(1,9)を通る13本の候補の直線」と「条件s+a₁≡9を満たす13点(s,9−s)」が1対1に対応します。</p>
       </section>
       <section class="stage-card" aria-labelledby="compare-k3-title">
         <h3 id="compare-k3-title" data-i18n="compareK3Title">② k=3：多項式の係数が、そのまま点になる</h3>
-        <p data-i18n="compareK3Intro">k=3ではf(x)=s+a₁x+a₂x²を使います。x²の前の数a₂も乱数です。3つの係数の組を点X=(s,a₁,a₂)として見ます。</p>
+        <p data-i18n="compareK3Intro">k=3ではf(x)=s+a₁x+a₂x²を使います。a₁,a₂は乱数です。3つの係数を座標として並べ、点X=(s,a₁,a₂)と定義します。この定義により、a₁,a₂がXの第2・第3座標になります。</p>
+        <p data-i18n="compareK3ShareMeaning">シェア(2,8)はf(2)=8という情報です。式にx=2を代入するとs+2a₁+4a₂≡8 (mod 13)になります。Xの座標で書けばx₁+2x₂+4x₃≡8 (mod 13)で、点Xを通る平面の式です。</p>
+        <p data-i18n="comparePublicCoefficients">一般の番号iでは、シェア(i,f(i))からx₁+i x₂+i²x₃≡f(i) (mod 13)という式がわかります。この比較では係数(1,i,i²)を番号iから計算できるため、シェア(i,f(i))から平面の式を組み立てられます。</p>
         <div id="compare-equivalence-table"></div>
         <p data-i18n="compareK3Task">相手が知るのは(1,11)と(2,8)の2枚だけです。必要な3枚には足りません。sの行を選び、同じ2枚に合う候補を比べてください。</p>
         <details id="compare-k3-source"><summary data-i18n="compareDealerSource">配布側の答えを見る</summary>
@@ -347,11 +388,17 @@
         </div><div id="pit-b-picks" class="actions" role="group" data-label="pitShares" aria-label="シェアの枚数"></div><p id="pit-b-input"></p>
         <div class="danger-model"><p class="danger-badge" data-i18n="pitBadge">✕ わざと無防備</p>
           <h4 data-i18n="pitBWholeCase">点全体を秘密にした場合</h4><p id="pit-b-unsafe" role="status"></p><p data-i18n="pitWholeWithout">点全体Xを秘密とみなす模型です。シェアを増やすと、点のどの成分の組が候補から消えるかを調べます。</p></div>
-        <h4 data-i18n="pitBComparison">第1座標だけを秘密にした場合</h4><p id="pit-b-result" class="result"></p><div id="pit-b-table"></div>
+        <h4 data-i18n="pitBComparison">第1座標だけを秘密にした場合</h4><p id="pit-b-result" class="result"></p>
+        <p id="pit-b-count-reading" data-i18n="pitBCountReading">「点全体の候補」は、式を満たすXの組の数です。「第1座標だけの候補」は、その中にあるsの種類数です。同じsを持つ点が複数あっても、秘密の候補としては1種類と数えます。</p>
+        <div id="pit-b-table"></div>
+        <p id="pit-b-k3-count-reading" hidden data-i18n="pitBCountK3">このk=3の固定例はGF(11)です。0枚では点が11×11×11=1331個、sは11種類あります。1枚で点が121個、2枚で11個に減っても、sは0〜10のすべてが残ります。3枚で点もsも1つに決まります。</p>
         <svg id="pit-b-grid" class="coordinate-plane" role="img" data-label="pitBGraph" viewBox="0 0 360 400" aria-label="点全体の候補の座標平面">
   <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
   <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
-</svg><div id="pit-b-slices" class="slice-list static-slices"></div>
+</svg>
+        <p id="pit-b-slice-reading" hidden data-i18n="pitBSliceReading">各札は「sがこの値なら」と仮定し、残る(x₂,x₃)の候補を示します。札の中の点数を合計すると点全体の候補数になり、点がある札の枚数がsの候補数になります。</p>
+        <div id="pit-b-slices" class="slice-list static-slices"></div>
+        <p id="pit-b-slice-status" class="result" hidden></p>
         <details><summary data-i18n="graphTable">図の内容を表で見る</summary><p data-i18n="pitBTableNote">上の表に、各枚数で残る点の数と第1座標の数を示しています。切り口の札にも点の数を示しています。</p><div id="pit-b-points"></div></details>
         <h4 data-i18n="pitLesson">わかったこと</h4><p data-i18n="pitWholeLesson">点全体を秘密にした版では、1枚増えるごとに候補がp分の1になります。第1座標だけを秘密にする版は、検査(i)(ii)と一様な乱数の前提の下で、k枚未満なら秘密の全候補を残します。HACの原文は座学4で確認できます。</p>
       </section>
@@ -453,6 +500,8 @@
     <header class="help-header"><h2 id="help-title" data-i18n="help">ヘルプと座学</h2>
       <button id="close-help" type="button" data-i18n="close">閉じる</button></header>
     <div class="help-body">
+      <p class="learning-note"><span data-i18n="educational">学習用。本物の秘密（パスワード・シード・鍵）は入れない。</span>
+        <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical">実用のバックアップはDay124 Scatter Seedsへ。</a></p>
       <h3 data-i18n="helpLearningTitle">初めて読むとき</h3>
       <p data-i18n="helpLearningRoute">最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。</p>
       <p data-i18n="helpIntro">タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。</p>

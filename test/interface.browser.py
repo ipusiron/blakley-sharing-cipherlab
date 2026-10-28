@@ -23,10 +23,10 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "blakley-sharing-cipherlab."
-TABS = ("intersections", "compare", "pitfalls")
+TABS = ("intersections", "dimensions", "compare", "pitfalls")
 LABELS = {
-    "ja": ("交点で追う", "Shamir と並べる", "確かめる"),
-    "en": ("Intersections", "Compare with Shamir", "Pitfalls"),
+    "ja": ("交点で追う", "平面で追う（k=3）", "Shamirの秘密分散法と比較する", "確かめる"),
+    "en": ("Intersections", "Planes (k=3)", "Compare with Shamir secret sharing", "Pitfalls"),
 }
 CSP = (
     "default-src 'none'; script-src 'self'; style-src 'self'; "
@@ -154,8 +154,8 @@ def assert_preference(page, language, theme):
 
 def test_tabs(page, width, layouts):
     check(page.locator('[role="tablist"]').count() == 1, "one tablist")
-    check(page.locator('[role="tab"]').count() == 3, "three tabs")
-    check(page.locator('[role="tabpanel"]').count() == 3, "three panels")
+    check(page.locator('[role="tab"]').count() == 4, "four tabs")
+    check(page.locator('[role="tabpanel"]').count() == 4, "four panels")
     assert_selected(page, "intersections")
     for name in TABS:
         page.locator("#tab-" + name).click()
@@ -165,7 +165,7 @@ def test_tabs(page, width, layouts):
     for key, name in (
         ("ArrowRight", "intersections"), ("ArrowLeft", "pitfalls"),
         ("Home", "intersections"), ("End", "pitfalls"),
-        ("ArrowLeft", "compare"), ("ArrowLeft", "intersections"),
+        ("ArrowLeft", "compare"), ("ArrowLeft", "dimensions"), ("ArrowLeft", "intersections"),
     ):
         page.keyboard.press(key)
         assert_selected(page, name)
@@ -175,6 +175,28 @@ def test_tabs(page, width, layouts):
             width: parseFloat(css.outlineWidth)};
         }""")
         check(focus["active"] and focus["style"] != "none" and focus["width"] > 0, focus)
+
+
+    # The two experiment tabs retain their own selections and candidate while other tabs are visited.
+    page.locator("#candidate-next").click()
+    k2_candidate = page.locator("#candidate-value").inner_text()
+    k2_shares = selected_shares(page)
+    page.locator("#tab-dimensions").click()
+    check(page.locator("#view-3d").is_visible() and not page.locator("#k2-interactive").is_visible(), "planes have their own tab")
+    page.locator("#candidate-next").click()
+    page.locator("#candidate-next").click()
+    k3_candidate = page.locator("#candidate-value").inner_text()
+    k3_shares = selected_shares(page)
+    page.locator("#tab-compare").click()
+    page.locator("#tab-intersections").click()
+    check(page.locator("#candidate-value").inner_text() == k2_candidate and selected_shares(page) == k2_shares,
+          "line experiment state is retained")
+    page.locator("#tab-dimensions").click()
+    check(page.locator("#candidate-value").inner_text() == k3_candidate and selected_shares(page) == k3_shares,
+          "plane experiment state is retained")
+    check(page.locator("#workbench").count() == 1, "one interactive workbench without duplicated controls")
+    click_visible(page, "k2-start")
+    assert_selected(page, "intersections")
 
 
 def test_help(page, width, layouts, screenshot):
@@ -283,10 +305,12 @@ def matrix_values(page):
 
 
 def threshold_settings(page, k, n):
-    text = page.locator("#threshold-summary").inner_text()
+    identifier = "#threshold-summary" if k == 2 else "#dimensions-current"
+    check(page.locator(identifier).is_visible(), "current experiment settings are visible")
+    text = page.locator(identifier).inner_text()
     check(re.search(r"k\s*=\s*" + str(k) + r"\b", text), ("threshold k", k, text))
     check(re.search(r"n\s*=\s*" + str(n) + r"\b", text), ("threshold n", n, text))
-    check(page.locator("#sharing-primer").is_visible(), "general sharing introduction stays visible")
+    assert_selected(page, "intersections" if k == 2 else "dimensions")
 
 
 def axis_metrics(page, identifiers):
@@ -493,6 +517,10 @@ def fixed_math_example(page, default):
 
 
 def fixed_math_after_change(page, default):
+    previous = page.locator('[role="tab"][aria-selected="true"]').get_attribute("id")
+    experiment = page.locator("#distribution-table").text_content()
+    if previous != "tab-intersections":
+        page.locator("#tab-intersections").click()
     check(page.locator("#math-x-order").is_checked(), "experimental changes preserve selected x-order approach")
     original = fixed_math_example(page, default)
     check(page.locator("#math-guides").is_checked(), "experimental changes preserve enabled math guides")
@@ -500,6 +528,10 @@ def fixed_math_after_change(page, default):
     folded = fixed_math_example(page, default)
     page.locator("#math-x-order").check()
     fixed_math_example(page, default)
+    if previous != "tab-intersections":
+        page.locator("#" + previous).click()
+        check(page.locator("#distribution-table").text_content() == experiment,
+              "reading the fixed prerequisite preserves the higher-dimensional experiment")
     return {"x-order": original, "folded": folded}
 
 
@@ -592,8 +624,10 @@ def test_coordinate_ui(page, width, layouts, language):
     expected = []
     for index, (coefficients, rhs) in enumerate(zip(default["A"], default["c"])):
         terms = [("" if a == 1 else str(a)) + "x" + "\u2081\u2082"[j] for j, a in enumerate(coefficients)]
-        expected.append(["#" + str(index + 1), "+".join(terms) + "\u2261" + str(rhs) + "(mod13)"])
-    check([[r[0], re.sub(r"\s", "", r[1])] for r in rows] == expected, "four initial equations match authoritative vector")
+        expected.append(["#" + str(index + 1), "(" + ",".join(str(v) for v in coefficients + [rhs]) + ")",
+                         "+".join(terms) + "\u2261" + str(rhs) + "(mod13)"])
+    check([[r[0], re.sub(r"\s", "", r[1]), re.sub(r"\s", "", r[2])] for r in rows] == expected,
+          "four initial share triples and equations match authoritative vector")
     explanation = page.locator('[data-i18n="primerEquationDefinition"]').inner_text()
     compact = re.sub(r"\s", "", explanation)
     check("a,b" in compact and "c" in compact and "modp" in compact, "distributed equation explains its coefficients and modulus")
@@ -1174,6 +1208,8 @@ def test_compare(page, width, layouts, vectors):
 def test_pitfall_b(page, width, layouts, vectors):
     for k in (2, 3):
         page.locator("#pit-b-k" + str(k)).click()
+        check(page.locator("#pit-b-grid").is_visible() == (k == 2), "only k=2 shows the two-coordinate plot")
+        check(page.locator("#pit-b-slices").is_visible() == (k == 3), "only k=3 shows the slice tiles")
         model = vectors["default_k" + str(k)]
         prime = model["p"]
         expected_rows = [[count, prime ** (k - count), prime if count < k else 1] for count in range(k + 1)]
@@ -1589,7 +1625,7 @@ def keyboard_case(browser, browser_name, url, output, stage="1b"):
         routes = {"one-line-13-columns": first, "k3-start": second, "third-share": third}
         page.screenshot(path=str(output / (browser_name + "-keyboard-k3.png")), full_page=False)
         if stage == "1c":
-            routes["comparison-tab"] = keyboard_to(page, "tab-intersections", key="Shift+Tab")
+            routes["comparison-tab"] = keyboard_to(page, "tab-dimensions", key="Shift+Tab")
             page.keyboard.press("ArrowRight")
             assert_selected(page, "compare")
             routes["comparison-11-and-8"] = keyboard_to(page, "compare-pick-5")

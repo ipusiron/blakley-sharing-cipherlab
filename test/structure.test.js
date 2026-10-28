@@ -14,7 +14,7 @@ test('F: strict offline CSP, standard scripts and semantic shell', () => {
   assert.match(html, /rel="icon" href="data:,"/);
   assert.match(html, /<noscript>/);
   assert.doesNotMatch(html, /<script[^>]*type="module"|<script(?![^>]*src=)[^>]*>|\sstyle=|\son\w+=/);
-  assert.equal((html.match(/role="tab"/g) || []).length, 3);
+  assert.equal((html.match(/role="tab"/g) || []).length, 4);
   assert.match(html, /<dialog id="help-dialog"/);
   assert.deepEqual([...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]), scripts);
   for (const code of scripts.map(read)) {

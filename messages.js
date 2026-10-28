@@ -6,10 +6,41 @@
   'use strict';
   return {
     ja: {
+      comparePublicCoefficients: "一般の番号iでは、シェア(i,f(i))からx₁+i x₂+i²x₃≡f(i) (mod "
+        + "13)という式がわかります。この比較では係数(1,i,i²)を番号iから計算できるため、シェア(i,f(i))から平面の式を組み立てられます。",
+      compareK3ShareMeaning: "シェア(2,8)はf(2)=8という情報です。式にx=2を代入するとs+2a₁+4a₂≡8 (mod 13)になります。Xの座標で書けばx₁+2x₂+4x₃≡8 (mod 13)で、点Xを通る平面の式です。",
+      compareK2ShareMeaning: "シェア(1,9)はf(1)=9、つまりs+a₁≡9 (mod 13)という情報です。Xの座標をx₁=s,x₂=a₁と書くと、x₁+x₂≡9 (mod 13)になります。シェア1枚が、点Xを通る直線の式を表しています。",
+      primerViewpoint: "この画面では、仕組みを学ぶためにディーラーの答えも示します。受取人にわかる範囲は、集めたシェアから残る候補として示します。",
+      primerPrivacyCondition: "ここでは法が13で、rに掛ける3が0以外なので、この対応が成り立ちます。たとえばrの係数が0の式x₁≡cなら、cから秘密sがわかります。秘密を隠せるかどうかは、式の形と乱数の選び方の両方に依存します。",
+      primerPrivacyProbability: "rを0〜12から同じ確率で選ぶと、どのsでも右辺c=3になる確率は1/13です。そのため、このシェアを受け取っても、どのsが選ばれた可能性が高いかは変わりません。s自体の選ばれ方を一様に変えるという意味ではありません。",
+      primerPrivacyExample: "#1のシェアからわかるのはs+3r≡3 (mod 13)です。(s,r)=(5,8)だけでなく、(0,1)でも(2,9)でもこの式を満たします。13個のどのsにも、式を満たすrがちょうど1個あります。",
+      primerPrivacyTitle: "1枚では秘密を絞れない理由",
+      primerRecoverTitle: "④ 受取人がシェアを持ち寄る",
+      primerShareContents: "シェアの中身 (a,b,c)",
+      primerDelivery: "ディーラーは各人に、その人用のa,b,cの組を1枚のシェアとして渡します。全員が法p=13を知っていれば、この3つの数から式を組み立てられます。秘密sや乱数r、点Xの座標は渡しません。",
+      primerDistributeTitle: "③ 配る人がシェアを渡す",
+      primerEquationExample: "#1ではa=1,b=3を使います。秘密と乱数を混ぜた1×5+3×8=29を13で割り、その余りc=3を求めます。シェアの中身は(a,b,c)=(1,3,3)です。",
+      primerMixedValue: "シェアには、秘密sと乱数rを混ぜて計算した値cを入れます。a,bは混ぜるときに掛ける係数で、受取人ごとに変えます。",
+      primerBuildTitle: "② 配る人が各人の式を作る",
+      primerPrepareTitle: "① 配る人が秘密と乱数を用意する",
       secretSharingDefinition: "秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。",
-      learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。次に「Shamirと並べる」、最後に「確かめる」へ進みます。k=3以上と座学の証明は、基本を試した後に読めます。",
-      primerRoles: "シェアを作って配る人をディーラーと呼びます。受取人は自分の式を受け取り、復元時に式を持ち寄ります。この画面は、配る人の答えと、集めた式だけからわかることの両方を示します。",
-      primerRandom: "rは秘密と別に選ぶ補助の数です。式にrを混ぜ、正しい係数の組を使い、乱数を全体から同じ確率で選ぶと、1枚ではsを絞れなくなります。",
+      introGraphReading: "横軸x₁は秘密sの候補、縦軸x₂は乱数rの候補です。1つの点は、このシェアの式を満たす(s,r)の組を表します。",
+      introColumnsFull: "横軸0〜{max}の{p}列に、点が1個ずつあります。どのsの列にも候補が残るため、このシェア1枚から秘密sを絞れません。",
+      introColumnsOther: "秘密sの候補は、点が残っている縦の列から読み取ります。同じ列に点が複数あっても、sの候補としては1種類です。",
+      introColumnsProbability: "このように各sにrが1個ずつ対応するとき、rを秘密とは別に全範囲から同じ確率で選べば、シェアを受け取っても各sの選ばれやすさは変わりません。s自体を同じ確率で選ぶという意味ではありません。",
+      pitBCountReading: "「点全体の候補」は、式を満たすXの組の数です。「第1座標だけの候補」は、その中にあるsの種類数です。同じsを持つ点が複数あっても、秘密の候補としては1種類と数えます。",
+      pitBCountK3: "このk=3の固定例はGF(11)です。0枚では点が11×11×11=1331個、sは11種類あります。1枚で点が121個、2枚で11個に減っても、sは0〜10のすべてが残ります。3枚で点もsも1つに決まります。",
+      pitBSliceReading: "各札は「sがこの値なら」と仮定し、残る(x₂,x₃)の候補を示します。札の中の点数を合計すると点全体の候補数になり、点がある札の枚数がsの候補数になります。",
+      pitBSliceStatus: "いま残る点は全部で{points}個です。{p}枚の札のうち{secrets}枚に点があり、秘密sの候補も{secrets}種類あります。",
+      k3RealIntro: "まず、実数の3D図で平面の交わり方を見ます。これは形をつかむための導入図です。実際の候補は、合同式を使う下の切り口で数えます。",
+      k3SliceReading: "秘密sを1つ仮定すると、残る座標はx₂とx₃の2つです。この2座標を描いたものを「切り口」と呼びます。点がある札のsは、集めたシェアと矛盾しない候補です。",
+      k3SliceChoice: "札を選ぶと、そのsの切り口を下に大きく表示します。候補を見比べる操作で、秘密や配ったシェアの値は変わりません。",
+      dimensions: "平面で追う（k=3）",
+      dimensionsIntro: "k=3では、配る人が秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。k=4・5の実験は、下のディーラー設定の「詳しく」から開けます。",
+      dimensionsCurrent: "現在の実験：GF({p})、k={k}、n={n}。",
+      learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。",
+      primerRoles: "この例には、秘密を持ち、シェアを作って配る人（ディーラー）と、4人の受取人が登場します。",
+      primerRandom: "ディーラーは秘密s=5を持っています。秘密とは別に、0〜12から同じ確率で乱数rを選びます。この固定例ではr=8です。",
       exploreInstruction: "シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。",
       editIntro: "右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。",
       dealerIntro: "ここはシェアを作る側の画面です。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。",
@@ -39,8 +70,8 @@
       termEquationDefinition: "式は座標が満たす条件です。a x₁+b x₂≡cでは、a,bが座標に掛ける係数、cが右辺の値です。",
       termHyperplaneName: "超平面",
       termHyperplaneDefinition: "2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。",
-      compareBasics: "Shamir方式は、たとえばf(x)=s+a₁xという式を作ります。秘密sはx=0の値、a₁は乱数です。各人には、0以外の番号iと値f(i)の組を1枚のシェアとして渡します。",
-      compareRandomRoles: "ここでa₁,a₂は乱数で、点Xの第2・第3座標に当たります。前のタブで各人に配る式の係数a,bとは役割が違います。",
+      compareBasics: "Shamir方式では、たとえばf(x)=s+a₁xを作ります。秘密sはf(0)の値、a₁は乱数です。各人には、0以外の番号iと計算値f(i)の組(i,f(i))を1枚のシェアとして渡します。",
+      compareRandomRoles: "f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。",
       compareCandidateMeaning: "候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。",
       compareK2Task: "相手が知るのは(1,9)の1枚だけです。候補を送り、sを変えてもf(1)=9となる式が残ることを確かめてください。",
       compareK3Task: "相手が知るのは(1,11)と(2,8)の2枚だけです。必要な3枚には足りません。sの行を選び、同じ2枚に合う候補を比べてください。",
@@ -74,7 +105,7 @@
       candidateTry2: "いま試している候補はs={s}です。対応するx₂={x2}を調べます。候補を変えても、配布値は変わりません。",
       candidateInverse: "{b}×{inverse}≡1 (mod {p})なので、{b}で割る代わりに{inverse}を掛けます。",
       candidateTry3: "s={s}と仮定した切り口を見ています。これは答えの入力ではなく、配布値も変わりません。",
-      sliceIntro: "各札はsを1つに固定して、残る(x₂,x₃)の候補を示します。{p}枚すべての札に点があれば、どのsも除外できません。",
+      sliceIntro: "{p}枚すべての札に点があれば、どのsも除外できません。",
       sliceCurrent: "いま見ている切り口はs={s}、条件を満たす点は{count}個です。",
       sliceRecoveredElsewhere: "いまはs={s}の切り口です。復元された点は別のs={recovered}の切り口にあります。",
       goRecoveredSlice: "復元されたs={s}の切り口へ",
@@ -87,7 +118,7 @@
       matrixRemaining: "まだ点は1つに決まりません。点の候補は{points}個、第1座標sの候補は{secrets}個です。",
       matrixEmpty: "シェアを選ぶと、その式を表に入れて計算できます。",
       matrixNoSolution: "0が0以外に等しいという行が現れます。この式の組には解がありません。",
-      introCurrentExample: "現在の図：GF({p})、k={k}、n={n}。配布したシェア#1は{equation}です。",
+      introCurrentExample: "現在の図：GF({p})、k={k}、n={n}。シェア#1={share}、すなわち{equation}を受け取った場面です。",
       coefficients: "係数の組",
       compareKnownShares: "この実験で相手が知っているのは{count}枚だけ：{values}",
       compareAllShares: "配布側の全シェア（答えの確認用）：{values}",
@@ -107,7 +138,7 @@
       close: "閉じる",
       tablist: "学ぶ順番",
       intersections: "交点で追う",
-      compare: "Shamir と並べる",
+      compare: "Shamirの秘密分散法と比較する",
       pitfalls: "確かめる",
       source: "ソースコード",
       educational: "学習用。本物の秘密（パスワード・シード・鍵）は入れない。",
@@ -118,14 +149,14 @@
       thresholdDefinition: "nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。",
       thresholdSummary: "現在の設定：GF({p})、復元に必要な最小枚数k={k}、配る総数n={n}。",
       primerTitle: "最初の固定例：(k,n)=(2,4)",
-      primerPeople: "4人に1枚ずつ配ります。どの2枚からも点Xの第1座標sが求まり、1枚ではsの13候補がすべて残ります。",
-      primerPoint: "秘密sと乱数rを組にして、点X=(s,r)を作ります。1枚のシェアは、この点を通る直線を表す1本の式です。",
-      primerEquationDefinition: "係数a,bを選び、共通の法pでc=a s+b r (mod p)を計算します。係数a,bと右辺cを渡すことは、各人に1本の式を渡すことに相当します。",
+      primerPeople: "受取人が任意の2枚以上を持ち寄ると、式をすべて満たす点X=(5,8)が求まります。その第1座標が秘密s=5です。1枚だけではsの13候補がすべて残ります。",
+      primerPoint: "ディーラーは秘密と乱数を座標として並べ、点X=(s,r)=(5,8)を作ります。この点が、これから作る4本の直線に共通する交点になります。",
+      primerEquationDefinition: "ディーラーは、どの2枚からも復元でき、1枚では秘密を絞れない係数a,bを選びます。c=a s+b r (mod p)を計算して1本の式を作ります。この例ではp=13です。",
       primerField: "GF(13)では0〜12を使い、計算結果を13で割った余りにします。たとえば12+2≡1 (mod 13)です。",
       primerDistribution: "4人に配る4本の式（最初の固定例）",
       primerShare: "配るシェア",
       initialExample: "既定の例（手で選んだ値）：GF(13)、k=2、n=4。",
-      compareIntro: "シェアから秘密を絞れないことを、Shamirの式とBlakleyの点の両方で見ます。同じシェアを2通りに読む比較です。",
+      compareIntro: "この比較では、ShamirのシェアをBlakleyの直線や平面の式に書き換えます。シェアが足りないときに、秘密の候補がどう残るかを2つの表し方で確かめます。",
       pitfallsIntro: "正しく作るための条件を1つずつ変え、何がわかってしまうか、復元器がどこで間違うかを試します。各カードで操作し、結果と理由を読んでください。",
       helpIntro: "タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。",
       premise: "x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。",
@@ -338,7 +369,7 @@
       comparePolynomialHeading: "候補の多項式",
       compareChooseRow: "秘密の候補 s={s} の行を選ぶ",
       compareZeroTopBadge: "a₂=0：1次式 1+10x",
-      compareK2Candidate: "点 {point} ↔ {polynomial}。x=1 の値は {value} です。",
+      compareK2Candidate: "点 X={point} ↔ {polynomial}（f(1)={value}）",
       compareShares: "Shamirのシェア：{values}",
       compareRestrictedCount: "残る候補は{count}個。s=1（a₂=0）とs=12（a₁=0）が除かれます。",
       compareCompleteCount: "秘密の候補{count}個のすべてに、対応する点と多項式が1つずつあります。",
@@ -355,13 +386,13 @@
       compareShamirObject: "シェアが点、候補が多項式",
       compareBlakleyObject: "シェアが平面、候補が点",
       compareK2Title: "① k=2：13本の候補を13個の点へ",
-      compareK2Intro: "k=2ではf(x)=s+a₁xを使います。sとa₁の組を決めると1本の式が決まり、同じ組を点X=(s,a₁)としても表せます。",
+      compareK2Intro: "k=2ではf(x)=s+a₁xを使います。係数s,a₁を座標として並べ、点X=(s,a₁)と定義します。これは、多項式のグラフ上の点(i,f(i))とは別の点です。",
       comparePrevious: "前の候補を選ぶ",
       compareNext: "次の候補を選ぶ",
       compareK2Graph: "シェア1枚と矛盾しない13個の点 (s,a₁)",
-      compareK2Correspondence: "シェア (1,9) を通る13本の候補の直線と、s+a₁≡9 の上の13点 (s,9−s) が1対1に並びます。",
+      compareK2Correspondence: "「シェア(1,9)を通る13本の候補の直線」と「条件s+a₁≡9を満たす13点(s,9−s)」が1対1に対応します。",
       compareK3Title: "② k=3：多項式の係数が、そのまま点になる",
-      compareK3Intro: "k=3ではf(x)=s+a₁x+a₂x²を使います。x²の前の数a₂も乱数です。3つの係数の組を点X=(s,a₁,a₂)として見ます。",
+      compareK3Intro: "k=3ではf(x)=s+a₁x+a₂x²を使います。a₁,a₂は乱数です。3つの係数を座標として並べ、点X=(s,a₁,a₂)と定義します。この定義により、a₁,a₂がXの第2・第3座標になります。",
       compareVandermonde: "番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)はヴァンデルモンドの行で、この構成は検査(i)(ii)を満たします。",
       compareNonzero: "乱数の座標を0以外に限る",
       compareNonzeroExplanation: "この切り替えはa₁とa₂の両方を0以外に限ります。0を含むGF(13)全体から選ぶ前提を壊すと、秘密の候補が消えます。",
@@ -671,15 +702,72 @@
       lesson10Day125: "Day125 Overlay QR Shares",
     },
     en: {
+      comparePublicCoefficients: "For a general index i, share (i,f(i)) gives x₁+i x₂+i²x₃≡f(i) (mod 13). In this comparison, the coefficients"
+        + " (1,i,i²) can be calculated from i, so the share (i,f(i)) specifies the plane equation.",
+      compareK3ShareMeaning: "Share (2,8) means f(2)=8. Substituting x=2 gives s+2a₁+4a₂≡8 (mod 13). In the coordinates of X this is "
+        + "x₁+2x₂+4x₃≡8 (mod 13), a plane equation through X.",
+      compareK2ShareMeaning: "Share (1,9) means f(1)=9, or s+a₁≡9 (mod 13). Writing the coordinates of X as x₁=s and x₂=a₁ gives x₁+x₂≡9 "
+        + "(mod 13). One share thus specifies a line through X.",
+      primerViewpoint: "To explain the method, this page also shows the dealer’s answer. What recipients can learn is shown as the "
+        + "candidates remaining after collecting shares.",
+      primerPrivacyCondition: "This correspondence holds because the modulus is 13 and the multiplier 3 of r is nonzero. If the multiplier "
+        + "of r were zero, an equation such as x₁≡c would reveal s. Hiding the secret depends on both the equation and "
+        + "the random sampling.",
+      primerPrivacyProbability: "When r is chosen uniformly from 0–12, every s produces c=3 with probability 1/13. Receiving this share "
+        + "therefore leaves the probabilities of the possible secrets unchanged. It does not make the choice of s "
+        + "itself uniform.",
+      primerPrivacyExample: "Share #1 gives the condition s+3r≡3 (mod 13). Besides (s,r)=(5,8), both (0,1) and (2,9) satisfy it. Each of "
+        + "the 13 possible values of s has exactly one matching r.",
+      primerPrivacyTitle: "Why one share does not narrow the secret",
+      primerRecoverTitle: "4. Recipients bring their shares together",
+      primerShareContents: "Share contents (a,b,c)",
+      primerDelivery: "The dealer gives each recipient their own triple a,b,c as one share. With the common modulus p=13, these "
+        + "three numbers specify the equation. The values s, r and the coordinates of X are not given out.",
+      primerDistributeTitle: "3. The dealer gives each recipient a share",
+      primerEquationExample: "For #1, a=1 and b=3 give 1×5+3×8=29. Dividing 29 by 13 leaves the remainder c=3. The share contains "
+        + "(a,b,c)=(1,3,3).",
+      primerMixedValue: "A share includes c, a value calculated by mixing the secret s with the random value r. The multipliers a,b "
+        + "differ for each recipient.",
+      primerBuildTitle: "2. The dealer creates an equation for each recipient",
+      primerPrepareTitle: "1. The dealer prepares a secret and a random value",
       secretSharingDefinition: "Secret sharing creates several shares from a secret and recovers it when enough shares are collected. In this "
         + "tool, correctly generated shares leave every secret possible with fewer than k shares and recover it with any "
         + "set of at least k shares.",
-      learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Continue to “Compare with Shamir” and then “Pitfalls”. "
-        + "Higher dimensions and the proofs can wait until you have tried the basics.",
-      primerRoles: "The dealer creates and distributes the shares. Each recipient receives their own equation; recipients bring equations together for "
-        + "recovery. This page shows both the dealer’s answer and what the collected equations reveal.",
-      primerRandom: "The value r is an extra number chosen separately from the secret. Mixing it into the equation, using suitable coefficients and "
-        + "choosing every random value with equal probability, prevents one share from narrowing down s.",
+      introGraphReading: "The horizontal axis x₁ shows candidates for the secret s, and the vertical axis x₂ shows candidates for the "
+        + "random value r. Each point is a pair (s,r) satisfying this share's equation.",
+      introColumnsFull: "Each of the {p} columns, from 0 to {max}, contains one point. Every value of s still has a candidate, so "
+        + "this single share rules out no secret value.",
+      introColumnsOther: "Read the candidates for s from the vertical columns that still contain points. Several points in one column "
+        + "still represent only one possible value of s.",
+      introColumnsProbability: "When each s has exactly one matching r, choosing r independently and uniformly from its full range leaves "
+        + "the probabilities of the possible secrets unchanged after receiving the share. This does not mean that s "
+        + "itself is chosen uniformly.",
+      pitBCountReading: "The “Whole-point candidates” column counts the possible X values satisfying the equations. The "
+        + "“First-coordinate candidates” column counts the distinct s values among them. Several points with the same s"
+        + " count as just one secret candidate.",
+      pitBCountK3: "This fixed k=3 example uses GF(11). With no shares, there are 11×11×11=1331 points and 11 values of s. One "
+        + "share leaves 121 points and two leave 11, while every s from 0–10 remains possible. Three shares determine "
+        + "one point and one s.",
+      pitBSliceReading: "Each tile assumes one value of s and shows the remaining (x₂,x₃) candidates. Adding the points across all "
+        + "tiles gives the whole-point count. Counting the nonempty tiles gives the number of possible s values.",
+      pitBSliceStatus: "There are {points} points remaining in total. Of the {p} tiles, {secrets} contain points, so there are also "
+        + "{secrets} possible values of the secret s.",
+      k3RealIntro: "Start with the real-number 3D view to see how planes intersect. It introduces the shapes. Count the actual "
+        + "candidates in the slices below, which use modular equations.",
+      k3SliceReading: "Assuming one value of s leaves two coordinates, x₂ and x₃. A plot of these two coordinates is called a "
+        + "slice. If a tile contains a point, its s remains consistent with the collected shares.",
+      k3SliceChoice: "Select a tile to display its slice at a larger size below. This compares candidates without changing the "
+        + "secret or the distributed shares.",
+      dimensions: "Planes (k=3)",
+      dimensionsIntro: "For k=3, the dealer forms X=(s,x₂,x₃) from the secret s and two random values. Each share is an equation for"
+        + " a plane through this point. With correctly generated shares, any three or more recover the secret. Open "
+        + "More in the dealer settings below to try k=4 or 5.",
+      dimensionsCurrent: "Current experiment: GF({p}), k={k}, n={n}.",
+      learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Open “Planes (k=3)” to work with "
+        + "three coordinates. Continue to “Compare with Shamir secret sharing” and then “Pitfalls”.",
+      primerRoles: "This example has a dealer who holds the secret, creates the shares and distributes them to four recipients.",
+      primerRandom: "The dealer holds the secret s=5 and independently chooses r uniformly from 0–12. This fixed example uses "
+        + "r=8.",
       exploreInstruction: "Press a share button to add or remove its equation. Increase the count one at a time and see how the points satisfying "
         + "every equation change. A number on a plotted point counts the equations that meet there.",
       editIntro: "Change the right-hand value c by ±1 or edit coefficient b to try an altered equation. Only the experimental copy changes; the "
@@ -724,10 +812,11 @@
       termHyperplaneName: "Hyperplane",
       termHyperplaneDefinition: "The points satisfying one linear equation: a line in two coordinates or a plane in three. Over a finite field, these "
         + "are discrete points.",
-      compareBasics: "For example, Shamir’s scheme uses f(x)=s+a₁x. The secret s is its value at x=0, and a₁ is random. Each recipient gets one share: "
-        + "a nonzero index i together with f(i).",
-      compareRandomRoles: "Here a₁ and a₂ are random values and become the second and third coordinates of X. Their role differs from coefficients a,b "
-        + "in the equations distributed in the previous tab.",
+      compareBasics: "For example, Shamir’s scheme uses f(x)=s+a₁x. The secret s is f(0), and a₁ is random. Each recipient gets "
+        + "one share: a nonzero index i and the calculated value f(i), written (i,f(i)).",
+      compareRandomRoles: "The value f(i) mixes the secret s with the random value a₁. Neither s nor a₁ is given out directly. In "
+        + "“Intersections”, a,b are coefficients of the distributed equations; they have a different role from this "
+        + "random a₁.",
       compareCandidateMeaning: "A candidate is a secret and random values consistent with the shares known to the observer and the selected generation "
         + "rule. The dealer’s answer is shown separately for reference. Selecting candidates does not change the shares.",
       compareK2Task: "The observer knows only share (1,9). Step through candidates to see that different values of s still give equations with f(1)=9.",
@@ -777,8 +866,7 @@
         + "values.",
       candidateInverse: "Since {b}×{inverse}≡1 (mod {p}), multiply by {inverse} instead of dividing by {b}.",
       candidateTry3: "This slice assumes s={s}. It is a trial value, not an entered answer, and the distributed values do not change.",
-      sliceIntro: "Each tile fixes one value of s and shows the remaining (x₂,x₃) candidates. If all {p} tiles contain a point, no value of s can be "
-        + "ruled out.",
+      sliceIntro: "If all {p} tiles contain a point, no value of s can be ruled out.",
       sliceCurrent: "The current slice is s={s}, containing {count} points satisfying the conditions.",
       sliceRecoveredElsewhere: "You are viewing the s={s} slice. The recovered point is in the different slice s={recovered}.",
       goRecoveredSlice: "Go to recovered slice s={s}",
@@ -792,7 +880,7 @@
       matrixRemaining: "The point is not uniquely determined. There are {points} candidate points and {secrets} candidates for first coordinate s.",
       matrixEmpty: "Select shares to put their equations in the table and follow the calculation.",
       matrixNoSolution: "A row says that zero equals a nonzero value. These equations have no solution.",
-      introCurrentExample: "Current graph: GF({p}), k={k}, n={n}. Distributed share #1 is {equation}.",
+      introCurrentExample: "Current graph: GF({p}), k={k}, n={n}. The recipient has share #1={share}, which specifies {equation}.",
       coefficients: "Coefficient vector",
       compareKnownShares: "The observer in this experiment knows only {count} shares: {values}",
       compareAllShares: "All shares from the dealer, for reference: {values}",
@@ -821,7 +909,7 @@
       close: "Close",
       tablist: "Learning steps",
       intersections: "Intersections",
-      compare: "Compare with Shamir",
+      compare: "Compare with Shamir secret sharing",
       pitfalls: "Pitfalls",
       source: "Source code",
       educational: "For learning. Do not enter real secrets (passwords, seeds or keys).",
@@ -833,17 +921,18 @@
         + " any set of at least k shares recovers the secret s.",
       thresholdSummary: "Current settings: GF({p}), minimum k={k} shares needed for recovery, n={n} shares distributed.",
       primerTitle: "Initial fixed example: (k,n)=(2,4)",
-      primerPeople: "Give one share to each of four people. Any two recover the first coordinate s of X; one share leaves all 13 "
-        + "candidates for s.",
-      primerPoint: "Combine the secret s and a random value r into X=(s,r). A share is one equation describing a line through that point.",
-      primerEquationDefinition: "With a common modulus p, choose a,b and compute c=a s+b r (mod p). Giving each person a,b and c is equivalent to "
-        + "giving them one equation.",
+      primerPeople: "Any two or more recipients can combine their equations to determine X=(5,8). Its first coordinate is the "
+        + "secret, s=5. One share alone leaves all 13 candidates for s.",
+      primerPoint: "The dealer places the secret and random value in the coordinates of X=(s,r)=(5,8). This point will be the "
+        + "common intersection of the four lines.",
+      primerEquationDefinition: "The dealer chooses coefficients a,b so that any two shares recover the secret and one share does not narrow "
+        + "it. Computing c=a s+b r (mod p) gives one equation. Here p=13.",
       primerField: "GF(13) uses 0–12 and reduces results to their remainder modulo 13. For example, 12+2≡1 (mod 13).",
       primerDistribution: "Four equations for four people (initial fixed example)",
       primerShare: "Share given",
       initialExample: "Default example (hand-picked values): GF(13), k=2, n=4.",
-      compareIntro: "See why the known shares leave every secret possible, using both Shamir equations and Blakley points. The comparison reads the "
-        + "same shares in two ways.",
+      compareIntro: "In this comparison, Shamir shares are rewritten as Blakley line or plane equations. The two representations "
+        + "show which secret candidates remain when too few shares are known.",
       pitfallsIntro: "Change the required conditions one at a time to see what information is revealed and where a recovery routine can go wrong. Try "
         + "each card, then read its results and explanation.",
       helpIntro: "Switch tabs with Left, Right, Home and End. Close help with Esc.",
@@ -1089,7 +1178,7 @@
       comparePolynomialHeading: "Candidate polynomial",
       compareChooseRow: "Select the row for secret candidate s={s}",
       compareZeroTopBadge: "a₂=0: linear polynomial 1+10x",
-      compareK2Candidate: "Point {point} ↔ {polynomial}. Its value at x=1 is {value}.",
+      compareK2Candidate: "Point X={point} ↔ {polynomial} (f(1)={value})",
       compareShares: "Shamir shares: {values}",
       compareRestrictedCount: "{count} candidates remain. s=1 (a₂=0) and s=12 (a₁=0) are excluded.",
       compareCompleteCount: "All {count} secret candidates have exactly one corresponding point and polynomial.",
@@ -1106,14 +1195,16 @@
       compareShamirObject: "Shares are points; candidates are polynomials",
       compareBlakleyObject: "Shares are planes; candidates are points",
       compareK2Title: "① k=2: 13 candidate lines become 13 points",
-      compareK2Intro: "For k=2, use f(x)=s+a₁x. Choosing s and a₁ determines one equation; the same pair can also be represented as point X=(s,a₁).",
+      compareK2Intro: "For k=2, use f(x)=s+a₁x. Arrange the coefficients s,a₁ as coordinates to define X=(s,a₁). This differs from "
+        + "a point (i,f(i)) on the polynomial graph.",
       comparePrevious: "Select the previous candidate",
       compareNext: "Select the next candidate",
       compareK2Graph: "Thirteen points (s,a₁) consistent with one share",
-      compareK2Correspondence: "The 13 candidate lines through share (1,9) correspond one to one to the 13 points (s,9−s) on s+a₁≡9.",
+      compareK2Correspondence: "“The 13 candidate lines through share (1,9)” correspond one to one to “the 13 points (s,9−s) satisfying "
+        + "s+a₁≡9”.",
       compareK3Title: "② k=3: polynomial coefficients become a point",
-      compareK3Intro: "For k=3, use f(x)=s+a₁x+a₂x². The coefficient a₂ multiplying x² is also random. Read the three coefficients as point "
-        + "X=(s,a₁,a₂).",
+      compareK3Intro: "For k=3, use f(x)=s+a₁x+a₂x², where a₁,a₂ are random. Arrange the three coefficients as coordinates to "
+        + "define X=(s,a₁,a₂). By this definition, a₁,a₂ are its second and third coordinates.",
       compareVandermonde: "Substituting index i gives the plane equation s+i a₁+i² a₂≡f(i). Its coefficients (1,i,i²) form a Vandermonde row. This "
         + "construction satisfies checks (i) and (ii).",
       compareNonzero: "Restrict random coordinates to nonzero values",

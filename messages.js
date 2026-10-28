@@ -6,6 +6,19 @@
   'use strict';
   return {
     ja: {
+      primerCoefficientOrigin: "この固定例では、係数(a,b)を#1:(1,3)、#2:(2,5)、#3:(4,2)、#4:(5,1)と決めています。#1などはシェアの識別番号で、aやbを計算するための数ではありません。",
+      primerCoefficientChoice: "#1のb=3は、次の2条件を4組全体で満たすように、あらかじめ選んだ値です。3だけが正解というわけではありません。ここではk=2、法p=13の場合を説明します。",
+      primerCoefficientPrivacy: "各組のbを0以外にする：どの秘密候補sにも、式を満たすrが1個ずつ残ります。rを秘密とは独立に0〜12から同じ確率で選ぶことで、1枚からsを絞れなくなります。",
+      primerCoefficientRecovery: "どの2組も、一方に同じ数を掛けただけの組にしない：13で割った余りで比べます。こうすると2本の式が異なる条件になり、両方を満たす点が1つに決まります。",
+      primerCoefficientDetails: "係数の選び方を具体例と式で確かめる",
+      primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。X=(5,8)から右辺を計算するとc=6で、式は2x₁+6x₂≡6 (mod "
+        + "13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。",
+      primerCoefficientAccept: "実際の#2は(2,5)です。#1を2倍すると(2,6)なので一致しません。式でも、#1を2倍した式から#2の式2x₁+5x₂≡11を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
+      primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
+        + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
+      primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。このツールの「乱数＋検査」は、条件を満たす候補から1組ずつランダムに選びます。「ヴァンデルモンド」では、k=2なら0以外の異なる番号iに対して(a,b)=(1,i)と決めます。たとえ"
+        + "ばi=1,2,3,4なら(1,1),(1,2),(1,3),(1,4)となり、同じ2条件を満たします。",
+      primerCoefficientIndependence: "係数は秘密や乱数の値に依存させずに決め、公開したり使い回したりできます。一方、乱数rは秘密を分け直すたびに、秘密とは独立に全範囲から同じ確率で選び直します。係数を固定することと、乱数rを固定することは別です。",
       comparePublicCoefficients: "一般の番号iでは、シェア(i,f(i))からx₁+i x₂+i²x₃≡f(i) (mod "
         + "13)という式がわかります。この比較では係数(1,i,i²)を番号iから計算できるため、シェア(i,f(i))から平面の式を組み立てられます。",
       compareK3ShareMeaning: "シェア(2,8)はf(2)=8という情報です。式にx=2を代入するとs+2a₁+4a₂≡8 (mod 13)になります。Xの座標で書けばx₁+2x₂+4x₃≡8 (mod 13)で、点Xを通る平面の式です。",
@@ -20,7 +33,7 @@
       primerDelivery: "ディーラーは各人に、その人用のa,b,cの組を1枚のシェアとして渡します。全員が法p=13を知っていれば、この3つの数から式を組み立てられます。秘密sや乱数r、点Xの座標は渡しません。",
       primerDistributeTitle: "③ 配る人がシェアを渡す",
       primerEquationExample: "#1ではa=1,b=3を使います。秘密と乱数を混ぜた1×5+3×8=29を13で割り、その余りc=3を求めます。シェアの中身は(a,b,c)=(1,3,3)です。",
-      primerMixedValue: "シェアには、秘密sと乱数rを混ぜて計算した値cを入れます。a,bは混ぜるときに掛ける係数で、受取人ごとに変えます。",
+      primerMixedValue: "シェアには、秘密sと乱数rを混ぜて計算した値cを入れます。a,bは混ぜるときに掛ける係数で、受取人ごとに係数の組を変えます。",
       primerBuildTitle: "② 配る人が各人の式を作る",
       primerPrepareTitle: "① 配る人が秘密と乱数を用意する",
       secretSharingDefinition: "秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。",
@@ -49,7 +62,7 @@
       coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。",
       randomnessPlain: "秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。",
       checkPlain: "(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。",
-      methodIntro: "「乱数＋検査」は係数を引いて条件を調べ、不合格なら引き直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。",
+      methodIntro: "「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。",
       helpLearningTitle: "初めて読むとき",
       helpLearningRoute: "最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。",
       helpTerms: "この教材の用語",
@@ -151,7 +164,7 @@
       primerTitle: "最初の固定例：(k,n)=(2,4)",
       primerPeople: "受取人が任意の2枚以上を持ち寄ると、式をすべて満たす点X=(5,8)が求まります。その第1座標が秘密s=5です。1枚だけではsの13候補がすべて残ります。",
       primerPoint: "ディーラーは秘密と乱数を座標として並べ、点X=(s,r)=(5,8)を作ります。この点が、これから作る4本の直線に共通する交点になります。",
-      primerEquationDefinition: "ディーラーは、どの2枚からも復元でき、1枚では秘密を絞れない係数a,bを選びます。c=a s+b r (mod p)を計算して1本の式を作ります。この例ではp=13です。",
+      primerEquationDefinition: "ディーラーは、秘密sや乱数rの値を見ずに、条件を満たす係数a,bを選びます。その後、c=a s+b r (mod p)を計算して1本の式を作ります。この例ではp=13です。",
       primerField: "GF(13)では0〜12を使い、計算結果を13で割った余りにします。たとえば12+2≡1 (mod 13)です。",
       primerDistribution: "4人に配る4本の式（最初の固定例）",
       primerShare: "配るシェア",
@@ -702,6 +715,29 @@
       lesson10Day125: "Day125 Overlay QR Shares",
     },
     en: {
+      primerCoefficientOrigin: "This fixed example uses coefficient pairs #1:(1,3), #2:(2,5), #3:(4,2), and #4:(5,1). Labels such as #1 "
+        + "identify shares; they are not inputs used to calculate a or b.",
+      primerCoefficientChoice: "For #1, b=3 is a preselected value that lets the four pairs satisfy both conditions below. It is not the only "
+        + "possible choice. These conditions describe k=2 with modulus p=13.",
+      primerCoefficientPrivacy: "Keep b nonzero in every pair: each possible secret s has exactly one r satisfying the equation. Choosing r "
+        + "independently of the secret, with equal probability over 0–12, prevents one share from narrowing down s.",
+      primerCoefficientRecovery: "Keep every two pairs from being multiples of each other: compare the results modulo 13. The two equations then"
+        + " impose independent conditions, so exactly one point satisfies both.",
+      primerCoefficientDetails: "Check coefficient choices with examples and a formula",
+      primerCoefficientReject: "After choosing (1,3) for #1, choosing (2,6) would just double that pair. Computing the right-hand value from "
+        + "X=(5,8) gives c=6, hence 2x₁+6x₂≡6 (mod 13). This doubles the entire #1 equation, so collecting both shares "
+        + "adds no new constraint.",
+      primerCoefficientAccept: "The actual #2 pair is (2,5), which differs from twice #1, (2,6). Subtracting the #2 equation 2x₁+5x₂≡11 from "
+        + "twice the #1 equation gives x₂≡6−11≡8 (mod 13), then x₁=5.",
+      primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
+        + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
+        + "this check.",
+      primerCoefficientMethods: "Coefficients need not be random. This tool’s “Randomness + checks” chooses each pair randomly from candidates "
+        + "meeting the conditions. For k=2, “Vandermonde” uses (a,b)=(1,i) for distinct nonzero indices i. Indices "
+        + "1,2,3,4 give (1,1),(1,2),(1,3),(1,4), satisfying the same two conditions.",
+      primerCoefficientIndependence: "Choose coefficients without depending on the secret or random coordinates; they may be public and reused. Each"
+        + " new sharing still needs a fresh r, chosen independently of the secret and uniformly over the entire field. "
+        + "Fixed coefficients do not mean a fixed r.",
       comparePublicCoefficients: "For a general index i, share (i,f(i)) gives x₁+i x₂+i²x₃≡f(i) (mod 13). In this comparison, the coefficients"
         + " (1,i,i²) can be calculated from i, so the share (i,f(i)) specifies the plane equation.",
       compareK3ShareMeaning: "Share (2,8) means f(2)=8. Substituting x=2 gives s+2a₁+4a₂≡8 (mod 13). In the coordinates of X this is "
@@ -727,7 +763,7 @@
       primerEquationExample: "For #1, a=1 and b=3 give 1×5+3×8=29. Dividing 29 by 13 leaves the remainder c=3. The share contains "
         + "(a,b,c)=(1,3,3).",
       primerMixedValue: "A share includes c, a value calculated by mixing the secret s with the random value r. The multipliers a,b "
-        + "differ for each recipient.",
+        + "form a different coefficient pair for each recipient.",
       primerBuildTitle: "2. The dealer creates an equation for each recipient",
       primerPrepareTitle: "1. The dealer prepares a secret and a random value",
       secretSharingDefinition: "Secret sharing creates several shares from a secret and recovers it when enough shares are collected. In this "
@@ -782,8 +818,9 @@
         + "earlier values can reveal information.",
       checkPlain: "Check (i) asks whether any k equations determine one point. Check (ii) tests the coefficients needed to keep k−1 shares from "
         + "narrowing s. Uniform randomness over the whole field is also required.",
-      methodIntro: "“Random sampling + checks” retries coefficient sets that fail the conditions. “Vandermonde” derives coefficients from share "
-        + "indices using a fixed rule. Both choose the random coordinates of X separately.",
+      methodIntro: "“Randomness + checks” chooses coefficient rows one at a time from eligible candidates and restarts if none "
+        + "remain. “Vandermonde” derives coefficients from share indices. Both choose the random coordinates of X "
+        + "separately.",
       helpLearningTitle: "Where to start",
       helpLearningRoute: "Start in “Follow intersections”: one share leaves candidates, and enough shares determine one point. Use the glossary below "
         + "for terms and the page’s opening mathematical background for the arithmetic.",
@@ -925,8 +962,8 @@
         + "secret, s=5. One share alone leaves all 13 candidates for s.",
       primerPoint: "The dealer places the secret and random value in the coordinates of X=(s,r)=(5,8). This point will be the "
         + "common intersection of the four lines.",
-      primerEquationDefinition: "The dealer chooses coefficients a,b so that any two shares recover the secret and one share does not narrow "
-        + "it. Computing c=a s+b r (mod p) gives one equation. Here p=13.",
+      primerEquationDefinition: "The dealer chooses coefficients a,b meeting the conditions, without using the values of s or r. Then c=a s+b r"
+        + " (mod p) gives one equation. Here p=13.",
       primerField: "GF(13) uses 0–12 and reduces results to their remainder modulo 13. For example, 12+2≡1 (mod 13).",
       primerDistribution: "Four equations for four people (initial fixed example)",
       primerShare: "Share given",

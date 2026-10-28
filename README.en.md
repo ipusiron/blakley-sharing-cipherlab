@@ -126,6 +126,8 @@ Keyboard users can read the values through “View the figure as a table”. Tou
 | #4 | (5,1) | 7 | 33 |
 
 The dealer settings contain the answer and generation controls. Changing p, n or s regenerates the shares.
+Each row of the distribution table shows the share given to one recipient: the coefficients in order, followed by the right-hand value c. The modulus p is shared by everyone.
+If reducing p puts s or n outside the supported range, a message explains the adjustment and gives both the old and new values.
 “Generate with fresh randomness” keeps s and rebuilds the coefficients and random coordinates. Manual entry does not establish uniform random sampling.
 Normal checks examine every relevant subset. Check (i) covers recovery with k shares; check (ii) tests the coefficients needed to protect s with k−1, under the randomness assumptions.
 Open the collapsible details to read the equations and checks.
@@ -151,7 +153,8 @@ Adding #3 leaves only `(x₂,x₃)=(2,9)` in the `s=7` slice.
 The real-number 3D view is an introduction. It follows the same s selection as the finite-field slices, but intersection coordinates can differ.
 Read finite-field candidate counts from the GF(p) slices and tables. The real view uses integer right-hand values.
 Changing plane visibility does not change how many shares are used in calculations.
-Each slice tile fixes s and shows the remaining coordinates. If the recovered s differs from the slice being viewed, use the button to go to the recovered slice.
+Each slice tile fixes s and shows only common candidates. The large graph also plots points from individual equations, so points may remain there when a tile says “No points”.
+With two or more shares selected, double circles and the overlap count identify candidates common to all equations. If the recovered s differs from the slice being viewed, use the button to go to the recovered slice.
 
 ### Compare with Shamir secret sharing
 

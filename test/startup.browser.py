@@ -78,14 +78,7 @@ async def child_disabled(page):
     check(await page.locator('#shift-plus').is_disabled(),'zero shares keeps edit disabled')
     await page.locator('#pick-0').click()
     check(not await page.locator('#shift-plus').is_disabled(),'selecting a share enables editing')
-    await page.locator('#dealer>summary').click()
-    await page.locator('#advanced>summary').click()
-    await page.locator('summary[data-i18n="higherDimensions"]').click()
-    await page.locator('#k4').click()
-    check(await page.locator('#matrix-prev').is_disabled(),'initial matrix previous keeps its own disabled state')
-    check(not await page.locator('#matrix-next').is_disabled(),'matrix next is usable after startup')
-    await page.locator('#matrix-next').click()
-    check(not await page.locator('#matrix-prev').is_disabled(),'matrix previous updates after advancing')
+
 
 async def run_case(pw,url,spec,out):
     browser=await getattr(pw,spec['browser']).launch()

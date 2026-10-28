@@ -39,7 +39,7 @@
     <fieldset id="startup-controls" class="startup-control-group" disabled aria-label="教材 / Learning tool">
     <nav class="tabs" role="tablist" data-label="tablist" aria-label="学ぶ順番">
       <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
-        aria-selected="true" tabindex="0" data-i18n="intersections">交点で追う</button>
+        aria-selected="true" tabindex="0" data-i18n="intersections">交点で追う（k=2）</button>
       <button id="tab-dimensions" role="tab" type="button" aria-controls="panel-dimensions"
         aria-selected="false" tabindex="-1" data-i18n="dimensions">平面で追う（k=3）</button>
       <button id="tab-compare" role="tab" type="button" aria-controls="panel-compare"
@@ -48,7 +48,7 @@
         aria-selected="false" tabindex="-1" data-i18n="pitfalls">確かめる</button>
     </nav>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
-      <h2 data-i18n="intersections">交点で追う</h2>
+      <h2 data-i18n="intersections">交点で追う（k=2）</h2>
       <details id="math-primer" class="math-primer">
         <summary data-i18n="mathPrimer">知っておくべき数学的概念</summary>
         <section id="real-story" class="stage-card">
@@ -114,7 +114,8 @@
             <p data-i18n="primerCoefficientReject">たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。X=(5,8)から右辺を計算するとc=6で、式は2x₁+6x₂≡6 (mod 13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。</p>
             <p data-i18n="primerCoefficientAccept">実際の#2は(2,5)です。#1を2倍すると(2,6)なので一致しません。式でも、#1を2倍した式から#2の式2x₁+5x₂≡11を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。</p>
             <p data-i18n="primerCoefficientFormula">一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod 13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。</p>
-            <p data-i18n="primerCoefficientMethods">係数をランダムに選ぶ必要はありません。このツールの「乱数＋検査」は、条件を満たす候補から1組ずつランダムに選びます。「ヴァンデルモンド」では、k=2なら0以外の異なる番号iに対して(a,b)=(1,i)と決めます。たとえばi=1,2,3,4なら(1,1),(1,2),(1,3),(1,4)となり、同じ2条件を満たします。</p>
+            <p data-i18n="primerCoefficientMethods">係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1,4)となり、同じ2条件を満たします。</p>
+            <p data-i18n="primerVandermondeName">この規則をk=3へ広げると、係数は(1,i,i²)になります。1,i,i²,…を並べた行を集めた表を「ヴァンデルモンド行列」と呼びます。下の設定では、この作り方を「番号から作る（ヴァンデルモンド）」として選べます。</p>
             <p data-i18n="primerCoefficientIndependence">係数は秘密や乱数の値に依存させずに決め、公開したり使い回したりできます。一方、乱数rは秘密を分け直すたびに、秘密とは独立に全範囲から同じ確率で選び直します。係数を固定することと、乱数rを固定することは別です。</p>
           </details>
           <p data-i18n="primerEquationExample">#1ではa=1,b=3を使います。秘密と乱数を混ぜた1×5+3×8=29を13で割り、その余りc=3を求めます。シェアの中身は(a,b,c)=(1,3,3)です。</p>
@@ -202,10 +203,8 @@
           <p id="edit-warning" class="danger-text" role="status"></p>
         </details>
       </section>
-      <section class="stage-card">
+      <section id="dimension-stage" class="stage-card" hidden>
         <h3 id="dimension-title" hidden>k=3では、直線が平面になる</h3><p id="dimension-intro" hidden>k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>
-        <div class="actions"><button id="k2-start" type="button" data-i18n="back2">k=2の既定の例</button>
-          <button id="k3-start" type="button" data-i18n="start3">k=3の切り口を見る</button></div>
         <div id="view-3d" hidden>
           <h3 data-i18n="real3d">実数の導入図</h3>
           <p id="k3-real-intro" data-i18n="k3RealIntro">まず、実数の3D図で平面の交わり方を見ます。これは形をつかむための導入図です。実際の候補は、合同式を使う下の切り口で数えます。</p>
@@ -248,7 +247,7 @@
         </div>
       </section>
       <details id="dealer"><summary data-i18n="dealer">ディーラーの設定・計算・配布（答えを含む）</summary>
-        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。</p>
+        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。</p>
         <p id="example-kind" class="result"></p>
         <div class="settings-grid">
           <label><span data-i18n="primeLabel">計算に使う素数 p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
@@ -256,19 +255,19 @@
           <label><span data-i18n="secretLabel">秘密情報 s</span><input id="secret" type="number" min="0" max="12" value="5"></label>
         </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
         <div class="actions"><button id="generate" type="button" data-i18n="generate">新しい乱数で作る</button>
-          <button id="reset-default" type="button" data-i18n="resetDefault">既定の例に戻す</button></div>
+          <button id="reset-default" type="button" data-i18n="resetDefault">このタブの既定の例に戻す</button></div>
         <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote">手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。</p>
         <p data-i18n="randomnessPlain">秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。</p>
         <p data-i18n="normalName">係数の組を「法線」と呼びます。検査は係数の組だけを見ます。</p>
         <p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p><p data-i18n="reuse">法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。</p>
         <div id="distribution-table"></div>
         <details id="advanced"><summary data-i18n="advanced">詳しく</summary>
-          <p data-i18n="methodIntro">「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。</p>
+          <p data-i18n="methodIntro">係数の作り方を2種類から選べます。「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。</p>
+          <p data-i18n="methodVandermonde">「番号から作る」は、各人に0以外の異なる番号iを割り当て、1,i,i²,…をk個並べて係数にします。k=2なら(1,i)、k=3なら(1,i,i²)です。各人の係数を行として集めた表がヴァンデルモンド行列です。計算はmod pで行います。</p>
+          <p data-i18n="methodRandomCoordinates">どちらの方法でも、点Xの乱数の座標は、係数とは別に選びます。</p>
           <label><span data-i18n="normalMethod">法線の作り方</span><select id="method">
-            <option value="random" data-i18n="randomMethod">乱数＋検査</option><option value="vandermonde" data-i18n="vandermonde">ヴァンデルモンド</option>
+            <option value="random" data-i18n="randomMethod">乱数＋検査</option><option value="vandermonde" data-i18n="vandermonde">番号から作る（ヴァンデルモンド）</option>
           </select></label>
-          <details><summary data-i18n="higherDimensions">もっと大きなk（表だけ）</summary><div class="actions">
-            <button id="k4" type="button">k=4</button><button id="k5" type="button">k=5</button></div></details>
           <h3 data-i18n="checks">係数の組を検査する</h3><p data-i18n="checkPlain">(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。</p>
           <p data-i18n="checkI">検査 (i)：k 本の式で点が1つに決まる</p><p data-i18n="checkII">検査 (ii)：秘密 s を決めると、残りの未知数（x₂…x_k）の式に、いつもちょうど1つの解がある</p><p id="inspection-summary" class="result"></p>
           <details><summary data-i18n="inspectionList">検査の一覧</summary>
@@ -286,7 +285,7 @@
     </section>
     <section id="panel-dimensions" class="panel" role="tabpanel" aria-labelledby="tab-dimensions" hidden>
       <h2 data-i18n="dimensions">平面で追う（k=3）</h2>
-      <p data-i18n="dimensionsIntro">k=3では、配る人が秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。k=4・5の実験は、下のディーラー設定の「詳しく」から開けます。</p>
+      <p data-i18n="dimensionsIntro">このタブではk=3に固定し、秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。</p>
       <p id="dimensions-current" class="threshold-current"></p>
       <div id="dimensions-workbench"></div>
     </section>
@@ -294,7 +293,7 @@
       <h2 data-i18n="compare">Shamirの秘密分散法と比較する</h2>
       <p data-i18n="compareIntro">この比較では、ShamirのシェアをBlakleyの直線や平面の式に書き換えます。シェアが足りないときに、秘密の候補がどう残るかを2つの表し方で確かめます。</p>
       <p data-i18n="compareBasics">Shamir方式では、たとえばf(x)=s+a₁xを作ります。秘密sはf(0)の値、a₁は乱数です。各人には、0以外の番号iと計算値f(i)の組(i,f(i))を1枚のシェアとして渡します。</p>
-      <p data-i18n="compareRandomRoles">f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。</p>
+      <p data-i18n="compareRandomRoles">f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う（k=2）」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。</p>
       <p data-i18n="compareCandidateMeaning">候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。</p>
       <section class="stage-card" aria-labelledby="compare-k2-title">
         <h3 id="compare-k2-title" data-i18n="compareK2Title">① k=2：13本の候補を13個の点へ</h3>
@@ -332,7 +331,7 @@
           <p id="compare-k3-all-shares"></p>
         </details>
         <p id="compare-k3-shares"></p>
-        <p data-i18n="compareVandermonde">番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)はヴァンデルモンドの行で、この構成は検査(i)(ii)を満たします。</p>
+        <p data-i18n="compareVandermonde">番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)を各行に並べた表が、ヴァンデルモンド行列です。この構成は検査(i)(ii)を満たします。</p>
         <label class="choice">
           <input id="compare-nonzero" type="checkbox"><span data-i18n="compareNonzero">乱数の座標を0以外に限る</span>
         </label>
@@ -517,7 +516,7 @@
       <p class="learning-note"><span data-i18n="educational">学習用。本物の秘密（パスワード・シード・鍵）は入れない。</span>
         <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical">実用のバックアップはDay124 Scatter Seedsへ。</a></p>
       <h3 data-i18n="helpLearningTitle">初めて読むとき</h3>
-      <p data-i18n="helpLearningRoute">最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。</p>
+      <p data-i18n="helpLearningRoute">最初は「交点で追う（k=2）」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。</p>
       <p data-i18n="helpIntro">タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。</p>
       <h3 data-i18n="helpTerms">この教材の用語</h3>
       <dl class="beginner-glossary">
@@ -721,7 +720,7 @@
 <p class="reading-guide" data-i18n="lesson5Guide">1枚にいくつの数を入れる必要があるかを比べます。係数を毎回渡すか、番号から決めるかで量が変わります。表の単位は有限体の数1個で、保存容量のバイト数ではありません。</p>
 <p data-i18n="lesson5Polynomial">多項式f(i)＝s+a₁i+…+aₖ₋₁i^(k−1) の係数を点X＝(s,a₁,…,aₖ₋₁) とします。シェアyᵢ＝f(i) は、次の超平面の式になります。</p>
 <p data-i18n="lesson5Equation">(1,i,i²,…,i^(k−1))·X＝yᵢ</p>
-<p data-i18n="lesson5Vandermonde">法線はヴァンデルモンドの行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。</p>
+<p data-i18n="lesson5Vandermonde">法線はヴァンデルモンド行列の1行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。</p>
 <p data-i18n="lesson5Derivation">この式でShamirとBlakleyを対応づけることを明示した一次資料は、今回の調査では見つかっていません。ここはこのツールでの整理です。</p>
 <table class="responsive-table">
 <caption data-i18n="lesson5SizesCaption">m個の体の要素を分けるときの1人ぶんのシェア</caption>

@@ -811,6 +811,7 @@
     const example = effective();
     $('threshold-summary').textContent = t('thresholdSummary', { p: example.p, k: example.k, n: example.n });
     $('dimensions-current').textContent = t('dimensionsCurrent', { p: example.p, k: example.k, n: example.n });
+    $('dimension-stage').hidden = example.k === 2;
     $('dimension-title').hidden = example.k === 2; $('dimension-intro').hidden = example.k === 2;
     $('dimension-title').textContent = t(example.k >= 4 ? 'dimensionTitleHigher' : 'nextDimension', { k: example.k });
     $('dimension-intro').textContent = t(example.k === 2 ? 'dimensionIntroK2' : example.k === 3 ? 'dimensionIntroK3' : 'dimensionIntroHigher', {
@@ -827,7 +828,8 @@
     renderDealer(example);
     if (state.busy) document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = true; });
   }
-  function restore(k) {
+  function restore() {
+    const k = activeExperiment === 'intersections' ? 2 : 3;
     const target = k === 2 ? 'intersections' : 'dimensions';
     changeExperiment(target); state.tab = target;
     state.example = clone(DEFAULTS[k]); state.edits = null; state.kind = 'fixed';
@@ -896,8 +898,7 @@
       if (action) { event.preventDefault(); modify(...action); }
     });
     $('reset-edit').addEventListener('click', () => { state.edits = null; render(); });
-    for (const [id, k] of [['k2-start', 2], ['k3-start', 3], ['k4', 4], ['k5', 5]]) $(id).addEventListener('click', () => restore(k));
-    $('reset-default').addEventListener('click', () => restore(state.example.k));
+    $('reset-default').addEventListener('click', restore);
     $('prime').addEventListener('change', event => regenerate({ p: Number(event.target.value) }));
     $('share-count').addEventListener('change', event => regenerate({ n: Number(event.target.value) }));
     $('method').addEventListener('change', event => { state.method = event.target.value; regenerate(); });

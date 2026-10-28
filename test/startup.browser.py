@@ -6,7 +6,8 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[1]
-FILES=['index.html','style.css','app.js','messages.js','gf-core.js','pitfalls.js','test/vectors.json','test/startup.browser.py']
+FILES=['index.html','style.css','theme-init.js','app.js','messages.js','gf-core.js','pitfalls.js',
+       'test/vectors.json','test/startup.browser.py']
 V=json.loads((ROOT/'test/vectors.json').read_text(encoding='utf-8'))
 def check(value, reason):
     if not value: raise AssertionError(reason)
@@ -27,17 +28,17 @@ new MutationObserver(sample).observe(document,{subtree:true,childList:true,attri
 SNAP=r"""() => ({
  at:performance.now(),readyState:document.readyState,appReady:document.documentElement.dataset.appReady,
  lang:document.documentElement.lang,theme:document.documentElement.dataset.theme||null,
- heading:document.querySelector('#threshold-title').textContent,
- note:document.querySelector('#startup-note').innerText,noteHidden:document.querySelector('#startup-note').hidden,
- toolsDisabled:document.querySelector('#startup-tools').disabled,
- controlsDisabled:document.querySelector('#startup-controls').disabled,
+ heading:document.querySelector('#threshold-title')?.textContent||'',
+ note:document.querySelector('#startup-note')?.innerText||'',noteHidden:document.querySelector('#startup-note')?.hidden,
+ toolsDisabled:document.querySelector('#startup-tools')?.disabled,
+ controlsDisabled:document.querySelector('#startup-controls')?.disabled,
  effectiveDisabled:[...document.querySelectorAll('#startup-tools button,#startup-controls button,#startup-controls input,#startup-controls select')].every(x=>x.matches(':disabled')),
  unnamedButtons:[...document.querySelectorAll('button')].filter(x=>x.getClientRects().length&&!x.closest('[hidden]')&&!x.textContent.trim()&&!x.getAttribute('aria-label')).map(x=>x.id),
  introMarks:document.querySelectorAll('#intro-grid .grid-mark').length,
  mainMarks:document.querySelectorAll('#main-grid .grid-mark').length,
  placeholders:[...document.querySelectorAll('#intro-grid .graph-loading')].map(x=>x.textContent),
- viewBox:document.querySelector('#intro-grid').getAttribute('viewBox'),
- introPoints:document.querySelector('#intro-grid').dataset.points||null,
+ viewBox:document.querySelector('#intro-grid')?.getAttribute('viewBox')||null,
+ introPoints:document.querySelector('#intro-grid')?.dataset.points||null,
  focus:document.activeElement===document.querySelector('#math-primer>summary')?'math-summary':document.activeElement?.id||document.activeElement?.tagName,
  client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,
  paint:performance.getEntriesByType('paint').map(x=>({name:x.name,at:x.startTime})),
@@ -54,7 +55,9 @@ CASES=[
  dict(name='javascript-disabled-ja',browser='chromium',width=320,language='ja',theme='light',disabled=True),
  dict(name='javascript-disabled-en',browser='firefox',width=320,language='en',theme='dark',disabled=True),
  dict(name='storage-denied',browser='chromium',width=320,language='en',locale='ja',theme='dark',storage_denied=True),
- dict(name='query-over-saved',browser='firefox',width=1280,language='ja',locale='en',theme='dark',saved={'language':'en','theme':'light'},hold_app=True,focus_reload=True)]
+ dict(name='query-over-saved',browser='firefox',width=1280,language='ja',locale='en',theme='dark',saved={'language':'en','theme':'light'},hold_app=True,focus_reload=True),
+ dict(name='preference-separation-chromium',browser='chromium',width=320,language='ja',theme='dark',separate_preferences=True),
+ dict(name='preference-separation-firefox',browser='firefox',width=1280,language='en',theme='light',separate_preferences=True)]
 PILOT={'pending-ja-chromium','css-then-app-chromium','missing-app','javascript-disabled-en','storage-denied'}
 
 async def pending_contract(page,s):
@@ -87,6 +90,58 @@ async def child_disabled(page):
     await page.locator('#matrix-next').click()
     check(not await page.locator('#matrix-prev').is_disabled(),'matrix previous updates after advancing')
 
+PREFERENCE_SPY=r"""(() => {
+window.preferenceWrites=[];
+const original=Storage.prototype.setItem;
+Storage.prototype.setItem=function(key,value){
+ if(this===window.localStorage)window.preferenceWrites.push([String(key),String(value)]);
+ return original.call(this,key,value);
+};
+})();"""
+PREFERENCE_STATE=r"""() => ({
+ theme:document.documentElement.dataset.theme,language:document.documentElement.lang,
+ savedTheme:localStorage.getItem('blakley-sharing-cipherlab.theme'),
+ savedLanguage:localStorage.getItem('blakley-sharing-cipherlab.language'),writes:window.preferenceWrites
+})"""
+
+async def preference_separation(page,spec):
+    language=spec['language'];other_language='en' if language=='ja' else 'ja'
+    theme=spec['theme'];other_theme='light' if theme=='dark' else 'dark'
+    language_key='blakley-sharing-cipherlab.language';theme_key='blakley-sharing-cipherlab.theme'
+    states=[]
+    async def sample(stage):
+        value=await page.evaluate(PREFERENCE_STATE);value['stage']=stage;states.append(value);return value
+    initial=await sample('initial')
+    check(initial['writes']==[] and initial['savedTheme'] is None and initial['savedLanguage'] is None,
+          'initial rendering must not persist an implicit preference')
+    await page.locator('#language').click()
+    changed=await sample('language-click')
+    check(changed['language']==other_language and changed['savedLanguage']==other_language,'language button saves its actual choice')
+    check(changed['theme']==theme and changed['savedTheme'] is None,'language action must not pin the implicit OS theme')
+    check(changed['writes']==[[language_key,other_language]],'language action writes only the language key')
+    await page.emulate_media(color_scheme=other_theme)
+    await page.reload(wait_until='load')
+    await page.wait_for_function("() => document.documentElement.dataset.appReady==='true'")
+    reloaded=await sample('new-os-reload')
+    check(reloaded['theme']==other_theme and reloaded['savedTheme'] is None,'unsaved theme follows a changed OS after reload')
+    check(reloaded['language']==language and reloaded['savedLanguage']==other_language,'query priority does not overwrite saved language')
+    check(reloaded['writes']==[],'reload has no persistence side effect')
+    await page.locator('#theme').click()
+    changed=await sample('theme-click')
+    check(changed['theme']==theme and changed['savedTheme']==theme,'theme button saves its actual choice')
+    check(changed['language']==language and changed['savedLanguage']==other_language,'theme action preserves an existing different saved language')
+    check(changed['writes']==[[theme_key,theme]],'theme action writes only the theme key')
+    await page.reload(wait_until='load')
+    await page.wait_for_function("() => document.documentElement.dataset.appReady==='true'")
+    saved=await sample('explicit-theme-reload')
+    check(saved['theme']==theme and saved['savedTheme']==theme,'explicit saved theme overrides the opposite OS')
+    check(saved['savedLanguage']==other_language and saved['writes']==[],'reload retains both keys without rewriting them')
+    await page.locator('#language').click()
+    changed=await sample('language-with-explicit-theme')
+    check(changed['language']==other_language and changed['savedTheme']==theme,'language action retains the explicit saved theme')
+    check(changed['writes']==[[language_key,other_language]],'language action never rewrites the theme key')
+    return states
+
 async def run_case(pw,url,spec,out):
     browser=await getattr(pw,spec['browser']).launch()
     context=await browser.new_context(viewport={'width':spec['width'],'height':900},locale=spec.get('locale',spec['language']),
@@ -96,16 +151,18 @@ async def run_case(pw,url,spec,out):
     page.on('requestfailed',lambda r:requests.append({'url':r.url,'failure':r.failure}))
     page.on('console',lambda m:console.append(m.text) if m.type=='error' else None)
     await page.add_init_script(PROBE)
+    if spec.get('separate_preferences'): await page.add_init_script(PREFERENCE_SPY)
     if spec.get('storage_denied'):
         await page.add_init_script("Storage.prototype.getItem=function(){throw new DOMException('test blocked','SecurityError')};Storage.prototype.setItem=function(){throw new DOMException('test blocked','SecurityError')};")
     if spec.get('saved'):
         await page.add_init_script('for(const [key,value] of Object.entries('+json.dumps(spec['saved'])+'))localStorage.setItem("blakley-sharing-cipherlab."+key,value);')
-    app_gate,css_gate=asyncio.Event(),asyncio.Event()
+    app_gate,css_gate,css_requested=asyncio.Event(),asyncio.Event(),asyncio.Event()
     if spec.get('hold_app'):
         async def hold_app(route): await app_gate.wait();await route.continue_()
         await page.route('**/app.js',hold_app)
     if spec.get('hold_css'):
-        async def hold_css(route): await css_gate.wait();await route.continue_()
+        async def hold_css(route):
+            css_requested.set();await css_gate.wait();await route.continue_()
         await page.route('**/style.css',hold_css)
     if spec.get('fail'):
         async def fail(route): await route.abort('failed')
@@ -124,13 +181,16 @@ async def run_case(pw,url,spec,out):
         result['states'].append(s);return s
     try:
         await page.goto(url+'?lang='+spec['language'],wait_until='commit')
-        await page.wait_for_function("() => !!document.querySelector('#intro-grid')")
         if spec.get('hold_css'):
+            await asyncio.wait_for(css_requested.wait(),10)
             await snap('css-pending');css_gate.set()
             await page.wait_for_function('() => document.styleSheets.length>0')
+        await page.wait_for_function("() => !!document.querySelector('#intro-grid')")
         if spec.get('hold_app'):
             await page.evaluate('() => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
-            await pending_contract(page,await snap('app-pending'))
+            pending=await snap('app-pending');await pending_contract(page,pending)
+            check(pending['theme']==spec.get('saved',{}).get('theme',spec['theme']),
+                  'synchronous theme is applied while the application is still pending')
             await page.locator('#math-primer>summary').focus()
             await page.keyboard.press('Enter')
             check(await page.locator('#math-primer').evaluate('el=>el.open'),'native details opens while app is pending')
@@ -151,6 +211,11 @@ async def run_case(pw,url,spec,out):
             await page.wait_for_function("() => document.documentElement.dataset.appReady==='true'")
             await page.evaluate('() => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
             s=await snap('ready')
+            scripts=await page.locator('head script[src]').evaluate_all('els=>els.map(el=>({src:el.getAttribute("src"),defer:el.defer,async:el.async}))')
+            check([x['src'] for x in scripts]==['theme-init.js','gf-core.js','pitfalls.js','messages.js','app.js'],
+                  'theme initializer precedes the four application dependencies')
+            check(not scripts[0]['defer'] and not scripts[0]['async'] and all(x['defer'] and not x['async'] for x in scripts[1:]),
+                  'theme script is synchronous and the four application scripts stay deferred')
             check(not s['toolsDisabled'] and not s['controlsDisabled'] and s['noteHidden'],'successful render releases startup guards')
             check(s['introMarks']==13 and s['mainMarks']==13 and not s['placeholders'],'first ready view contains both initial diagrams')
             check(json.loads(s['introPoints'])==V['default_k2']['lines'][0],'initial point set matches independent vector')
@@ -161,6 +226,8 @@ async def run_case(pw,url,spec,out):
             check(states and all(x['heading'] and x['intro']==13 and x['main']==13 and x['noteHidden'] and not x['toolsDisabled'] and not x['controlsDisabled'] for x in states),'ready marker never precedes complete rendering')
             check(not await page.evaluate('() => !!document.activeElement.closest("[hidden]")'),'focus never remains in the hidden startup note')
             await child_disabled(page)
+            if spec.get('separate_preferences'):
+                result['preference_separation']=await preference_separation(page,spec)
             if spec.get('storage_denied'):
                 await page.locator('#theme').click();await page.locator('#language').click()
                 check(await page.locator('html').get_attribute('lang')=='ja','language works without preference storage')

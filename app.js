@@ -7,7 +7,6 @@
   };
   const validLanguage = value => ['ja', 'en'].includes(value) ? value : null;
   const queryLanguage = validLanguage(new URLSearchParams(location.search).get('lang'));
-  const savedTheme = stored('theme');
   const DEFAULTS = {
   "2": {
     "p": 13,
@@ -210,8 +209,7 @@
 };
   const state = {
     language: queryLanguage || validLanguage(stored('language')) || (navigator.language.startsWith('ja') ? 'ja' : 'en'),
-    theme: ['light', 'dark'].includes(savedTheme) ? savedTheme
-      : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+    theme: document.documentElement.dataset.theme,
     tab: 'intersections',
     example: { p: 13, k: 2, n: 4, X: [5, 8], A: [[1, 3], [2, 5], [4, 2], [5, 1]], c: [3, 11, 10, 7] },
     selected: [0], candidate: 0, all: false, busy: false, kind: 'fixed', edits: null, method: 'random',
@@ -233,9 +231,13 @@
   const tabs = ['intersections', 'dimensions', 'compare', 'pitfalls'];
   const t = (key, values = {}) => (BlakleyMessages[state.language][key] || key)
     .replace(/\{([a-zA-Z0-9_]+)\}/g, (_, name) => String(values[name] ?? '{' + name + '}'));
-  function save() {
+  function saveLanguage() {
     try {
       localStorage.setItem('blakley-sharing-cipherlab.language', state.language);
+    } catch (_) { /* Preferences are optional. */ }
+  }
+  function saveTheme() {
+    try {
       localStorage.setItem('blakley-sharing-cipherlab.theme', state.theme);
     } catch (_) { /* Preferences are optional. */ }
   }
@@ -271,8 +273,8 @@
       selectTab(tabs[next]); $('tab-' + state.tab).focus();
     });
   });
-  $('theme').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; save(); render(); });
-  $('language').addEventListener('click', () => { state.language = state.language === 'ja' ? 'en' : 'ja'; save(); render(); });
+  $('theme').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; saveTheme(); render(); });
+  $('language').addEventListener('click', () => { state.language = state.language === 'ja' ? 'en' : 'ja'; saveLanguage(); render(); });
   $('help').addEventListener('click', () => { $('help-dialog').showModal(); document.querySelector('.help-body').scrollTop = 0; });
   $('close-help').addEventListener('click', () => $('help-dialog').close());
   $('help-dialog').addEventListener('keydown', event => {

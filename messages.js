@@ -58,7 +58,7 @@
       primerRandom: "ディーラーは秘密s=5を持っています。秘密とは別に、0〜12から同じ確率で乱数rを選びます。この固定例ではr=8です。",
       exploreInstruction: "シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。",
       editIntro: "右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。",
-      dealerIntro: "ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。",
+      dealerIntro: "ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、乱数の座標を選び直します。下には配る側の答えも表示します。",
       shareRecipient: "受取人",
       distributedShare: "渡すシェア（係数と右辺）",
       dealerShareContents: "各行が1人に渡す1枚です。括弧には式の係数を順に並べ、最後に右辺cを入れます。法pは全員で共通です。",
@@ -66,7 +66,8 @@
       adjustedShareCount: "p={p}で、このツールが扱う上限に合わせ、総数nを{before}から{after}へ調整しました。",
       primeLabel: "計算に使う素数 p",
       shareCountLabel: "配る総数 n",
-      coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。",
+      coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。ここで乱数の座標を手入力すると、sと係数を保って各シェアの右辺cを計算し直します。"
+        + "下の配布表でcの変化を比べてください。手入力では、一様な乱数を選んだ保証にはなりません。",
       randomnessPlain: "秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。",
       checkPlain: "(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。",
       methodIntro: "係数の作り方を2種類から選べます。「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。",
@@ -124,7 +125,7 @@
       selectionExtra: "任意の{k}枚の組から求めた結果も、下の表で比べてください。",
       selectionNoSolution: "選んだ式をすべて満たす点がありません。式の条件が食い違っています。",
       selectionEdited: "変更した写しから計算した結果です。元の配布時の秘密と一致する保証はありません。",
-      selectionReset: "「元に戻す」で、編集した写しを元の配布値へ戻せます。",
+      selectionReset: "「すべての写しを元に戻す」で、全シェアの写しを元の配布値へ戻せます。",
       editedOnePoint: "変更した写しの交点X=({point})、計算された値s={s}。元の秘密と一致する保証はありません。",
       candidateColumnCount: "s={s}と仮定した列には、条件を満たす点が{count}個あります。候補を変えても、配布値は変わりません。",
       candidateTry2: "いま試している候補はs={s}です。対応するx₂={x2}を調べます。候補を変えても、配布値は変わりません。",
@@ -218,7 +219,7 @@
       shiftPlus: "右辺c +1（平行移動）",
       directionMinus: "係数b −1（方向を変える）",
       directionPlus: "係数b +1（方向を変える）",
-      undoEdit: "元に戻す",
+      undoEdit: "すべての写しを元に戻す",
       nextDimension: "k=3では、直線が平面になる",
       columnsToSlices: "k=2の列が、k=3では切り口になります。",
       real3d: "実数の導入図",
@@ -271,7 +272,8 @@
       randomExample: "乱数で作った例",
       manualExample: "手で座標を入れた例",
       primeChanged: "k={k}の既定の例（p={p}）に戻しました。",
-      generated: "新しい法線と座標を作りました。やり直しの回数：{attempts}。",
+      generated: "シェアを作り直しました。係数を選ぶ試行回数：{attempts}。",
+      generatedNumbered: "シェアを作り直しました。係数はp・k・nと番号から決まり、同じp・k・nなら変わりません。乱数の座標を選び直しました。",
       working: "計算中…",
       generationFailed: "生成できませんでした。もう一度試してください。",
       invalidCoordinate: "0から{max}までの整数を入れてください。",
@@ -823,8 +825,8 @@
       editIntro: "Change the right-hand value c by ±1 or edit coefficient b to try an altered equation. Only the experimental copy changes; the "
         + "distribution table keeps its values. The result may differ from the original secret.",
       dealerIntro: "This is the share-creation view. The lines tab fixes k at 2 and the planes tab fixes it at 3. Changing p, n or s"
-        + " rebuilds the shares. “Generate with fresh randomness” keeps s and rebuilds the coefficients and random coordina"
-        + "tes. The dealer’s answer is also shown below.",
+        + " rebuilds the shares. “Generate with fresh randomness” keeps s and samples the random coordinates again."
+        + " The dealer’s answer is also shown below.",
       shareRecipient: "Recipient",
       distributedShare: "Share to distribute (coefficients and right-hand value)",
       dealerShareContents: "Each row is one share for one recipient. The tuple lists the equation’s coefficients in order, followed by c. "
@@ -833,8 +835,9 @@
       adjustedShareCount: "To stay within this tool’s limit for p={p}, the total number of shares n was adjusted from {before} to {after}.",
       primeLabel: "Prime modulus p",
       shareCountLabel: "Total shares n",
-      coordinatesIntro: "The first coordinate of X is the secret s; the remaining coordinates are random values. Manual input lets you try a "
-        + "calculation, but does not meet the random-sampling requirement.",
+      coordinatesIntro: "The first coordinate of X is the secret s; the remaining coordinates are random values. Editing a random coordinate "
+        + "keeps s and the coefficients, and recalculates c for every share. Compare the changed c values in the distribution table below. "
+        + "Manual input does not establish uniform random sampling.",
       randomnessPlain: "Each new sharing uses fresh extra numbers, with every value from 0 to p−1 equally likely. Restricting their range or reusing "
         + "earlier values can reveal information.",
       checkPlain: "Check (i) asks whether any k equations determine one point. Check (ii) tests the coefficients needed to keep k−1 shares from "
@@ -922,7 +925,7 @@
       selectionExtra: "Also compare the results from every group of {k} shares in the table below.",
       selectionNoSolution: "No point satisfies every selected equation. The conditions are inconsistent.",
       selectionEdited: "This result uses the altered copies. It is not guaranteed to match the secret used for the original distribution.",
-      selectionReset: "Use “Undo edits” to restore the copies to their originally distributed values.",
+      selectionReset: "Use “Restore all edited copies” to return every share’s copy to its originally distributed value.",
       editedOnePoint: "The altered copies intersect at X=({point}), giving calculated value s={s}. It is not guaranteed to be the original secret.",
       candidateColumnCount: "Assuming s={s}, this column contains {count} points satisfying the conditions. Changing candidates does not change the "
         + "distributed values.",
@@ -1040,7 +1043,7 @@
       shiftPlus: "Right side c +1 (shift)",
       directionMinus: "Coefficient b −1 (change direction)",
       directionPlus: "Coefficient b +1 (change direction)",
-      undoEdit: "Undo edits",
+      undoEdit: "Restore all edited copies",
       nextDimension: "At k=3, lines become planes",
       columnsToSlices: "Columns at k=2 become slices at k=3.",
       real3d: "A real-number introduction",
@@ -1097,7 +1100,9 @@
       randomExample: "Randomly generated example",
       manualExample: "Manually entered coordinates",
       primeChanged: "Restored the default example for k={k} with p={p}.",
-      generated: "Generated fresh normals and coordinates. Attempts: {attempts}.",
+      generated: "Rebuilt the shares. Attempts to choose coefficients: {attempts}.",
+      generatedNumbered: "Rebuilt the shares. The coefficients follow from p, k, n and the recipient indices; the same p, k and n give the same "
+        + "coefficients. The random coordinates have been sampled again.",
       working: "Calculating…",
       generationFailed: "Generation failed. Please try again.",
       invalidCoordinate: "Enter an integer from 0 through {max}.",

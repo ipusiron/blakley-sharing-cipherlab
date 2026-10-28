@@ -239,7 +239,7 @@
       localStorage.setItem('blakley-sharing-cipherlab.theme', state.theme);
     } catch (_) { /* Preferences are optional. */ }
   }
-  function render() {
+  function render(preserveInputDraft = false) {
     const focusId = document.activeElement?.id;
     document.documentElement.lang = state.language;
     document.documentElement.dataset.theme = state.theme;
@@ -256,7 +256,7 @@
     const destination = $(activeExperiment + '-workbench'), workbench = $('workbench');
     if (workbench.parentElement !== destination) destination.append(workbench);
     workbench.dataset.experiment = activeExperiment;
-    renderIntersections();
+    renderIntersections(preserveInputDraft);
     renderPitfalls();
     renderCompare();
     if (focusId && $(focusId)?.getClientRects().length) $(focusId).focus({ preventScroll: true });
@@ -787,10 +787,12 @@
       $('matrix-candidates').append(E('p', t('freeVariable')), holder);
     }
   }
-  function renderDealer(example) {
+  function renderDealer(example, preserveInputDraft = false) {
     const { p, k, n, X, A, c } = state.example;
     $('prime').value = String(p); optionList($('share-count'), Array.from({ length: Math.min(8, p - 1) - k + 1 }, (_, i) => k + i), n);
-    $('secret').max = String(p - 1); $('secret').value = String(X[0]); $('method').value = state.method;
+    $('secret').max = String(p - 1); $('method').value = state.method;
+    if (!preserveInputDraft || document.activeElement !== $('secret')) $('secret').value = String(X[0]);
+    $('failures-only').checked = state.failuresOnly;
     if ($('coordinates').children.length !== k - 1) {
       $('coordinates').replaceChildren(...X.slice(1).map((_, index) => {
         const container = E('label'), input = E('input'); input.id = 'coordinate-' + (index + 1);
@@ -801,7 +803,7 @@
     X.slice(1).forEach((value, index) => {
       const input = $('coordinate-' + (index + 1));
       input.min = '0'; input.max = String(p - 1);
-      if (input.value !== String(value)) input.value = String(value);
+      if ((!preserveInputDraft || document.activeElement !== input) && input.value !== String(value)) input.value = String(value);
     });
     $('example-kind').textContent = t(state.kind === 'fixed' ? 'fixedExample' : state.kind === 'manual' ? 'manualExample' : 'randomExample');
     $('manual-note').hidden = state.kind !== 'manual';
@@ -823,7 +825,7 @@
     const notice = state.notice ? [state.notice, ...(state.notice.adjustments || [])] : [];
     $('status').textContent = state.busy ? t('working') : notice.map(item => t(item.key, item.values)).join(' ');
   }
-  function renderIntersections() {
+  function renderIntersections(preserveInputDraft = false) {
     const example = effective();
     $('threshold-summary').textContent = t('thresholdSummary', { p: example.p, k: example.k, n: example.n });
     $('dimensions-current').textContent = t('dimensionsCurrent', { p: example.p, k: example.k, n: example.n });
@@ -841,7 +843,7 @@
     $('view-3d').hidden = example.k !== 3; $('matrix-view').hidden = example.k < 4;
     if (example.k === 3) renderSlices(example, chosen, point);
     if (example.k >= 4) renderMatrix(example, chosen);
-    renderDealer(example);
+    renderDealer(example, preserveInputDraft);
     if (state.busy) document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = true; });
   }
   function restore() {
@@ -883,7 +885,8 @@
       if (p !== original.p && n !== original.n) {
         adjustments.push({ key: 'adjustedShareCount', values: { p, before: original.n, after: n } });
       }
-      state.notice = { key: 'generated', values: { attempts: normals.attempts }, adjustments };
+      state.notice = { key: state.method === 'vandermonde' ? 'generatedNumbered' : 'generated',
+        values: { attempts: normals.attempts }, adjustments };
     } catch (_) { state.notice = { key: 'generationFailed', values: {} }; }
     finally {
       state.busy = false; document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = false; }); render();
@@ -986,7 +989,7 @@
     for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) $('scene').addEventListener(name, () => { state.drag = null; });
     $('matrix-prev').addEventListener('click', () => { state.matrixStep--; render(); });
     $('matrix-next').addEventListener('click', () => { state.matrixStep++; render(); });
-    window.addEventListener('resize', () => render());
+    window.addEventListener('resize', () => render(true));
   }
 
   const threeDEpsilon = 1e-8;

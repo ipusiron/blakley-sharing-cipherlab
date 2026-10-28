@@ -199,7 +199,7 @@
             <button id="shift-plus" type="button" data-i18n="shiftPlus">右辺c +1（平行移動）</button>
             <button id="direction-minus" type="button" data-i18n="directionMinus">係数b −1（方向を変える）</button>
             <button id="direction-plus" type="button" data-i18n="directionPlus">係数b +1（方向を変える）</button>
-          </div><button id="reset-edit" type="button" data-i18n="undoEdit">元に戻す</button>
+          </div><button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
           <p id="edit-warning" class="danger-text" role="status"></p>
         </details>
       </section>
@@ -248,13 +248,13 @@
         </div>
       </section>
       <details id="dealer"><summary data-i18n="dealer">ディーラーの設定・計算・配布（答えを含む）</summary>
-        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。</p>
+        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、乱数の座標を選び直します。下には配る側の答えも表示します。</p>
         <p id="example-kind" class="result"></p>
         <div class="settings-grid">
           <label><span data-i18n="primeLabel">計算に使う素数 p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
           <label><span data-i18n="shareCountLabel">配る総数 n</span><select id="share-count"></select></label>
           <label><span data-i18n="secretLabel">秘密情報 s</span><input id="secret" type="number" min="0" max="12" value="5"></label>
-        </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
+        </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。ここで乱数の座標を手入力すると、sと係数を保って各シェアの右辺cを計算し直します。下の配布表でcの変化を比べてください。手入力では、一様な乱数を選んだ保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
         <div class="actions"><button id="generate" type="button" data-i18n="generate">新しい乱数で作る</button>
           <button id="reset-default" type="button" data-i18n="resetDefault">このタブの既定の例に戻す</button></div>
         <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote">手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。</p>

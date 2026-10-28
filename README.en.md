@@ -128,14 +128,16 @@ Keyboard users can read the values through “View the figure as a table”. Tou
 The dealer settings contain the answer and generation controls. Changing p, n or s regenerates the shares.
 Each row of the distribution table shows the share given to one recipient: the coefficients in order, followed by the right-hand value c. The modulus p is shared by everyone.
 If reducing p puts s or n outside the supported range, a message explains the adjustment and gives both the old and new values.
-“Generate with fresh randomness” keeps s and rebuilds the coefficients and random coordinates. Manual entry does not establish uniform random sampling.
+“Generate with fresh randomness” keeps s and samples the random coordinates again. “Randomness + checks” also chooses new coefficients and reports the attempt count. With “From indices”, the same p, k and n give the same coefficients.
+Editing a random coordinate keeps s and the coefficients, and recalculates c for every share. Manual entry does not establish uniform random sampling. Resizing the screen preserves the value being typed; calculations update when the input is committed.
+“Restore all edited copies” discards changes to every share’s copy and restores the originally distributed values.
 Normal checks examine every relevant subset. Check (i) covers recovery with k shares; check (ii) tests the coefficients needed to protect s with k−1, under the randomness assumptions.
 Open the collapsible details to read the equations and checks.
 
 ### Planes (k=3)
 
 The “Planes (k=3)” tab extends the experiment to points with three coordinates.
-Switching between it and “Intersections (k=2)” preserves each experiment’s selected shares and candidate. “Restore this tab’s default example” returns the lines tab to k=2 and the planes tab to k=3.
+Switching between it and “Intersections (k=2)” preserves each experiment’s selected shares, candidate and “Failures only” setting. “Restore this tab’s default example” returns the lines tab to k=2 and the planes tab to k=3.
 
 The fixed k=3 example uses GF(11) and `X=(7,2,9)`. Shares #1 and #2 leave one point in each of the 11 secret slices.
 Adding #3 leaves only `(x₂,x₃)=(2,9)` in the `s=7` slice.

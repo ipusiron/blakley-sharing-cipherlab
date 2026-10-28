@@ -206,6 +206,7 @@ def test_tabs(page, width, layouts):
           "plane experiment state is retained")
     check(page.locator("#distribution-table").text_content() == k3_distribution, "plane distribution is retained")
     check(page.locator("#workbench").count() == 1, "one interactive workbench without duplicated controls")
+    test_inspection_filter_tabs(page)
     reset_experiment(page, 2)
     default = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))["default_k2"]
     threshold_settings(page, 2, len(default["A"]))
@@ -214,6 +215,37 @@ def test_tabs(page, width, layouts):
     check(selected_indices(page) == [0], "line reset restores its first selected share")
     check(sorted_points(point_data(page, "main-grid")) == sorted_points(default["lines"][0]), "line reset restores its exact points")
     check(not page.locator("#dimension-stage").is_visible(), "line reset keeps the entire dimension stage hidden")
+
+
+def test_inspection_filter_tabs(page):
+    full = {}
+    for dimension, tab in ((2, "intersections"), (3, "dimensions")):
+        reset_experiment(page, dimension)
+        open_ancestors(page.locator("#failures-only"))
+        page.locator("#failures-only").uncheck()
+        full[tab] = table_rows(page, "inspection-list")
+        check(bool(full[tab]), "default passing inspections are present before filtering")
+    page.locator("#tab-intersections").click()
+    page.locator("#failures-only").check()
+    check(not table_rows(page, "inspection-list"), "line failures filter hides all passing rows")
+    page.locator("#tab-dimensions").click()
+    check(not page.locator("#failures-only").is_checked(), "plane filter retains its independent unchecked state")
+    check(table_rows(page, "inspection-list") == full["dimensions"], "unchecked plane filter displays its full inspection table")
+    page.locator("#failures-only").check()
+    check(not table_rows(page, "inspection-list"), "plane failures filter hides all passing rows")
+    page.locator("#tab-intersections").click()
+    check(page.locator("#failures-only").is_checked() and not table_rows(page, "inspection-list"),
+          "returning to lines restores both checked state and filtered rows")
+    page.locator("#failures-only").uncheck()
+    check(table_rows(page, "inspection-list") == full["intersections"], "unchecking line filter restores its full table")
+    page.locator("#tab-dimensions").click()
+    check(page.locator("#failures-only").is_checked() and not table_rows(page, "inspection-list"),
+          "changing line filter does not change the plane filter")
+    page.locator("#failures-only").uncheck()
+    check(table_rows(page, "inspection-list") == full["dimensions"], "unchecking plane filter restores its full table")
+    page.locator("#tab-intersections").click()
+    check(not page.locator("#failures-only").is_checked() and table_rows(page, "inspection-list") == full["intersections"],
+          "returning to lines restores both unchecked state and full rows")
 
 
 def test_help(page, width, layouts, screenshot):
@@ -1115,6 +1147,65 @@ def test_generation_focus(page):
         page.evaluate("() => {window.setTimeout=window.__qaOriginalTimeout;delete window.__qaOriginalTimeout;delete window.__qaHeldGeneration;}")
 
 
+def test_resize_input_drafts(page, vectors):
+    default = vectors["default_k2"]
+    viewport = dict(page.viewport_size)
+    page.evaluate("""() => {
+      window.__qaDraftResizeCount = 0;
+      window.__qaDraftResizeListener = () => { window.__qaDraftResizeCount++; };
+      window.addEventListener('resize', window.__qaDraftResizeListener);
+    }""")
+    try:
+        for selector, index in (("#secret", 0), ("#coordinate-1", 1)):
+            original = default["X"][index]
+            for draft in (str((original + 1) % default["p"]), "-", "1e"):
+                reset_experiment(page, 2)
+                show_details(page, "dealer")
+                field = page.locator(selector)
+                before = page.locator("#distribution-table").text_content()
+                field.fill("")
+                field.press_sequentially(draft)
+                element = field.element_handle()
+                input_state = field.evaluate("el => ({value:el.value,bad:el.validity.badInput})")
+                check(input_state["bad"] == (draft in ("-", "1e")), ("native unfinished number state", selector, draft, input_state))
+                count = page.evaluate("() => window.__qaDraftResizeCount")
+                page.set_viewport_size({**viewport, "width": viewport["width"] + 16})
+                page.wait_for_function("count => window.__qaDraftResizeCount > count", arg=count)
+                check(element.evaluate("el => el === document.activeElement && el.isConnected"), "resize retains the actual focused input node")
+                check(field.evaluate("el => ({value:el.value,bad:el.validity.badInput})") == input_state,
+                      ("resize preserves valid and incomplete number drafts", selector, draft))
+                check(page.locator("#distribution-table").text_content() == before, "uncommitted drafts leave distributed shares unchanged")
+                count = page.evaluate("() => window.__qaDraftResizeCount")
+                page.set_viewport_size(viewport)
+                page.wait_for_function("count => window.__qaDraftResizeCount > count", arg=count)
+                if draft in ("-", "1e"):
+                    field.press_sequentially("1")
+                    expected = -1 if draft == "-" else 10
+                    check(field.evaluate("el => el.valueAsNumber") == expected, "continued typing retains native incomplete-number text")
+                else:
+                    expected = int(draft)
+                field.press("Tab")
+                page.wait_for_function("() => !document.querySelector('#generate').disabled")
+                if expected < 0:
+                    check(field.input_value() == str(original), "confirmed invalid draft restores the last valid number")
+                    check(page.locator("#distribution-table").text_content() == before, "invalid confirmed draft leaves shares unchanged")
+                    check(bool(page.locator("#status").inner_text()), "invalid confirmed draft is explained")
+                else:
+                    check(field.input_value() == str(expected), "confirmed draft updates its value")
+                    point = [int(page.locator("#secret").input_value()), int(page.locator("#coordinate-1").input_value())]
+                    shares = [integers(row[1]) for row in table_rows(page, "distribution-table")]
+                    check(all(sum(a * x for a, x in zip(row[:-1], point)) % default["p"] == row[-1] for row in shares),
+                          "confirmed draft and all distributed shares agree")
+                element.dispose()
+    finally:
+        page.evaluate("""() => {
+          window.removeEventListener('resize', window.__qaDraftResizeListener);
+          delete window.__qaDraftResizeListener; delete window.__qaDraftResizeCount;
+        }""")
+        page.set_viewport_size(viewport)
+    reset_experiment(page, 2)
+
+
 def test_dealer(page, width, layouts, vectors, language):
     reset_experiment(page, 2)
     show_details(page, "dealer")
@@ -1152,6 +1243,15 @@ def test_dealer(page, width, layouts, vectors, language):
     inspection = page.locator("#inspection-list")
     open_ancestors(inspection)
     check("✗" not in inspection.inner_text(), "Vandermonde passes")
+    numbered_notice = page.evaluate("() => BlakleyMessages[document.documentElement.lang].generatedNumbered")
+    check(bool(numbered_notice) and page.locator("#status").inner_text() == numbered_notice,
+          "number-based generation explains that its coefficients follow fixed participant numbers")
+    numbered_coefficients = [integers(row[1])[:-1] for row in table_rows(page, "distribution-table")]
+    page.locator("#generate").click()
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check([integers(row[1])[:-1] for row in table_rows(page, "distribution-table")] == numbered_coefficients,
+          "regenerating by participant numbers preserves coefficients with unchanged p, k, and n")
+    check(page.locator("#status").inner_text() == numbered_notice, "number-based regeneration keeps its accurate success explanation")
     page.locator("#method").select_option("random")
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     check(page.locator("#example-kind").inner_text() == generated_label, "returning to random does not restore fixed example")
@@ -1177,6 +1277,7 @@ def test_dealer(page, width, layouts, vectors, language):
     generated_pattern = re.escape(adjustment_copy["generated"]).replace(r"\{attempts\}", r"\d+")
     check(re.fullmatch(generated_pattern, page.locator("#status").inner_text()), "no adjustment notice appears when no value was clamped")
     test_generation_focus(page)
+    test_resize_input_drafts(page, vectors)
 
 
 def test_stage1b(page, width, layouts, language):

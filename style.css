@@ -62,14 +62,13 @@ h1 span, h2, h3 { color: var(--accent); }
 .startup-control-group { min-width: 0; min-inline-size: 0; margin: 0; padding: 0; border: 0; }
 .startup-note { margin: .5rem 0; padding: .5rem .75rem; border-left: 4px solid var(--accent); background: var(--paper); }
 .startup-note p { margin: 0; }
-.startup-note summary { padding: .3rem 0; }
 .startup-note a { display: inline-flex; min-height: 44px; align-items: center; }
 .graph-loading { fill: var(--muted); font: 20px system-ui, sans-serif; }
 
 .icon-button { width: 44px; height: 44px; padding: 0; border-radius: 50%; font-weight: 700; }
 .eyebrow { font-size: .875rem; text-align: center; color: var(--muted); }
 .tabs, .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
-.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .2rem; padding: .3rem; }
+.tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .2rem; padding: .3rem; }
 .tabs button { border: 0; min-width: 0; padding: .3rem .15rem; font-size: .875rem; line-height: 1.4; }
 .tabs button[aria-selected="true"] { color: var(--accent); border-bottom: 3px solid var(--accent); font-weight: 700; }
 .panel { padding: .65rem; margin: 1rem 0; min-width: 0; overflow-wrap: anywhere; }
@@ -80,7 +79,31 @@ h3 { font-size: 1.1rem; }
 .result { color: var(--accent); font-weight: 700; overflow-wrap: anywhere; }
 footer { padding: 1rem 0 3rem; text-align: center; }
 footer a { display: inline-flex; align-items: center; min-height: 44px; }
-summary { cursor: pointer; min-height: 44px; padding: .6rem 0; font-weight: 700; }
+details {
+  min-width: 0;
+  margin: .75rem 0;
+  padding: 0 .6rem;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--paper);
+}
+details > summary {
+  min-height: 44px;
+  margin: 0 -.6rem;
+  padding: .6rem;
+  border-radius: 7px;
+  background: var(--bg);
+  cursor: pointer;
+  font-weight: 700;
+}
+details[open] { padding-bottom: .6rem; }
+details[open] > summary {
+  margin-bottom: .6rem;
+  border-bottom: 1px solid var(--muted);
+  border-radius: 7px 7px 0 0;
+}
+details > summary + * { margin-top: 0; }
+details > :last-child:not(summary) { margin-bottom: 0; }
 dialog {
   width: min(100% - 1rem, 46rem);
   max-width: none;
@@ -112,7 +135,7 @@ dialog::backdrop { background: #101a2ab0; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-.math-primer { margin-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.math-primer { margin-bottom: 1rem; }
 .math-primer > summary { color: var(--accent); }
 .sharing-primer { padding: .75rem; border-left: 4px solid var(--accent); background: var(--bg); }
 .sharing-primer p { margin: .5rem 0 0; }
@@ -195,6 +218,10 @@ th { background: var(--bg); }
 .camera-controls { justify-content: center; }
 details details { margin: .5rem 0; }
 @media (max-width: 719px) {
+  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .15rem; padding: .2rem; }
+  #tab-intersections, #tab-dimensions { grid-column: span 2; }
+  #tab-compare { grid-column: span 3; }
+  #tab-pitfalls { grid-column: span 1; }
   .responsive-table thead { display: none; }
   .responsive-table tr { display: block; margin: .6rem 0; border: 1px solid var(--line); }
   .responsive-table td { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: .4rem; border: 0; }
@@ -279,7 +306,6 @@ details details { margin: .5rem 0; }
   .compare-correspondence th:nth-last-child(-n+2) { width: 4rem; }
 }
 
-.lesson { margin: .75rem 0; }
 .lesson a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; max-width: 100%; }
 .lesson blockquote { margin: .75rem 0; padding-left: .75rem; border-left: 3px solid var(--accent); }
 .lesson caption { text-align: left; font-weight: 700; margin: .5rem 0; }
@@ -292,4 +318,3 @@ details details { margin: .5rem 0; }
 .beginner-glossary { margin: .8rem 0 1.2rem; }
 .beginner-glossary dt { margin-top: .7rem; font-weight: 700; color: var(--accent); }
 .beginner-glossary dd { margin: .15rem 0 0; }
-.calculation-details { margin: .75rem 0; border-top: 1px solid var(--line); }

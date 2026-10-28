@@ -230,7 +230,7 @@
     compareNonzero: false,
     compareGuides: true
   };
-  const tabs = ['intersections', 'compare', 'pitfalls'];
+  const tabs = ['intersections', 'dimensions', 'compare', 'pitfalls'];
   const t = (key, values = {}) => (BlakleyMessages[state.language][key] || key)
     .replace(/\{([a-zA-Z0-9_]+)\}/g, (_, name) => String(values[name] ?? '{' + name + '}'));
   function save() {
@@ -253,19 +253,22 @@
       $('tab-' + name).tabIndex = selected ? 0 : -1;
       $('panel-' + name).hidden = !selected;
     }
+    const destination = $(activeExperiment + '-workbench'), workbench = $('workbench');
+    if (workbench.parentElement !== destination) destination.append(workbench);
+    workbench.dataset.experiment = activeExperiment;
     renderIntersections();
     renderPitfalls();
     renderCompare();
     if (focusId && $(focusId)?.getClientRects().length) $(focusId).focus({ preventScroll: true });
   }
   tabs.forEach((name, index) => {
-    $('tab-' + name).addEventListener('click', () => { state.tab = name; render(); });
+    $('tab-' + name).addEventListener('click', () => selectTab(name));
     $('tab-' + name).addEventListener('keydown', event => {
       const move = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
       if (!move && event.key !== 'Home' && event.key !== 'End') return;
       event.preventDefault();
       const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + move + tabs.length) % tabs.length;
-      state.tab = tabs[next]; render(); $('tab-' + state.tab).focus();
+      selectTab(tabs[next]); $('tab-' + state.tab).focus();
     });
   });
   $('theme').addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; save(); render(); });
@@ -283,6 +286,27 @@
   const G = BlakleyGF;
   const P = BlakleyPitfalls;
   const clone = value => JSON.parse(JSON.stringify(value));
+  const experimentKeys = [
+    'example', 'selected', 'candidate', 'all', 'kind', 'edits', 'method', 'editShare', 'guides',
+    'failuresOnly', 'matrixStep', 'matrixCount', 'yaw', 'pitch', 'visible', 'notice'
+  ];
+  const experimentState = () => Object.fromEntries(experimentKeys.map(key => [key, clone(state[key])]));
+  const experiments = {
+    intersections: experimentState(),
+    dimensions: { ...experimentState(), example: clone(DEFAULTS[3]), selected: [0, 1], visible: Array(DEFAULTS[3].n).fill(true) }
+  };
+  let activeExperiment = 'intersections';
+  function changeExperiment(name) {
+    if (name === activeExperiment) return;
+    experiments[activeExperiment] = experimentState();
+    Object.assign(state, clone(experiments[name]));
+    activeExperiment = name; state.drag = null;
+  }
+  function selectTab(name) {
+    if (state.busy) return;
+    if (name === 'intersections' || name === 'dimensions') changeExperiment(name);
+    state.tab = name; render();
+  }
   const marks = ['●', '▲', '■', '◆', '✚', '★', '⬟', '✖'];
   const E = (tag, value, cls) => {
     const element = document.createElement(tag);
@@ -420,7 +444,7 @@
     const scale = graphScale(Math.min(360, svg.parentElement.clientWidth || 260), p);
     const { width, height, left, right, top, bottom, dx, X, Y } = scale;
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`); svg.replaceChildren();
-    const hover = !!svg.closest('#panel-intersections');
+    const hover = !!svg.closest('#panel-intersections, #panel-dimensions');
     if (hover) svg.append(S('rect', { x: 0, y: 0, width, height, class: 'grid-pointer-surface' }));
     if (options.candidate !== undefined) {
       svg.append(S('rect', { x: X(options.candidate) - dx / 2, y: top, width: dx, height: bottom - top, class: 'grid-candidate-column' }));
@@ -507,9 +531,14 @@
   }
   function renderIntro(example) {
     const { p, k, n, A, c } = example, line = G.linePoints(A[0], c[0], p);
-    $('intro-current-example').textContent = t('introCurrentExample', { p, k, n, equation: fmtEquation(A[0], c[0], p) });
+    $('intro-current-example').textContent = t('introCurrentExample', {
+      p, k, n, share: fmtPoint([...A[0], c[0]]), equation: fmtEquation(A[0], c[0], p)
+    });
     graph($('intro-grid'), p, [{ id: 0, points: line }]); pointsTable('intro-table', p, [{ id: 0, points: line }]);
-    $('intro-summary').textContent = t('columnCount', { p });
+    const onePerColumn = Array.from({ length: p }, (_, s) => line.filter(point => point[0] === s).length).every(count => count === 1);
+    $('intro-summary').textContent = t(onePerColumn ? 'introColumnsFull' : 'introColumnsOther', { p, max: p - 1 });
+    $('intro-summary').dataset.onePerColumn = String(onePerColumn);
+    $('intro-column-probability').hidden = !onePerColumn;
     $('edited-real-note').hidden = !state.edits;
   }
   function renderMathPrimer() {
@@ -666,7 +695,7 @@
     $('slice-grid').dataset.intersections = JSON.stringify(points);
     pointsTable('slice-table', p, series);
     if (!series.length) table($('slice-table'), ['x₂', 'x₃'], points);
-    $('slice-explanation').textContent = t('sliceIntro', { p });
+    $('slice-explanation').textContent = t('k3SliceReading') + ' ' + t('sliceIntro', { p });
     const elsewhere = unique && recoveredPoint[0] !== state.candidate;
     $('slice-focus-note').hidden = !elsewhere;
     $('slice-focus-note').textContent = elsewhere ? t('sliceRecoveredElsewhere', { s: state.candidate, recovered: recoveredPoint[0] }) : '';
@@ -781,6 +810,8 @@
   function renderIntersections() {
     const example = effective();
     $('threshold-summary').textContent = t('thresholdSummary', { p: example.p, k: example.k, n: example.n });
+    $('dimensions-current').textContent = t('dimensionsCurrent', { p: example.p, k: example.k, n: example.n });
+    $('dimension-title').hidden = example.k === 2; $('dimension-intro').hidden = example.k === 2;
     $('dimension-title').textContent = t(example.k >= 4 ? 'dimensionTitleHigher' : 'nextDimension', { k: example.k });
     $('dimension-intro').textContent = t(example.k === 2 ? 'dimensionIntroK2' : example.k === 3 ? 'dimensionIntroK3' : 'dimensionIntroHigher', {
       k: example.k, p: example.p, n: example.n
@@ -797,6 +828,8 @@
     if (state.busy) document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = true; });
   }
   function restore(k) {
+    const target = k === 2 ? 'intersections' : 'dimensions';
+    changeExperiment(target); state.tab = target;
     state.example = clone(DEFAULTS[k]); state.edits = null; state.kind = 'fixed';
     state.selected = Array.from({ length: k - 1 }, (_, i) => i); state.candidate = 0; state.all = false;
     state.editShare = 0; state.matrixStep = 0; state.visible = Array(state.example.n).fill(true); state.yaw = 35; state.pitch = 25;
@@ -1327,7 +1360,9 @@
     $('pit-b-unsafe').textContent = t('pitWholeResult', { count: whole.count }) + (whole.point ? ' X=' + fmtPoint(whole.point) : '');
     $('pit-b-result').textContent = t('pitCoordinateResult', { count: rows[count][2] });
     table($('pit-b-table'), [t('pitShares'), t('pitWhole'), t('pitFirst')], rows);
-    $('pit-b-grid').hidden = k !== 2; $('pit-b-slices').hidden = k !== 3;
+    $('pit-b-grid').toggleAttribute('hidden', k !== 2); $('pit-b-slices').hidden = k !== 3;
+    for (const id of ['pit-b-k3-count-reading', 'pit-b-slice-reading', 'pit-b-slice-status']) $(id).hidden = k !== 3;
+    $('pit-b-slice-status').textContent = t('pitBSliceStatus', { points: whole.count, p, secrets: rows[count][2] });
     if (k === 2) {
       const points = G.solutionPoints(A.slice(0, count), c.slice(0, count), p, k);
       graph($('pit-b-grid'), p, [{ id: 0, points }], { secret: whole.point });

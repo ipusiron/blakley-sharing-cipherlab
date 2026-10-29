@@ -896,13 +896,21 @@
           && visibleFocusTarget(focus.target)) focus.target.focus({ preventScroll: true });
     }
   }
+  function renderCopyEdit() {
+    const diagram = $('main-grid'), top = diagram.getBoundingClientRect().top;
+    render();
+    // Copy edits can change the height of explanations above the diagram.
+    // Keep the diagram in place even when native scroll anchoring is disabled.
+    const offset = diagram.getBoundingClientRect().top - top;
+    if (Math.abs(offset) > .5) window.scrollBy(0, offset);
+  }
   function modify(component, delta) {
     if (!state.selected.length) return;
     if (!state.edits) state.edits = { A: clone(state.example.A), c: state.example.c.slice() };
     const i = state.editShare, p = state.example.p;
     if (component === 'c') state.edits.c[i] = G.mod(state.edits.c[i] + delta, p);
     else state.edits.A[i][1] = G.mod(state.edits.A[i][1] + delta, p);
-    render();
+    renderCopyEdit();
   }
   function rotate(yaw, pitch) {
     state.yaw = Math.round((state.yaw + yaw + 360) % 360); state.pitch = Math.max(-80, Math.min(80, state.pitch + pitch)); render();
@@ -945,7 +953,7 @@
       const action = { ArrowUp: ['c', 1], ArrowDown: ['c', -1], ArrowLeft: ['b', -1], ArrowRight: ['b', 1] }[event.key];
       if (action) { event.preventDefault(); modify(...action); }
     });
-    $('reset-edit').addEventListener('click', () => { state.edits = null; render(); });
+    $('reset-edit').addEventListener('click', () => { state.edits = null; renderCopyEdit(); });
     $('reset-default').addEventListener('click', restore);
     $('prime').addEventListener('change', event => regenerate({ p: Number(event.target.value) }, event.target));
     $('share-count').addEventListener('change', event => regenerate({ n: Number(event.target.value) }, event.target));

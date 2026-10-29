@@ -65,13 +65,13 @@ For k=2, edit right-hand values or normal components to observe coincident lines
 
 ## 📖 Usage and fixed examples
 
-For a first visit, open the mathematical background as needed and try k=2 intersections.
+For a first visit, open “Mathematical background” as needed and try k=2 intersections.
 Continue to “Compare with Shamir secret sharing” for the candidate correspondence, then change conditions in “Pitfalls”. The k=3 plane view and proofs can wait until after the basics.
 Help includes a glossary and reading route. Start with Sections 1, 4 and 7 for the scheme, candidate counts and range of randomness.
 
 ### Intersections (k=2)
 
-“Mathematical background” appears first and starts collapsed. It can be opened at any value of k.
+“Mathematical background” follows the explanation of secret sharing, n and k, and starts collapsed. It can be opened at any value of k.
 Its fixed GF(13) example compares real numbers, integers and congruences, independently of the experiment settings and edited shares below.
 The integer graph shows four points with coordinates in 0–12 satisfying `x₁+3x₂=29`.
 The modular graph checks all grid points in that range for `x₁+3x₂≡3 (mod 13)`, giving 13 points.

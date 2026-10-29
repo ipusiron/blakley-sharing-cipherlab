@@ -464,9 +464,9 @@ def math_primer_closed(page):
     primer = page.locator("#math-primer")
     check(primer.get_attribute("open") is None, "math prerequisite starts collapsed")
     check(not page.locator("#real-story").is_visible(), "closed prerequisite hides its three graphs")
-    order = primer.evaluate("""el => el.previousElementSibling.tagName === 'H2' &&
-      el.nextElementSibling.id === 'sharing-primer' && el.contains(document.querySelector('#real-story'))""")
-    check(order, "math prerequisite immediately follows h2 and precedes sharing definitions")
+    order = primer.evaluate("""el => el.previousElementSibling.id === 'sharing-primer' && el.previousElementSibling.previousElementSibling.tagName === 'H2' &&
+      el.nextElementSibling.id === 'k2-view' && el.contains(document.querySelector('#real-story'))""")
+    check(order, "sharing definitions follow h2; math prerequisite follows definitions and precedes the k=2 example")
     check(page.locator("#guides").evaluate("""el => !el.closest('#math-primer') &&
       !!(el.compareDocumentPosition(document.querySelector('#main-grid')) & Node.DOCUMENT_POSITION_FOLLOWING)"""),
           "main experiment guide control precedes its graph outside prerequisite")

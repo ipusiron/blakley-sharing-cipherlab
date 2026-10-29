@@ -53,7 +53,7 @@
       dimensions: "平面で追う（k=3）",
       dimensionsIntro: "このタブではk=3に固定し、秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。",
       dimensionsCurrent: "現在の実験：GF({p})、k={k}、n={n}。",
-      learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。",
+      learningRoute: "まず「知っておくべき数学的概念」を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。",
       primerRoles: "この例には、秘密を持ち、シェアを作って配る人（ディーラー）と、4人の受取人が登場します。",
       primerRandom: "ディーラーは秘密s=5を持っています。秘密とは別に、0〜12から同じ確率で乱数rを選びます。この固定例ではr=8です。",
       exploreInstruction: "シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。",
@@ -818,7 +818,7 @@
       dimensionsIntro: "This tab fixes k at 3. The dealer forms X=(s,x₂,x₃) from the secret s and two random values. Each share is an eq"
         + "uation for a plane through this point. With correctly generated shares, any three or more recover the secret.",
       dimensionsCurrent: "Current experiment: GF({p}), k={k}, n={n}.",
-      learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Open “Planes (k=3)” to work with "
+      learningRoute: "Open “Mathematical background” as needed, then try k=2 intersections. Open “Planes (k=3)” to work with "
         + "three coordinates. Continue to “Compare with Shamir secret sharing” and then “Pitfalls”.",
       primerRoles: "This example has a dealer who holds the secret, creates the shares and distributes them to four recipients.",
       primerRandom: "The dealer holds the secret s=5 and independently chooses r uniformly from 0–12. This fixed example uses "

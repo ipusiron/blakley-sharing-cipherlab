@@ -280,7 +280,6 @@ details details { margin: .5rem 0; }
 .three-slice-label { font-weight: 700; }
 .slice-candidate-ring { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 .slice-list button[aria-pressed="true"] .slice-candidate-ring { stroke: var(--on-accent); }
-#field-primer > a { display: inline-flex; align-items: center; min-height: 44px; }
 
 .slice-overlap { fill: none; stroke: var(--accent); stroke-width: 1; }
 .slice-list button[aria-pressed="true"] .slice-overlap { stroke: var(--on-accent); }

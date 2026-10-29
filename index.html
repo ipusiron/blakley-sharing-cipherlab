@@ -36,10 +36,6 @@
         <a id="startup-reload" href="" target="_blank" rel="noopener noreferrer">別タブで開き直す / Reopen in a new tab</a>
       </details>
     </aside>
-    <details id="field-primer"><summary data-i18n="fieldPrimer">GF(p)の前提知識</summary>
-        <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
-        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer" target="_blank" rel="noopener noreferrer">Day123のGF(p)の前提知識へ</a>
-      </details>
     <fieldset id="startup-controls" class="startup-control-group" disabled aria-label="教材 / Learning tool">
     <nav class="tabs" role="tablist" data-label="tablist" aria-label="学ぶ順番">
       <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
@@ -53,15 +49,11 @@
     </nav>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
       <h2 data-i18n="intersections">交点で追う（k=2）</h2>
-      <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
-        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
-        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
-        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
-        <p data-i18n="learningRoute">まず「知っておくべき数学的概念」を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。</p>
-        <p id="threshold-summary" class="threshold-current"></p>
-      </section>
       <details id="math-primer" class="math-primer">
         <summary data-i18n="mathPrimer">知っておくべき数学的概念</summary>
+        <h3 data-i18n="mathFieldTitle">この教材で使う計算：GF(p)</h3>
+        <p data-i18n="mathFieldIntro">この教材では、素数pを決め、0からp−1までの数を使います。計算結果はpで割った余りにします。この数と計算の仕組みをGF(p)（有限体）と呼びます。p=13なら12+2=14≡1 (mod 13)です。</p>
+        <p data-i18n="mathFieldInverse">ある数に掛けて結果が1になる数を、その数の逆元と呼びます。GF(13)では3×9=27≡1 (mod 13)なので、3の逆元は9です。3で割るときは9を掛けて余りを求めます。pが素数なら、0以外のすべての数に逆元があります。</p>
         <section id="real-story" class="stage-card">
           <h3 data-i18n="realToMod">実数から整数、そしてmodへ</h3>
           <p data-i18n="mathPrimerIntro">GF(13)の固定例で、実数・整数・合同式を比べます。下の実験の設定やシェア編集とは独立した教材です。</p>
@@ -95,6 +87,13 @@
           </div>
         </section>
       </details>
+      <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
+        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
+        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
+        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
+        <p data-i18n="learningRoute">まず「知っておくべき数学的概念」を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。</p>
+        <p id="threshold-summary" class="threshold-current"></p>
+      </section>
       <div id="k2-view">
         <section id="initial-example-primer" class="primer-example" aria-labelledby="primer-title">
           <h3 id="primer-title" data-i18n="primerTitle">最初の固定例：(k,n)=(2,4)</h3>

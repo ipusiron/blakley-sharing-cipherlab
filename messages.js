@@ -210,6 +210,9 @@
       initialGraph: "シェア#1の座標平面",
       graphTable: "図の内容を表で見る",
       mathPrimer: "知っておくべき数学的概念",
+      mathFieldTitle: "この教材で使う計算：GF(p)",
+      mathFieldIntro: "この教材では、素数pを決め、0からp−1までの数を使います。計算結果はpで割った余りにします。この数と計算の仕組みをGF(p)（有限体）と呼びます。p=13なら12+2=14≡1 (mod 13)です。",
+      mathFieldInverse: "ある数に掛けて結果が1になる数を、その数の逆元と呼びます。GF(13)では3×9=27≡1 (mod 13)なので、3の逆元は9です。3で割るときは9を掛けて余りを求めます。pが素数なら、0以外のすべての数に逆元があります。",
       mathPrimerIntro: "GF(13)の固定例で、実数・整数・合同式を比べます。下の実験の設定やシェア編集とは独立した教材です。",
       mathPrimerDifference: "②では、各座標が0〜12の格子点のうち、等式x₁+3x₂=29を満たす4点を示します。③では合同式x₁+3x₂≡3 (mod 13)を満たす13点を、2通りの描き方で確かめます。",
       realToMod: "実数から整数、そしてmodへ",
@@ -275,10 +278,6 @@
       inspectionList: "検査の一覧",
       failuresOnly: "不合格だけ",
       checkPremise: "検査は係数の組だけを見るので、通るまで引き直しても秘密は漏れない。ただし乱数の座標 x₂…x_k が一様であることが前提。",
-      fieldPrimer: "GF(p)の前提知識",
-      fieldText: "GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。",
-      inverseText: "3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。",
-      shamirPrimer: "Day123のGF(p)の前提知識へ",
       columnCount: "{p}列のどれにも点が1つずつ＝秘密の候補{p}個がすべて残る",
       integerCandidatesText: "整数の右辺は{rhs}。範囲内の格子点は{points}の{count}点です。",
       selectedCount: "{count}枚を選択（k={k}）",
@@ -1063,6 +1062,11 @@
       initialGraph: "Coordinate plane for share #1",
       graphTable: "View the figure as a table",
       mathPrimer: "Mathematical background",
+      mathFieldTitle: "Arithmetic used here: GF(p)",
+      mathFieldIntro: "Choose a prime p and use the numbers from 0 to p−1. Reduce calculation results to their remainders modulo p. These "
+        + "numbers and operations form the finite field GF(p). For p=13, 12+2=14≡1 (mod 13).",
+      mathFieldInverse: "An inverse is a number you multiply by to get 1. In GF(13), 3×9=27≡1 (mod 13), so the inverse of 3 is 9. To divide by "
+        + "3, multiply by 9 and reduce modulo 13. With a prime p, every nonzero number has an inverse.",
       mathPrimerIntro: "This fixed GF(13) example compares real numbers, integers and congruences. It is independent of the experiment "
         + "settings and edited shares below.",
       mathPrimerDifference: "Step 2 shows four grid points with coordinates in 0–12 satisfying x₁+3x₂=29. Step 3 uses two plotting methods to show "
@@ -1136,11 +1140,6 @@
       failuresOnly: "Failures only",
       checkPremise: "The checks depend only on the coefficient vectors, so retrying until they pass does not leak the secret, "
         + "provided x₂…x_k are uniform.",
-      fieldPrimer: "GF(p) basics",
-      fieldText: "GF(p) uses 0 through p−1 and reduces results modulo p. For p=13, 12+2≡1. Every nonzero element has an "
-        + "inverse because p is prime.",
-      inverseText: "Since 3×9≡1 (mod 13), 3⁻¹=9. Divide by multiplying by the inverse.",
-      shamirPrimer: "GF(p) basics in Day123",
       columnCount: "One point in every one of the {p} columns: all {p} secret candidates remain",
       integerCandidatesText: "The integer right-hand side is {rhs}. The {count} integer grid points are {points}.",
       selectedCount: "Selected {count} shares (k={k})",

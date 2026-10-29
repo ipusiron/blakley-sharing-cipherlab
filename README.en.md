@@ -17,8 +17,8 @@ Secret sharing creates several shares from a secret and recovers the original va
 A share is information given to a recipient; in this tool, it is one equation. With suitable coefficients and randomness, fewer than k shares do not narrow the secret, while any set of at least k shares recovers it.
 
 For learning only. Do not enter actual secrets, including passwords, seed phrases or keys.
-For a practical backup workflow, see [Day124 Scatter Seeds][day124].
-In the tool, this notice and link appear in Help.
+For paper backup and recovery, [Day124 Scatter Seeds][day124] is a separate tool that uses Shamir secret sharing. It is not a practical implementation of Blakley sharing.
+The Help section "A tool for practical backups" explains its purpose and the difference in methods. Links in the tool open in a new tab.
 
 ## 🌐 Demo
 
@@ -399,7 +399,7 @@ This tool’s four-candidate example is a small model of the principle, not an L
 | --- | --- | --- |
 | [Day123 ShamirSharing CipherLab][day123] | Learning with GF(p) coordinate planes and GF(2⁸) byte values | Shares are polynomial points; Day126 reads shares as hyperplanes and coefficients as a point |
 | [Day070 VisualCryptography CipherLab][day070] | Visual cryptography using two image overlays | Recovery by visual overlay, a different construction from Blakley’s simultaneous equations |
-| [Day124 Scatter Seeds][day124] | Practical paper-based backup and recovery | A separate tool for considering a practical backup workflow |
+| [Day124 Scatter Seeds][day124] | Paper backup and recovery using Shamir secret sharing | Uses Shamir; not a practical implementation of Blakley sharing |
 | [Day125 Overlay QR Shares][day125] | Visual cryptography with QR overlays | Compare overlay-based recovery with finite-field equation solving |
 
 ## 🔒 Security and limitations

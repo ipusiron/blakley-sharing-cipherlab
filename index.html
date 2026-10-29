@@ -31,9 +31,9 @@
       <p>図と操作を準備中 / <span lang="en">Loading diagrams</span></p>
       <details id="startup-help">
         <summary>表示されない場合 / <span lang="en">Help</span></summary>
-        <p>説明文はこのまま読めます。図と操作が表示されない場合は、JavaScriptを有効にして再読み込みしてください。</p>
-        <p lang="en">You can read the explanations. If diagrams and controls do not appear, enable JavaScript and reload this page.</p>
-        <a id="startup-reload" href="">再読み込み / Reload</a>
+        <p>説明文はこのまま読めます。図と操作が表示されない場合は、JavaScriptを有効にして別タブで開き直してください。</p>
+        <p lang="en">You can read the explanations. If diagrams and controls do not appear, enable JavaScript and reopen this page in a new tab.</p>
+        <a id="startup-reload" href="" target="_blank" rel="noopener noreferrer">別タブで開き直す / Reopen in a new tab</a>
       </details>
     </aside>
     <fieldset id="startup-controls" class="startup-control-group" disabled aria-label="教材 / Learning tool">
@@ -280,7 +280,7 @@
       </details>
       <details id="field-primer"><summary data-i18n="fieldPrimer">GF(p)の前提知識</summary>
         <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
-        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer">Day123のGF(p)の前提知識へ</a>
+        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer" target="_blank" rel="noopener noreferrer">Day123のGF(p)の前提知識へ</a>
       </details>
       </div>
       </div>
@@ -511,13 +511,11 @@
     <noscript>JavaScriptを有効にしてください。 / Please enable JavaScript.</noscript>
     </fieldset>
   </main>
-  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source">GitHub（ipusiron/blakley-sharing-cipherlab）</a></footer>
+  <footer><a href="https://github.com/ipusiron/blakley-sharing-cipherlab" data-i18n="source" target="_blank" rel="noopener noreferrer">GitHub（ipusiron/blakley-sharing-cipherlab）</a></footer>
   <dialog id="help-dialog" aria-labelledby="help-title">
     <header class="help-header"><h2 id="help-title" data-i18n="help">ヘルプと座学</h2>
       <button id="close-help" type="button" data-i18n="close">閉じる</button></header>
     <div class="help-body">
-      <p class="learning-note"><span data-i18n="educational">学習用。本物の秘密（パスワード・シード・鍵）は入れない。</span>
-        <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="practical">実用のバックアップはDay124 Scatter Seedsへ。</a></p>
       <h3 data-i18n="helpLearningTitle">初めて読むとき</h3>
       <p data-i18n="helpLearningRoute">最初は「交点で追う（k=2）」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。</p>
       <p data-i18n="helpIntro">タブは左右矢印・Home・Endで切り替えられます。ヘルプはEscで閉じられます。</p>
@@ -533,6 +531,13 @@
         <dt data-i18n="termNormalName">法線（係数の組）</dt><dd data-i18n="termNormalDefinition">式の係数を並べた組です。x₁+3x₂≡3なら(1,3)が法線です。右辺cも付けた(1,3,3)が、この教材で配るシェアになります。</dd>
         <dt data-i18n="termHyperplaneName">超平面</dt><dd data-i18n="termHyperplaneDefinition">2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。</dd>
       </dl>
+      <section id="practical-tools" aria-labelledby="practical-tools-title">
+        <h3 id="practical-tools-title" data-i18n="helpPracticalTitle">実務用のバックアップツール</h3>
+        <p data-i18n="helpPracticalPurpose">Day124 Scatter Seedsは、パスワード・復旧キー・シードなどを複数のシェアに分け、紙に印刷して別々に保管するためのツールです。</p>
+        <p data-i18n="helpPracticalRecovery">復元時は、必要な枚数のシェアをQRまたは文字列で読み込みます。</p>
+        <p data-i18n="helpPracticalMethod">採用方式はShamir（シャミア）の秘密分散法です。この教材で扱うBlakley式の実用版ではありません。</p>
+        <a href="https://ipusiron.github.io/scatter-seeds/" data-i18n="helpPracticalLink" target="_blank" rel="noopener noreferrer">Day124 Scatter Seedsを開く</a>
+      </section>
       <p data-i18n="helpTheoryRoute">座学は1→4→7の順で、方式・候補数・乱数の範囲を読むと進めやすくなります。2は証明、3は原論文、5・6・8は発展事項です。9は改ざん検査の限界、10は関連ツールを扱います。</p>
       <p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p>
       <p data-i18n="reuse">法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。</p>
@@ -1037,8 +1042,8 @@
 </tr>
 <tr>
 <td data-i18n="lesson10ToolsR3C1" data-cell-label="lesson10ToolsH1">Day124 Scatter Seeds</td>
-<td data-i18n="lesson10ToolsR3C2" data-cell-label="lesson10ToolsH2">紙で分ける実用のバックアップと復元</td>
-<td data-i18n="lesson10ToolsR3C3" data-cell-label="lesson10ToolsH3">実用のバックアップを検討する場合の案内先</td>
+<td data-i18n="lesson10ToolsR3C2" data-cell-label="lesson10ToolsH2">Shamirの秘密分散で紙に分け、保管・復元する</td>
+<td data-i18n="lesson10ToolsR3C3" data-cell-label="lesson10ToolsH3">Blakley式の実用版ではなく、方式が異なる別ツール</td>
 </tr>
 <tr>
 <td data-i18n="lesson10ToolsR4C1" data-cell-label="lesson10ToolsH1">Day125 Overlay QR Shares</td>

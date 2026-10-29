@@ -198,8 +198,18 @@ async def run_case(pw,url,spec,out):
             await pending_contract(page,await snap('unavailable'))
             if spec.get('disabled'):
                 await page.locator('#startup-help>summary').click()
-                async with page.expect_navigation(wait_until='load'): await page.locator('#startup-reload').click()
-                await pending_contract(page,await snap('native-reload'))
+                original_url=page.url
+                async with context.expect_page() as new_page:
+                    await page.locator('#startup-reload').click()
+                reopened=await new_page.value
+                await reopened.wait_for_load_state('load')
+                check(reopened.url==original_url and page.url==original_url,'reopen preserves the URL in both tabs')
+                check(await reopened.evaluate('() => window.opener===null'),'reopened tab has no window.opener')
+                await pending_contract(reopened,await reopened.evaluate(SNAP))
+                await reopened.close()
+                check(await page.locator('#startup-help').evaluate('el=>el.open'),'original startup help remains open')
+                await page.locator('#startup-help>summary').click()
+                await pending_contract(page,await snap('native-reopen'))
         else:
             await page.wait_for_function("() => document.documentElement.dataset.appReady==='true'")
             await page.evaluate('() => new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')

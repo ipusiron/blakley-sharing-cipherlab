@@ -74,7 +74,6 @@ h1 span, h2, h3 { color: var(--accent); }
 .panel > :first-child { margin-top: 0; }
 h2 { font-size: 1.3rem; }
 h3 { font-size: 1.1rem; }
-.learning-note { font-size: .875rem; }
 .result { color: var(--accent); font-weight: 700; overflow-wrap: anywhere; }
 footer { padding: 1rem 0 3rem; text-align: center; }
 footer a { display: inline-flex; align-items: center; min-height: 44px; }

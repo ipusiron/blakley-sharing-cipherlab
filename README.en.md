@@ -401,6 +401,7 @@ This tool’s four-candidate example is a small model of the principle, not an L
 | [Day070 VisualCryptography CipherLab][day070] | Visual cryptography using two image overlays | Recovery by visual overlay, a different construction from Blakley’s simultaneous equations |
 | [Day124 Scatter Seeds][day124] | Paper backup and recovery using Shamir secret sharing | Uses Shamir; not a practical implementation of Blakley sharing |
 | [Day125 Overlay QR Shares][day125] | Visual cryptography with QR overlays | Compare overlay-based recovery with finite-field equation solving |
+| [Day029 OTP Animation][day029] | One-time pad, XOR and perfect secrecy | Compare a ciphertext that does not fix the plaintext with k−1 shares that leave every secret equally likely |
 
 ## 🔒 Security and limitations
 
@@ -561,3 +562,4 @@ See the following page for project details and other tools:
 [day070]: https://ipusiron.github.io/visual-cryptography-cipherlab/
 [day124]: https://ipusiron.github.io/scatter-seeds/
 [day125]: https://ipusiron.github.io/overlay-qr-shares/
+[day029]: https://ipusiron.github.io/otp-animation/

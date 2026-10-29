@@ -433,6 +433,7 @@ darrelllongのコードとTHEORY.mdは、作者の実装についての一次資
 | [Day070 VisualCryptography CipherLab][day070] | 2枚の画像を重ねる視覚暗号 | 画像を重ねて目で復元する方式。Blakleyの連立方程式による方式とは別 |
 | [Day124 Scatter Seeds][day124] | Shamirの秘密分散で紙に分け、保管・復元する | Blakley式の実用版ではなく、方式が異なる別ツール |
 | [Day125 Overlay QR Shares][day125] | 視覚暗号とQRの重ね合わせ | 画像を重ねる復元と、有限体の求解を比べられる |
+| [Day029 OTP Animation][day029] | ワンタイムパッドとXORの仕組み、完全秘匿性 | 暗号文から平文が決まらないOTPと、k−1枚から秘密の確率が変わらない性質を比べられる |
 
 ## 🔒 セキュリティと制約
 
@@ -591,3 +592,4 @@ Node.jsは自動テスト用、PythonとPlaywrightはローカルのブラウザ
 [day070]: https://ipusiron.github.io/visual-cryptography-cipherlab/
 [day124]: https://ipusiron.github.io/scatter-seeds/
 [day125]: https://ipusiron.github.io/overlay-qr-shares/
+[day029]: https://ipusiron.github.io/otp-animation/

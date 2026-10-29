@@ -239,7 +239,7 @@
       localStorage.setItem('blakley-sharing-cipherlab.theme', state.theme);
     } catch (_) { /* Preferences are optional. */ }
   }
-  function render() {
+  function render(preserveInputDraft = false) {
     const focusId = document.activeElement?.id;
     document.documentElement.lang = state.language;
     document.documentElement.dataset.theme = state.theme;
@@ -256,7 +256,7 @@
     const destination = $(activeExperiment + '-workbench'), workbench = $('workbench');
     if (workbench.parentElement !== destination) destination.append(workbench);
     workbench.dataset.experiment = activeExperiment;
-    renderIntersections();
+    renderIntersections(preserveInputDraft);
     renderPitfalls();
     renderCompare();
     if (focusId && $(focusId)?.getClientRects().length) $(focusId).focus({ preventScroll: true });
@@ -275,10 +275,17 @@
   $('language').addEventListener('click', () => { state.language = state.language === 'ja' ? 'en' : 'ja'; save(); render(); });
   $('help').addEventListener('click', () => { $('help-dialog').showModal(); document.querySelector('.help-body').scrollTop = 0; });
   $('close-help').addEventListener('click', () => $('help-dialog').close());
+  function visibleFocusTarget(element) {
+    if (element.matches(':disabled') || !element.getClientRects().length) return false;
+    for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+      if (parent.tagName === 'DETAILS' && !parent.open && !parent.querySelector(':scope > summary')?.contains(element)) return false;
+    }
+    return true;
+  }
   $('help-dialog').addEventListener('keydown', event => {
     if (event.key !== 'Tab') return;
     const focusable = [...$('help-dialog').querySelectorAll('button, a[href], input, select, summary, [tabindex="0"]')]
-      .filter(el => !el.disabled && el.getClientRects().length > 0);
+      .filter(visibleFocusTarget);
     const first = focusable[0], last = focusable[focusable.length - 1];
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
     if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
@@ -780,19 +787,29 @@
       $('matrix-candidates').append(E('p', t('freeVariable')), holder);
     }
   }
-  function renderDealer(example) {
+  function renderDealer(example, preserveInputDraft = false) {
     const { p, k, n, X, A, c } = state.example;
     $('prime').value = String(p); optionList($('share-count'), Array.from({ length: Math.min(8, p - 1) - k + 1 }, (_, i) => k + i), n);
-    $('secret').max = String(p - 1); $('secret').value = String(X[0]); $('method').value = state.method;
-    $('coordinates').replaceChildren(...X.slice(1).map((value, index) => {
-      const container = E('label'), input = E('input'); input.id = 'coordinate-' + (index + 1);
-      input.type = 'number'; input.min = '0'; input.max = String(p - 1); input.value = String(value); input.dataset.coordinate = String(index + 1);
-      container.append(E('span', 'x' + '₂₃₄₅'[index]), input); return container;
-    }));
+    $('secret').max = String(p - 1); $('method').value = state.method;
+    if (!preserveInputDraft || document.activeElement !== $('secret')) $('secret').value = String(X[0]);
+    $('failures-only').checked = state.failuresOnly;
+    if ($('coordinates').children.length !== k - 1) {
+      $('coordinates').replaceChildren(...X.slice(1).map((_, index) => {
+        const container = E('label'), input = E('input'); input.id = 'coordinate-' + (index + 1);
+        input.type = 'number'; input.dataset.coordinate = String(index + 1);
+        container.append(E('span', 'x' + '₂₃₄₅'[index]), input); return container;
+      }));
+    }
+    X.slice(1).forEach((value, index) => {
+      const input = $('coordinate-' + (index + 1));
+      input.min = '0'; input.max = String(p - 1);
+      if ((!preserveInputDraft || document.activeElement !== input) && input.value !== String(value)) input.value = String(value);
+    });
     $('example-kind').textContent = t(state.kind === 'fixed' ? 'fixedExample' : state.kind === 'manual' ? 'manualExample' : 'randomExample');
     $('manual-note').hidden = state.kind !== 'manual';
-    table($('distribution-table'), [t('chooseShares'), t('coefficients'), t('equation')], A.map((row, i) => [
-      t('custodian', { i: i + 1 }), '(' + row.join(',') + ')', row.map((a, j) => `${a}x${'₁₂₃₄₅'[j]}`).join('+') + ` ≡ ${c[i]} (mod ${p})`
+    table($('distribution-table'), [t('shareRecipient'), t('distributedShare'), t('equation')], A.map((row, i) => [
+      t('custodian', { i: i + 1 }), '(' + [...row, c[i]].join(',') + ')',
+      row.map((a, j) => `${a}x${'₁₂₃₄₅'[j]}`).join('+') + ` ≡ ${c[i]} (mod ${p})`
     ]));
     const checks = G.checkRows(example.A, p), first = checks.filter(row => row.kind === 'i'), second = checks.filter(row => row.kind === 'ii');
     $('inspection-summary').textContent = t('checkSummary', {
@@ -805,9 +822,10 @@
       `{${row.T.map(i => i + 1).join(',')}}`, row.kind === 'i' ? t('checkI') : t('checkII'), t(row.ok ? 'pass' : 'fail')
     ]));
     $('inspection-list').dataset.failed = String(checks.filter(row => !row.ok).length);
-    $('status').textContent = state.busy ? t('working') : state.notice ? t(state.notice.key, state.notice.values) : '';
+    const notice = state.notice ? [state.notice, ...(state.notice.adjustments || [])] : [];
+    $('status').textContent = state.busy ? t('working') : notice.map(item => t(item.key, item.values)).join(' ');
   }
-  function renderIntersections() {
+  function renderIntersections(preserveInputDraft = false) {
     const example = effective();
     $('threshold-summary').textContent = t('thresholdSummary', { p: example.p, k: example.k, n: example.n });
     $('dimensions-current').textContent = t('dimensionsCurrent', { p: example.p, k: example.k, n: example.n });
@@ -825,7 +843,7 @@
     $('view-3d').hidden = example.k !== 3; $('matrix-view').hidden = example.k < 4;
     if (example.k === 3) renderSlices(example, chosen, point);
     if (example.k >= 4) renderMatrix(example, chosen);
-    renderDealer(example);
+    renderDealer(example, preserveInputDraft);
     if (state.busy) document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = true; });
   }
   function restore() {
@@ -837,9 +855,12 @@
     state.editShare = 0; state.matrixStep = 0; state.visible = Array(state.example.n).fill(true); state.yaw = 35; state.pitch = 25;
     state.notice = { key: 'primeChanged', values: { k, p: state.example.p } }; render();
   }
+  let generationInteraction = 0, generationFocusIntent = null;
   const randomBytes = count => crypto.getRandomValues(new Uint8Array(count));
-  async function regenerate(changes = {}) {
+  async function regenerate(changes = {}, source = null) {
     if (state.busy) return;
+    const focus = generationFocusIntent?.source === source ? generationFocusIntent : null;
+    generationFocusIntent = null;
     const original = state.example, p = changes.p || original.p, k = original.k;
     const n = Math.min(changes.n || original.n, p - 1), secret = Math.min(changes.secret ?? original.X[0], p - 1);
     state.busy = true; state.notice = null; render(); await new Promise(resolve => setTimeout(resolve, 0));
@@ -857,9 +878,21 @@
       state.example = G.completeShares(p, k, n, secret, normals.A, randomBytes, normals.attempts);
       state.edits = null; state.kind = 'random'; state.selected = Array.from({ length: k - 1 }, (_, i) => i);
       state.candidate = 0; state.matrixStep = 0; state.visible = Array(n).fill(true); state.all = false;
-      state.notice = { key: 'generated', values: { attempts: normals.attempts } };
+      const adjustments = [];
+      if (p !== original.p && secret !== original.X[0]) {
+        adjustments.push({ key: 'adjustedSecret', values: { p, before: original.X[0], after: secret, max: p - 1 } });
+      }
+      if (p !== original.p && n !== original.n) {
+        adjustments.push({ key: 'adjustedShareCount', values: { p, before: original.n, after: n } });
+      }
+      state.notice = { key: state.method === 'vandermonde' ? 'generatedNumbered' : 'generated',
+        values: { attempts: normals.attempts }, adjustments };
     } catch (_) { state.notice = { key: 'generationFailed', values: {} }; }
-    finally { state.busy = false; document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = false; }); render(); }
+    finally {
+      state.busy = false; document.querySelectorAll('main button, main input, main select').forEach(el => { el.disabled = false; }); render();
+      if (focus && focus.interaction === generationInteraction && focus.target?.isConnected
+          && visibleFocusTarget(focus.target)) focus.target.focus({ preventScroll: true });
+    }
   }
   function modify(component, delta) {
     if (!state.selected.length) return;
@@ -873,6 +906,19 @@
     state.yaw = Math.round((state.yaw + yaw + 360) % 360); state.pitch = Math.max(-80, Math.min(80, state.pitch + pitch)); render();
   }
   function bindIntersections() {
+    document.addEventListener('pointerdown', () => { generationInteraction++; generationFocusIntent = null; }, true);
+    document.addEventListener('keydown', event => {
+      generationInteraction++; generationFocusIntent = null;
+      if (!event.target.matches('#secret, #prime, #share-count, #method, #generate')) return;
+      let target = event.target;
+      if (event.key === 'Tab') {
+        const available = [...document.querySelectorAll('button, input, select, textarea, a[href], summary, [tabindex]')]
+          .filter(el => el.tabIndex >= 0 && visibleFocusTarget(el));
+        const index = available.indexOf(target), delta = event.shiftKey ? -1 : 1;
+        target = available[index + delta] || null;
+      }
+      generationFocusIntent = { source: event.target, target, interaction: generationInteraction };
+    }, true);
     $('share-picks').addEventListener('click', event => {
       const target = event.target.closest('[data-pick]'); if (!target) return;
       const i = Number(target.dataset.pick);
@@ -899,16 +945,16 @@
     });
     $('reset-edit').addEventListener('click', () => { state.edits = null; render(); });
     $('reset-default').addEventListener('click', restore);
-    $('prime').addEventListener('change', event => regenerate({ p: Number(event.target.value) }));
-    $('share-count').addEventListener('change', event => regenerate({ n: Number(event.target.value) }));
-    $('method').addEventListener('change', event => { state.method = event.target.value; regenerate(); });
-    $('generate').addEventListener('click', () => regenerate());
+    $('prime').addEventListener('change', event => regenerate({ p: Number(event.target.value) }, event.target));
+    $('share-count').addEventListener('change', event => regenerate({ n: Number(event.target.value) }, event.target));
+    $('method').addEventListener('change', event => { state.method = event.target.value; regenerate({}, event.target); });
+    $('generate').addEventListener('click', event => regenerate({}, event.target));
     $('secret').addEventListener('change', event => {
       const value = Number(event.target.value);
       if (!event.target.value || !Number.isInteger(value) || value < 0 || value >= state.example.p) {
         state.notice = { key: 'invalidCoordinate', values: { max: state.example.p - 1 } }; render(); return;
       }
-      regenerate({ secret: value });
+      regenerate({ secret: value }, event.target);
     });
     $('coordinates').addEventListener('change', event => {
       const index = Number(event.target.dataset.coordinate), value = Number(event.target.value);
@@ -943,7 +989,7 @@
     for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) $('scene').addEventListener(name, () => { state.drag = null; });
     $('matrix-prev').addEventListener('click', () => { state.matrixStep--; render(); });
     $('matrix-next').addEventListener('click', () => { state.matrixStep++; render(); });
-    window.addEventListener('resize', () => render());
+    window.addEventListener('resize', () => render(true));
   }
 
   const threeDEpsilon = 1e-8;

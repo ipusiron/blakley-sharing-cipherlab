@@ -206,6 +206,7 @@ def test_tabs(page, width, layouts):
           "plane experiment state is retained")
     check(page.locator("#distribution-table").text_content() == k3_distribution, "plane distribution is retained")
     check(page.locator("#workbench").count() == 1, "one interactive workbench without duplicated controls")
+    test_inspection_filter_tabs(page)
     reset_experiment(page, 2)
     default = json.loads((ROOT / "test" / "vectors.json").read_text(encoding="utf-8"))["default_k2"]
     threshold_settings(page, 2, len(default["A"]))
@@ -216,6 +217,37 @@ def test_tabs(page, width, layouts):
     check(not page.locator("#dimension-stage").is_visible(), "line reset keeps the entire dimension stage hidden")
 
 
+def test_inspection_filter_tabs(page):
+    full = {}
+    for dimension, tab in ((2, "intersections"), (3, "dimensions")):
+        reset_experiment(page, dimension)
+        open_ancestors(page.locator("#failures-only"))
+        page.locator("#failures-only").uncheck()
+        full[tab] = table_rows(page, "inspection-list")
+        check(bool(full[tab]), "default passing inspections are present before filtering")
+    page.locator("#tab-intersections").click()
+    page.locator("#failures-only").check()
+    check(not table_rows(page, "inspection-list"), "line failures filter hides all passing rows")
+    page.locator("#tab-dimensions").click()
+    check(not page.locator("#failures-only").is_checked(), "plane filter retains its independent unchecked state")
+    check(table_rows(page, "inspection-list") == full["dimensions"], "unchecked plane filter displays its full inspection table")
+    page.locator("#failures-only").check()
+    check(not table_rows(page, "inspection-list"), "plane failures filter hides all passing rows")
+    page.locator("#tab-intersections").click()
+    check(page.locator("#failures-only").is_checked() and not table_rows(page, "inspection-list"),
+          "returning to lines restores both checked state and filtered rows")
+    page.locator("#failures-only").uncheck()
+    check(table_rows(page, "inspection-list") == full["intersections"], "unchecking line filter restores its full table")
+    page.locator("#tab-dimensions").click()
+    check(page.locator("#failures-only").is_checked() and not table_rows(page, "inspection-list"),
+          "changing line filter does not change the plane filter")
+    page.locator("#failures-only").uncheck()
+    check(table_rows(page, "inspection-list") == full["dimensions"], "unchecking plane filter restores its full table")
+    page.locator("#tab-intersections").click()
+    check(not page.locator("#failures-only").is_checked() and table_rows(page, "inspection-list") == full["intersections"],
+          "returning to lines restores both unchecked state and full rows")
+
+
 def test_help(page, width, layouts, screenshot):
     page.locator("#help").focus()
     page.keyboard.press("Enter")
@@ -224,6 +256,24 @@ def test_help(page, width, layouts, screenshot):
     check(dialog.evaluate("el => el.open && el.matches(':modal')"), "modal dialog")
     check(dialog.get_attribute("aria-labelledby") == "help-title", "help title")
     check(bool(page.locator("#help-title").inner_text()), "translated help title")
+    last_lesson = page.locator("#lesson-10")
+    check(not last_lesson.evaluate("el => el.open"), "last lesson initially closed")
+    last_summary = last_lesson.locator(":scope > summary")
+    last_summary.focus()
+    page.keyboard.press("Tab")
+    check(page.locator("#close-help").evaluate("el => el === document.activeElement"), "closed lesson summary cycles to close")
+    page.keyboard.press("Shift+Tab")
+    check(last_summary.evaluate("el => el === document.activeElement"), "reverse cycle skips links in the closed lesson")
+    page.keyboard.press("Enter")
+    check(last_lesson.evaluate("el => el.open"), "last lesson opens by keyboard")
+    last_link = last_lesson.locator("a[href]").last
+    last_link.focus()
+    page.keyboard.press("Tab")
+    check(page.locator("#close-help").evaluate("el => el === document.activeElement"), "open lesson last link cycles to close")
+    page.keyboard.press("Shift+Tab")
+    check(last_link.evaluate("el => el === document.activeElement"), "reverse cycle reaches the visible last link")
+    last_summary.click()
+    page.locator("#close-help").focus()
     for key in ("Tab", "Tab", "Shift+Tab"):
         page.keyboard.press(key)
         check(dialog.evaluate("el => el.contains(document.activeElement)"), "dialog focus trap")
@@ -701,7 +751,7 @@ def test_coordinate_ui(page, width, layouts, language):
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     threshold_settings(page, 2, 6)
     distribution = table_rows(page, "distribution-table")[0]
-    coefficients = integers(distribution[1])
+    coefficients = integers(distribution[1])[:-1]
     rhs = int(re.search(r"\u2261\s*(\d+)", distribution[2]).group(1))
     check(sorted_points(point_data(page, "main-grid")) == sorted_points(field_points([coefficients], [rhs], 7)), "regenerated graph agrees with distributed equation")
     hover.append(hover_grid(page, "main-grid", [1, 0], [6, 6], edge=True))
@@ -777,6 +827,8 @@ def test_k2(page, width, layouts, vectors, language):
     expected = default["lines"][0]
     check(sorted_points(point_data(page, "intro-grid")) == sorted_points(expected), "intro vector points")
     check(sorted_points(point_data(page, "main-grid")) == sorted_points(expected), "selected line points")
+    check([integers(row[1]) for row in table_rows(page, "distribution-table")] ==
+          [coefficients + [rhs] for coefficients, rhs in zip(default["A"], default["c"])], "distributed shares include coefficients and RHS")
     check(selected_shares(page) == 1, "one initially selected share")
     check(page.locator("#dealer").get_attribute("open") is None, "dealer initially collapsed")
     integer_points = [point for point in expected if point[0] in default["integerCandidates"][0]]
@@ -907,6 +959,8 @@ def test_k3(page, width, layouts, vectors):
     check(not page.locator("#slice-recovered").is_visible(), "two planes have no single recovered slice shortcut")
     check(page.locator("#prime").input_value() == str(default["p"]), "k3 default prime")
     check(selected_shares(page) == 2, "k3 starts with two shares")
+    check([integers(row[1]) for row in table_rows(page, "distribution-table")] ==
+          [coefficients + [rhs] for coefficients, rhs in zip(default["A"], default["c"])], "plane shares include all coefficients and RHS")
     check("X" not in page.locator("#scene-table tbody tr td:first-child").all_text_contents(), "two planes do not reveal X in table")
     check_slices(page, default["slices12"])
     check(page.locator("#slice-grid .grid-secret").count() == 0, "two planes do not mark a known secret")
@@ -985,7 +1039,8 @@ def test_fixed_thresholds(page, width, layouts, vectors):
         threshold_settings(page, dimension, count)
         check(page.locator("#coordinates input").count() == dimension - 1, "settings retain exactly k-1 random coordinates")
         rows = table_rows(page, "distribution-table")
-        check(len(rows) == count and all(len(integers(row[1])) == dimension for row in rows), "distributed equations retain k coefficients")
+        check(len(rows) == count and all(len(integers(row[1])) == dimension + 1 for row in rows),
+              "distributed shares contain k coefficients and RHS")
         check(page.locator("#k2-view").is_visible() == (dimension == 2), "line view follows its fixed-threshold tab")
         check(page.locator("#dimension-stage").is_visible() == (dimension == 3), "only the plane tab shows its dimension stage")
         check(page.locator("#view-3d").is_visible() == (dimension == 3), "plane view follows its fixed-threshold tab")
@@ -1012,8 +1067,9 @@ def test_fixed_thresholds(page, width, layouts, vectors):
         check(page.locator("#secret").input_value() == str(secret), "secret change is applied")
         fixed_dimension(dimension, count)
         rows = table_rows(page, "distribution-table")
-        coefficients = [integers(row[1]) for row in rows]
+        coefficients = [integers(row[1])[:-1] for row in rows]
         right = [int(re.search(r"\u2261\s*(\d+)", row[2]).group(1)) for row in rows]
+        check([integers(row[1])[-1] for row in rows] == right, "share tuples and equations use the same RHS")
         coordinates = [secret] + [int(value) for value in page.locator("#coordinates input").evaluate_all("els => els.map(el => el.value)")]
         check(all(sum(a * x for a, x in zip(row, coordinates)) % prime == rhs for row, rhs in zip(coefficients, right)),
               "regenerated shares agree with the displayed coordinates and fixed dimension")
@@ -1044,6 +1100,110 @@ def test_fixed_thresholds(page, width, layouts, vectors):
         else:
             check(page.locator("#slice-0").get_attribute("aria-pressed") == "true", "plane default starts at candidate zero")
             check_slices(page, default["slices12"])
+            first = page.locator("#coordinate-1")
+            second = page.locator("#coordinate-2")
+            first.fill(str((default["X"][1] + 1) % default["p"]))
+            first.press("Tab")
+            check(second.evaluate("el => el === document.activeElement"), "editing x2 then Tab reaches x3")
+            second.fill(str((default["X"][2] + 1) % default["p"]))
+            second.press("Shift+Tab")
+            check(first.evaluate("el => el === document.activeElement"), "editing x3 then Shift+Tab reaches x2")
+
+
+def test_generation_focus(page):
+    secret = page.locator("#secret")
+    prime = int(page.locator("#prime").input_value())
+    original = int(secret.input_value())
+    secret.fill(str((original + 1) % prime))
+    secret.press("Tab")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#coordinate-1").evaluate("el => el === document.activeElement"), "secret Tab resumes at its next input")
+    secret.fill(str(original))
+    secret.press("Shift+Tab")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#share-count").evaluate("el => el === document.activeElement"), "secret Shift+Tab resumes at its previous input")
+    page.locator("#generate").focus()
+    page.keyboard.press("Enter")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#generate").evaluate("el => el === document.activeElement"), "keyboard regeneration retains its button focus")
+    page.evaluate("""() => {
+      window.__qaOriginalTimeout = window.setTimeout;
+      window.setTimeout = (callback, delay, ...args) => {
+        if (delay === 0 && !window.__qaHeldGeneration) {
+          window.__qaHeldGeneration = () => callback(...args); return 0;
+        }
+        return window.__qaOriginalTimeout(callback, delay, ...args);
+      };
+    }""")
+    try:
+        page.keyboard.press("Enter")
+        page.wait_for_function("() => !!window.__qaHeldGeneration && document.querySelector('#generate').disabled")
+        page.locator("#theme").click()
+        page.evaluate("() => {window.setTimeout=window.__qaOriginalTimeout;window.__qaHeldGeneration();}")
+        page.wait_for_function("() => !document.querySelector('#generate').disabled")
+        check(page.locator("#theme").evaluate("el => el === document.activeElement"), "new pointer interaction is not overridden after generation")
+        page.locator("#theme").click()
+    finally:
+        page.evaluate("() => {window.setTimeout=window.__qaOriginalTimeout;delete window.__qaOriginalTimeout;delete window.__qaHeldGeneration;}")
+
+
+def test_resize_input_drafts(page, vectors):
+    default = vectors["default_k2"]
+    viewport = dict(page.viewport_size)
+    page.evaluate("""() => {
+      window.__qaDraftResizeCount = 0;
+      window.__qaDraftResizeListener = () => { window.__qaDraftResizeCount++; };
+      window.addEventListener('resize', window.__qaDraftResizeListener);
+    }""")
+    try:
+        for selector, index in (("#secret", 0), ("#coordinate-1", 1)):
+            original = default["X"][index]
+            for draft in (str((original + 1) % default["p"]), "-", "1e"):
+                reset_experiment(page, 2)
+                show_details(page, "dealer")
+                field = page.locator(selector)
+                before = page.locator("#distribution-table").text_content()
+                field.fill("")
+                field.press_sequentially(draft)
+                element = field.element_handle()
+                input_state = field.evaluate("el => ({value:el.value,bad:el.validity.badInput})")
+                check(input_state["bad"] == (draft in ("-", "1e")), ("native unfinished number state", selector, draft, input_state))
+                count = page.evaluate("() => window.__qaDraftResizeCount")
+                page.set_viewport_size({**viewport, "width": viewport["width"] + 16})
+                page.wait_for_function("count => window.__qaDraftResizeCount > count", arg=count)
+                check(element.evaluate("el => el === document.activeElement && el.isConnected"), "resize retains the actual focused input node")
+                check(field.evaluate("el => ({value:el.value,bad:el.validity.badInput})") == input_state,
+                      ("resize preserves valid and incomplete number drafts", selector, draft))
+                check(page.locator("#distribution-table").text_content() == before, "uncommitted drafts leave distributed shares unchanged")
+                count = page.evaluate("() => window.__qaDraftResizeCount")
+                page.set_viewport_size(viewport)
+                page.wait_for_function("count => window.__qaDraftResizeCount > count", arg=count)
+                if draft in ("-", "1e"):
+                    field.press_sequentially("1")
+                    expected = -1 if draft == "-" else 10
+                    check(field.evaluate("el => el.valueAsNumber") == expected, "continued typing retains native incomplete-number text")
+                else:
+                    expected = int(draft)
+                field.press("Tab")
+                page.wait_for_function("() => !document.querySelector('#generate').disabled")
+                if expected < 0:
+                    check(field.input_value() == str(original), "confirmed invalid draft restores the last valid number")
+                    check(page.locator("#distribution-table").text_content() == before, "invalid confirmed draft leaves shares unchanged")
+                    check(bool(page.locator("#status").inner_text()), "invalid confirmed draft is explained")
+                else:
+                    check(field.input_value() == str(expected), "confirmed draft updates its value")
+                    point = [int(page.locator("#secret").input_value()), int(page.locator("#coordinate-1").input_value())]
+                    shares = [integers(row[1]) for row in table_rows(page, "distribution-table")]
+                    check(all(sum(a * x for a, x in zip(row[:-1], point)) % default["p"] == row[-1] for row in shares),
+                          "confirmed draft and all distributed shares agree")
+                element.dispose()
+    finally:
+        page.evaluate("""() => {
+          window.removeEventListener('resize', window.__qaDraftResizeListener);
+          delete window.__qaDraftResizeListener; delete window.__qaDraftResizeCount;
+        }""")
+        page.set_viewport_size(viewport)
+    reset_experiment(page, 2)
 
 
 def test_dealer(page, width, layouts, vectors, language):
@@ -1063,6 +1223,17 @@ def test_dealer(page, width, layouts, vectors, language):
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     check(page.locator("#share-count").input_value() == "6", "n clamps to p-1")
     check(page.locator("#secret").input_value() == "6", "s clamps to p-1")
+    adjustment_copy = page.evaluate("""() => {
+      const messages=BlakleyMessages[document.documentElement.lang];
+      return {secret:messages.adjustedSecret,shares:messages.adjustedShareCount,generated:messages.generated};
+    }""")
+    status = page.locator("#status").inner_text()
+    check(adjustment_copy["secret"].format(p=7, before=12, after=6, max=6) in status, "modulus notice explains secret adjustment")
+    check(adjustment_copy["shares"].format(p=7, before=8, after=6) in status, "modulus notice explains share-count adjustment")
+    tuples = [integers(row[1]) for row in table_rows(page, "distribution-table")]
+    coordinates = [6] + page.locator("#coordinates input").evaluate_all("els => els.map(el => Number(el.value))")
+    check(all(sum(a * x for a, x in zip(row[:-1], coordinates)) % 7 == row[-1] for row in tuples),
+          "clamped distributed shares agree with the actual secret and coordinates")
     check(page.locator("#coordinates input").evaluate_all("els => els.every(el => Number(el.value) >= 0 && Number(el.value) < 7)"),
           "all random coordinates in field")
     generated_label = "乱数で作った例" if language == "ja" else "Randomly generated example"
@@ -1072,6 +1243,15 @@ def test_dealer(page, width, layouts, vectors, language):
     inspection = page.locator("#inspection-list")
     open_ancestors(inspection)
     check("✗" not in inspection.inner_text(), "Vandermonde passes")
+    numbered_notice = page.evaluate("() => BlakleyMessages[document.documentElement.lang].generatedNumbered")
+    check(bool(numbered_notice) and page.locator("#status").inner_text() == numbered_notice,
+          "number-based generation explains that its coefficients follow fixed participant numbers")
+    numbered_coefficients = [integers(row[1])[:-1] for row in table_rows(page, "distribution-table")]
+    page.locator("#generate").click()
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check([integers(row[1])[:-1] for row in table_rows(page, "distribution-table")] == numbered_coefficients,
+          "regenerating by participant numbers preserves coefficients with unchanged p, k, and n")
+    check(page.locator("#status").inner_text() == numbered_notice, "number-based regeneration keeps its accurate success explanation")
     page.locator("#method").select_option("random")
     page.wait_for_function("() => !document.querySelector('#generate').disabled")
     check(page.locator("#example-kind").inner_text() == generated_label, "returning to random does not restore fixed example")
@@ -1090,6 +1270,14 @@ def test_dealer(page, width, layouts, vectors, language):
     check(page.locator("#share-count").input_value() == str(len(default["A"])), "reset restores default n")
     check(page.locator("#secret").input_value() == str(default["X"][0]), "reset restores default s")
     check(not page.locator("#manual-note").is_visible(), "reset clears manual warning")
+    page.locator("#prime").select_option("7")
+    page.wait_for_function("() => !document.querySelector('#generate').disabled")
+    check(page.locator("#secret").input_value() == str(default["X"][0]) and
+          page.locator("#share-count").input_value() == str(len(default["A"])), "valid values are unchanged on modulus change")
+    generated_pattern = re.escape(adjustment_copy["generated"]).replace(r"\{attempts\}", r"\d+")
+    check(re.fullmatch(generated_pattern, page.locator("#status").inner_text()), "no adjustment notice appears when no value was clamped")
+    test_generation_focus(page)
+    test_resize_input_drafts(page, vectors)
 
 
 def test_stage1b(page, width, layouts, language):
@@ -1415,9 +1603,19 @@ def test_lessons(page, width, layouts, language):
     check(dialog.locator("details[id^='lesson-']").count() == 10, "ten lessons")
     for key in ("helpLearningRoute", "helpTheoryRoute"):
         readable_copy(page, '#help-dialog [data-i18n="' + key + '"]')
+    for lesson in dialog.locator("details[id^='lesson-']").all():
+        if lesson.evaluate("el => el.open"):
+            lesson.locator(":scope > summary").click()
+    check(dialog.locator("details[id^='lesson-'][open]").count() == 0, "theory lessons are closed for vocabulary reading")
     glossary = dialog.locator('.beginner-glossary')
-    check(glossary.is_visible() and glossary.locator('dt').count() == 8 and glossary.locator('dd').count() == 8,
-          "eight beginner terms are visible without opening theory lessons")
+    check(glossary.is_visible() and glossary.locator('dt').count() == 9 and glossary.locator('dd').count() == 9,
+          "nine beginner terms are visible without opening theory lessons")
+    for key in ("termNormalName", "termNormalDefinition"):
+        readable_copy(page, '#help-dialog .beginner-glossary [data-i18n="' + key + '"]')
+    normal = glossary.locator('[data-i18n="termNormalDefinition"]')
+    check(normal.evaluate("el => el.tagName === 'DD' && !el.closest('details') && "
+                          "el.previousElementSibling.matches('dt[data-i18n=termNormalName]')"),
+          "normal definition follows its term outside collapsible theory lessons")
     check(glossary.evaluate("el=>!!(el.compareDocumentPosition(document.querySelector('#lessons'))&Node.DOCUMENT_POSITION_FOLLOWING)"),
           "beginner vocabulary precedes advanced lessons")
     feature_layout(page, width, "help-beginner-guide", layouts, ())
@@ -1447,7 +1645,7 @@ def test_lessons(page, width, layouts, language):
     check(not dialog.is_visible(), "Escape closes expanded lessons")
     check(page.locator("#help").evaluate("el => el === document.activeElement"), "expanded lessons restore help focus")
     public_text = page.locator("main").text_content()
-    forbidden = r"e\u2081|\u5c04\u5f71|\u5f27|\bMDS\b|\bprojection\b|\bspan\b"
+    forbidden = r"e\u2081|\u5c04\u5f71|(?<!\u62ec)\u5f27|\bMDS\b|\bprojection\b|\bspan\b"
     check(not re.search(forbidden, public_text, re.IGNORECASE), "advanced terminology stays inside lessons")
 
 

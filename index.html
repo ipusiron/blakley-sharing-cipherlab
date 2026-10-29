@@ -199,7 +199,7 @@
             <button id="shift-plus" type="button" data-i18n="shiftPlus">右辺c +1（平行移動）</button>
             <button id="direction-minus" type="button" data-i18n="directionMinus">係数b −1（方向を変える）</button>
             <button id="direction-plus" type="button" data-i18n="directionPlus">係数b +1（方向を変える）</button>
-          </div><button id="reset-edit" type="button" data-i18n="undoEdit">元に戻す</button>
+          </div><button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
           <p id="edit-warning" class="danger-text" role="status"></p>
         </details>
       </section>
@@ -225,7 +225,8 @@
           <h3 data-i18n="finiteSlices">GF(p)の切り口一覧</h3>
           <p id="slice-explanation"></p>
           <div id="slices" class="slice-list" role="group" data-label="chooseSlice" aria-label="切り口を選ぶ"></div>
-          <p id="slice-choice-reading" data-i18n="k3SliceChoice">札を選ぶと、そのsの切り口を下に大きく表示します。候補を見比べる操作で、秘密や配ったシェアの値は変わりません。</p>
+          <p id="slice-choice-reading" data-i18n="k3SliceChoice">札には、選んだすべての式を満たす共通候補だけを描きます。札を選ぶと、そのsを下の図で調べられます。秘密や配ったシェアの値は変わりません。</p>
+          <p id="slice-graph-reading" class="reading-guide" data-i18n="k3SliceGraphReading">下の大きな図には、各シェアの式を満たす点を形で描き分けます。2枚以上を選んだとき、全式の共通候補は二重丸と重なる枚数で示します。札が「点なし」でも、各式だけを満たす点は図に残ります。</p>
           <p id="slice-focus-note" class="reading-guide"></p>
           <button id="slice-recovered" type="button" hidden></button>
           <svg id="slice-grid" class="coordinate-plane" role="img" data-label="sliceGraph" viewBox="0 0 360 400" aria-label="選んだ切り口の座標平面">
@@ -247,19 +248,20 @@
         </div>
       </section>
       <details id="dealer"><summary data-i18n="dealer">ディーラーの設定・計算・配布（答えを含む）</summary>
-        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。</p>
+        <p data-i18n="dealerIntro">ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、乱数の座標を選び直します。下には配る側の答えも表示します。</p>
         <p id="example-kind" class="result"></p>
         <div class="settings-grid">
           <label><span data-i18n="primeLabel">計算に使う素数 p</span><select id="prime"><option>7</option><option>11</option><option>13</option></select></label>
           <label><span data-i18n="shareCountLabel">配る総数 n</span><select id="share-count"></select></label>
           <label><span data-i18n="secretLabel">秘密情報 s</span><input id="secret" type="number" min="0" max="12" value="5"></label>
-        </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
+        </div><p data-i18n="coordinatesIntro">点Xの第1座標が秘密s、残りの座標が乱数です。ここで乱数の座標を手入力すると、sと係数を保って各シェアの右辺cを計算し直します。下の配布表でcの変化を比べてください。手入力では、一様な乱数を選んだ保証にはなりません。</p><div id="coordinates" class="settings-grid"></div>
         <div class="actions"><button id="generate" type="button" data-i18n="generate">新しい乱数で作る</button>
           <button id="reset-default" type="button" data-i18n="resetDefault">このタブの既定の例に戻す</button></div>
         <p id="status" role="status"></p><p id="manual-note" class="danger-text" hidden data-i18n="manualNote">手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。</p>
         <p data-i18n="randomnessPlain">秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。</p>
         <p data-i18n="normalName">係数の組を「法線」と呼びます。検査は係数の組だけを見ます。</p>
         <p data-i18n="premise">x₂…x_k は GF(p) 全体（0を含む）から一様に、秘密ごとに新しく、法線とは別に選ぶ。</p><p data-i18n="reuse">法線は公開・使い回してよい。使い回してはならないのは x₂…x_k。</p>
+        <p data-i18n="dealerShareContents">各行が1人に渡す1枚です。括弧には式の係数を順に並べ、最後に右辺cを入れます。法pは全員で共通です。</p>
         <div id="distribution-table"></div>
         <details id="advanced"><summary data-i18n="advanced">詳しく</summary>
           <p data-i18n="methodIntro">係数の作り方を2種類から選べます。「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。</p>
@@ -332,6 +334,7 @@
         </details>
         <p id="compare-k3-shares"></p>
         <p data-i18n="compareVandermonde">番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)を各行に並べた表が、ヴァンデルモンド行列です。この構成は検査(i)(ii)を満たします。</p>
+        <p class="reading-guide" data-i18n="compareChecks">検査(i)は、どの3枚の式からも点が1つに決まるかを確認します。検査(ii)は、どの2枚の式でも、sを1つ仮定すると乱数の組がちょうど1つ求まるかを確認します。情報を漏らさないためには、乱数を0も含む全範囲から同じ確率で選びます。</p>
         <label class="choice">
           <input id="compare-nonzero" type="checkbox"><span data-i18n="compareNonzero">乱数の座標を0以外に限る</span>
         </label>
@@ -527,6 +530,7 @@
         <dt data-i18n="termRandomName">乱数</dt><dd data-i18n="termRandomDefinition">秘密と別に選ぶ補助の数です。全体から同じ確率で選ぶことを「一様に選ぶ」と呼びます。</dd>
         <dt data-i18n="termFieldName">有限体 GF(p)</dt><dd data-i18n="termFieldDefinition">この教材ではpを素数とし、0〜p−1を使って、pで割った余りで計算します。0以外の数での割り算も定義できます。</dd>
         <dt data-i18n="termEquationName">式と係数</dt><dd data-i18n="termEquationDefinition">式は座標が満たす条件です。a x₁+b x₂≡cでは、a,bが座標に掛ける係数、cが右辺の値です。</dd>
+        <dt data-i18n="termNormalName">法線（係数の組）</dt><dd data-i18n="termNormalDefinition">式の係数を並べた組です。x₁+3x₂≡3なら(1,3)が法線です。右辺cも付けた(1,3,3)が、この教材で配るシェアになります。</dd>
         <dt data-i18n="termHyperplaneName">超平面</dt><dd data-i18n="termHyperplaneDefinition">2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。</dd>
       </dl>
       <p data-i18n="helpTheoryRoute">座学は1→4→7の順で、方式・候補数・乱数の範囲を読むと進めやすくなります。2は証明、3は原論文、5・6・8は発展事項です。9は改ざん検査の限界、10は関連ツールを扱います。</p>

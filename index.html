@@ -36,6 +36,10 @@
         <a id="startup-reload" href="" target="_blank" rel="noopener noreferrer">別タブで開き直す / Reopen in a new tab</a>
       </details>
     </aside>
+    <details id="field-primer"><summary data-i18n="fieldPrimer">GF(p)の前提知識</summary>
+        <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
+        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer" target="_blank" rel="noopener noreferrer">Day123のGF(p)の前提知識へ</a>
+      </details>
     <fieldset id="startup-controls" class="startup-control-group" disabled aria-label="教材 / Learning tool">
     <nav class="tabs" role="tablist" data-label="tablist" aria-label="学ぶ順番">
       <button id="tab-intersections" role="tab" type="button" aria-controls="panel-intersections"
@@ -195,28 +199,39 @@
         </div>
         <p id="candidate-explanation"></p>
         <div id="k2-interactive">
+          <div class="share-edit-layout">
+            <div class="share-edit-plot">
           <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides">点の間の目安を表示</span></label>
           <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane" viewBox="0 0 360 400" aria-label="選んだシェアの座標平面">
   <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
   <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
 </svg>
+            </div>
+        <details id="edit-controls"><summary data-i18n="editCopy">選んだシェアの写しをいじる</summary>
+          <label class="edit-share-choice"><span data-i18n="editShare">いじるシェア</span><select id="edit-share"></select></label>
+          <div id="edit-actions" class="edit-actions" tabindex="0" data-label="editKeys" aria-label="矢印キー: 上下で平行移動、左右で方向を変更">
+            <div class="edit-step-row" role="group" aria-labelledby="edit-shift-label">
+              <span id="edit-shift-label" data-i18n="editShiftLabel">右辺c（平行移動）</span>
+              <button id="shift-minus" type="button" data-label="shiftMinus" aria-label="右辺c −1（平行移動）">−1</button>
+              <button id="shift-plus" type="button" data-label="shiftPlus" aria-label="右辺c +1（平行移動）">+1</button>
+            </div>
+            <div class="edit-step-row" role="group" aria-labelledby="edit-direction-label">
+              <span id="edit-direction-label" data-i18n="editDirectionLabel">係数b（方向を変える）</span>
+              <button id="direction-minus" type="button" data-label="directionMinus" aria-label="係数b −1（方向を変える）">−1</button>
+              <button id="direction-plus" type="button" data-label="directionPlus" aria-label="係数b +1（方向を変える）">+1</button>
+            </div>
+          </div>
+          <button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
+          <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
+          <p id="edit-warning" class="danger-text" role="status"></p>
+        </details>
+          </div>
           <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="grid-table"></div></details>
         </div>
         <p id="candidate-equation" class="formula"></p>
         <p id="candidate-inverse-explanation" hidden></p>
         <p id="recovery-result" class="result" role="status"></p>
         <div id="combination-results"></div>
-        <details id="edit-controls"><summary data-i18n="editCopy">選んだシェアの写しをいじる</summary>
-          <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
-          <label><span data-i18n="editShare">いじるシェア</span><select id="edit-share"></select></label>
-          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys" aria-label="矢印キー: 上下で平行移動、左右で方向を変更">
-            <button id="shift-minus" type="button" data-i18n="shiftMinus">右辺c −1（平行移動）</button>
-            <button id="shift-plus" type="button" data-i18n="shiftPlus">右辺c +1（平行移動）</button>
-            <button id="direction-minus" type="button" data-i18n="directionMinus">係数b −1（方向を変える）</button>
-            <button id="direction-plus" type="button" data-i18n="directionPlus">係数b +1（方向を変える）</button>
-          </div><button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
-          <p id="edit-warning" class="danger-text" role="status"></p>
-        </details>
       </section>
       <section id="dimension-stage" class="stage-card" hidden>
         <h3 id="dimension-title" hidden>k=3では、直線が平面になる</h3><p id="dimension-intro" hidden>k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>
@@ -292,10 +307,6 @@
             <div id="inspection-list"></div>
           </details><p data-i18n="checkPremise">検査は係数の組だけを見るので、通るまで引き直しても秘密は漏れない。ただし乱数の座標 x₂…x_k が一様であることが前提。</p>
         </details>
-      </details>
-      <details id="field-primer"><summary data-i18n="fieldPrimer">GF(p)の前提知識</summary>
-        <p data-i18n="fieldText">GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。</p><p data-i18n="inverseText">3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。</p>
-        <a href="https://ipusiron.github.io/shamir-sharing-cipherlab/#linear-prerequisite-title" data-i18n="shamirPrimer" target="_blank" rel="noopener noreferrer">Day123のGF(p)の前提知識へ</a>
       </details>
       </div>
       </div>

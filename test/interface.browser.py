@@ -819,6 +819,18 @@ def check_slices(page, expected):
               ("slice", index, points))
 
 
+def click_copy_edit(page, identifier):
+    button = page.locator("#" + identifier)
+    open_ancestors(button)
+    button.scroll_into_view_if_needed()
+    before = page.locator("#main-grid").bounding_box()["y"]
+    button.click()
+    page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+    after = page.locator("#main-grid").bounding_box()["y"]
+    check(abs(after - before) <= 1, (identifier, "copy editing keeps the diagram in place", before, after))
+    check(button.evaluate("el => el === document.activeElement"), (identifier, "copy editing preserves button focus"))
+
+
 def test_k2(page, width, layouts, vectors, language):
     default = vectors["default_k2"]
     math_primer_closed(page)
@@ -869,7 +881,7 @@ def test_k2(page, width, layouts, vectors, language):
     choose_shares(page, {0, 1})
     show_details(page, "edit-controls")
     original_value = page.locator("#recovery-result").inner_text()
-    click_visible(page, "shift-plus")
+    click_copy_edit(page, "shift-plus")
     altered_rhs = [(default["c"][0] + 1) % default["p"], default["c"][1]]
     altered = field_points(default["A"][:2], altered_rhs, default["p"])[0]
     check(visible_coordinate_pairs(page.locator("#recovery-result").inner_text()) == [altered],
@@ -881,7 +893,7 @@ def test_k2(page, width, layouts, vectors, language):
     choose_shares(page, {0, 1, 2, 3})
     check(not field_points(default["A"], [altered_rhs[0], *default["c"][1:]], default["p"]), "edited four-share system is inconsistent")
     check(readable_copy(page, "#selection-explanation") != edited_explanation, "inconsistent-copy explanation differs from altered unique recovery")
-    click_visible(page, "reset-edit")
+    click_copy_edit(page, "reset-edit")
     choose_shares(page, {0, 1})
     check(page.locator("#recovery-result").get_attribute("data-source") == "distributed", "reset returns to distributed source")
     check(page.locator("#recovery-result").inner_text() == original_value, "reset restores original answer text")
@@ -896,18 +908,18 @@ def test_k2(page, width, layouts, vectors, language):
     original_distribution = page.locator("#distribution-table").inner_text()
     show_details(page, "edit-controls")
     before_shift = point_data(page, "main-grid")
-    click_visible(page, "shift-plus")
+    click_copy_edit(page, "shift-plus")
     check(point_data(page, "main-grid") != before_shift, "shift changes drawn copy")
     fixed_math_after_change(page, default)
-    click_visible(page, "shift-minus")
+    click_copy_edit(page, "shift-minus")
     check(point_data(page, "main-grid") == before_shift, "opposite shift restores copy")
     check(page.locator("#distribution-table").inner_text() == original_distribution, "editing preserves distributed values")
     fixed_math_after_change(page, default)
     check(page.locator("#edited-real-note").is_visible(), "edited real explanation")
-    click_visible(page, "reset-edit")
+    click_copy_edit(page, "reset-edit")
     fixed_math_after_change(page, default)
     for _ in range(default["A"][0][1]):
-        click_visible(page, "direction-minus")
+        click_copy_edit(page, "direction-minus")
     warning = page.locator("#edit-warning").inner_text()
     expected_warning = "この1本で s が決まる" if language == "ja" else "This one share determines s"
     check(expected_warning in warning, "vertical line warning")
@@ -917,10 +929,10 @@ def test_k2(page, width, layouts, vectors, language):
     open_ancestors(inspection)
     check("✗" in inspection.inner_text(), "vertical line fails inspection")
     feature_layout(page, width, "k2-invalid-vertical", layouts, ("main-grid",))
-    click_visible(page, "reset-edit")
+    click_copy_edit(page, "reset-edit")
     import re
     for _ in range(default["p"]):
-        click_visible(page, "direction-plus")
+        click_copy_edit(page, "direction-plus")
         warning = page.locator("#edit-warning").inner_text()
         if re.search(r"#(\d+)", warning):
             break
@@ -931,18 +943,18 @@ def test_k2(page, width, layouts, vectors, language):
     check(not set(current_points).intersection(other_points), "parallel warning corresponds to disjoint lines")
     check(("交点はありません" if language == "ja" else "no intersection") in warning, "disjoint warning")
     for _ in range(default["p"]):
-        click_visible(page, "shift-plus")
+        click_copy_edit(page, "shift-plus")
         if sorted_points(point_data(page, "main-grid")) == other_points:
             break
     check(sorted_points(point_data(page, "main-grid")) == other_points, "shift reaches same reference line")
     check(("同じ直線" if language == "ja" else "same line") in page.locator("#edit-warning").inner_text(), "coincident warning")
     check(int(page.locator("#inspection-list").get_attribute("data-failed")) > 0, "parallel line fails inspection")
-    click_visible(page, "reset-edit")
+    click_copy_edit(page, "reset-edit")
     previous = point_data(page, "main-grid")
     page.locator("#edit-actions").focus()
     page.keyboard.press("ArrowUp")
     check(point_data(page, "main-grid") != previous, "keyboard shifts selected copy")
-    click_visible(page, "reset-edit")
+    click_copy_edit(page, "reset-edit")
     page.locator("#dealer > summary").click()
     page.locator("#edit-controls > summary").click()
 

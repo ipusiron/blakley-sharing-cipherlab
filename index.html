@@ -49,15 +49,11 @@
     </nav>
     <section id="panel-intersections" class="panel" role="tabpanel" aria-labelledby="tab-intersections">
       <h2 data-i18n="intersections">交点で追う（k=2）</h2>
-      <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
-        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
-        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
-        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
-        <p data-i18n="learningRoute">まず「知っておくべき数学的概念」を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。</p>
-        <p id="threshold-summary" class="threshold-current"></p>
-      </section>
       <details id="math-primer" class="math-primer">
         <summary data-i18n="mathPrimer">知っておくべき数学的概念</summary>
+        <h3 data-i18n="mathFieldTitle">この教材で使う計算：GF(p)</h3>
+        <p data-i18n="mathFieldIntro">この教材では、素数pを決め、0からp−1までの数を使います。計算結果はpで割った余りにします。この数と計算の仕組みをGF(p)（有限体）と呼びます。p=13なら12+2=14≡1 (mod 13)です。</p>
+        <p data-i18n="mathFieldInverse">ある数に掛けて結果が1になる数を、その数の逆元と呼びます。GF(13)では3×9=27≡1 (mod 13)なので、3の逆元は9です。3で割るときは9を掛けて余りを求めます。pが素数なら、0以外のすべての数に逆元があります。</p>
         <section id="real-story" class="stage-card">
           <h3 data-i18n="realToMod">実数から整数、そしてmodへ</h3>
           <p data-i18n="mathPrimerIntro">GF(13)の固定例で、実数・整数・合同式を比べます。下の実験の設定やシェア編集とは独立した教材です。</p>
@@ -91,6 +87,13 @@
           </div>
         </section>
       </details>
+      <section id="sharing-primer" class="sharing-primer" aria-labelledby="threshold-title">
+        <h3 id="threshold-title" class="threshold-flow" data-i18n="thresholdTitle">n枚を配る → 任意のk枚以上で復元</h3>
+        <p data-i18n="secretSharingDefinition">秘密分散は、秘密から複数のシェア（配る情報）を作り、必要な枚数を集めて秘密を求める方法です。この教材では、正しく作ればk枚未満からは秘密の値を絞れず、任意のk枚以上で復元できます。</p>
+        <p data-i18n="thresholdDefinition">nは配るシェアの総数、kは復元に必要な最小枚数です。正しく作ったシェアなら、任意のk枚以上を集めて秘密sを復元できます。</p>
+        <p data-i18n="learningRoute">まず「知っておくべき数学的概念」を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。</p>
+        <p id="threshold-summary" class="threshold-current"></p>
+      </section>
       <div id="k2-view">
         <section id="initial-example-primer" class="primer-example" aria-labelledby="primer-title">
           <h3 id="primer-title" data-i18n="primerTitle">最初の固定例：(k,n)=(2,4)</h3>
@@ -195,28 +198,39 @@
         </div>
         <p id="candidate-explanation"></p>
         <div id="k2-interactive">
+          <div class="share-edit-layout">
+            <div class="share-edit-plot">
           <label class="choice"><input id="guides" type="checkbox"><span data-i18n="guides">点の間の目安を表示</span></label>
           <svg id="main-grid" class="coordinate-plane" role="img" data-label="coordinatePlane" viewBox="0 0 360 400" aria-label="選んだシェアの座標平面">
   <text class="graph-loading" x="180" y="185" text-anchor="middle">図を準備しています</text>
   <text class="graph-loading" x="180" y="215" text-anchor="middle" lang="en">Preparing diagram</text>
 </svg>
+            </div>
+        <details id="edit-controls"><summary data-i18n="editCopy">選んだシェアの写しをいじる</summary>
+          <label class="edit-share-choice"><span data-i18n="editShare">いじるシェア</span><select id="edit-share"></select></label>
+          <div id="edit-actions" class="edit-actions" tabindex="0" data-label="editKeys" aria-label="矢印キー: 上下で平行移動、左右で方向を変更">
+            <div class="edit-step-row" role="group" aria-labelledby="edit-shift-label">
+              <span id="edit-shift-label" data-i18n="editShiftLabel">右辺c（平行移動）</span>
+              <button id="shift-minus" type="button" data-label="shiftMinus" aria-label="右辺c −1（平行移動）">−1</button>
+              <button id="shift-plus" type="button" data-label="shiftPlus" aria-label="右辺c +1（平行移動）">+1</button>
+            </div>
+            <div class="edit-step-row" role="group" aria-labelledby="edit-direction-label">
+              <span id="edit-direction-label" data-i18n="editDirectionLabel">係数b（方向を変える）</span>
+              <button id="direction-minus" type="button" data-label="directionMinus" aria-label="係数b −1（方向を変える）">−1</button>
+              <button id="direction-plus" type="button" data-label="directionPlus" aria-label="係数b +1（方向を変える）">+1</button>
+            </div>
+          </div>
+          <button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
+          <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
+          <p id="edit-warning" class="danger-text" role="status"></p>
+        </details>
+          </div>
           <details><summary data-i18n="graphTable">図の内容を表で見る</summary><div id="grid-table"></div></details>
         </div>
         <p id="candidate-equation" class="formula"></p>
         <p id="candidate-inverse-explanation" hidden></p>
         <p id="recovery-result" class="result" role="status"></p>
         <div id="combination-results"></div>
-        <details id="edit-controls"><summary data-i18n="editCopy">選んだシェアの写しをいじる</summary>
-          <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
-          <label><span data-i18n="editShare">いじるシェア</span><select id="edit-share"></select></label>
-          <div id="edit-actions" class="actions" tabindex="0" data-label="editKeys" aria-label="矢印キー: 上下で平行移動、左右で方向を変更">
-            <button id="shift-minus" type="button" data-i18n="shiftMinus">右辺c −1（平行移動）</button>
-            <button id="shift-plus" type="button" data-i18n="shiftPlus">右辺c +1（平行移動）</button>
-            <button id="direction-minus" type="button" data-i18n="directionMinus">係数b −1（方向を変える）</button>
-            <button id="direction-plus" type="button" data-i18n="directionPlus">係数b +1（方向を変える）</button>
-          </div><button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
-          <p id="edit-warning" class="danger-text" role="status"></p>
-        </details>
       </section>
       <section id="dimension-stage" class="stage-card" hidden>
         <h3 id="dimension-title" hidden>k=3では、直線が平面になる</h3><p id="dimension-intro" hidden>k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。</p>

@@ -210,6 +210,9 @@
       initialGraph: "シェア#1の座標平面",
       graphTable: "図の内容を表で見る",
       mathPrimer: "知っておくべき数学的概念",
+      mathFieldTitle: "この教材で使う計算：GF(p)",
+      mathFieldIntro: "この教材では、素数pを決め、0からp−1までの数を使います。計算結果はpで割った余りにします。この数と計算の仕組みをGF(p)（有限体）と呼びます。p=13なら12+2=14≡1 (mod 13)です。",
+      mathFieldInverse: "ある数に掛けて結果が1になる数を、その数の逆元と呼びます。GF(13)では3×9=27≡1 (mod 13)なので、3の逆元は9です。3で割るときは9を掛けて余りを求めます。pが素数なら、0以外のすべての数に逆元があります。",
       mathPrimerIntro: "GF(13)の固定例で、実数・整数・合同式を比べます。下の実験の設定やシェア編集とは独立した教材です。",
       mathPrimerDifference: "②では、各座標が0〜12の格子点のうち、等式x₁+3x₂=29を満たす4点を示します。③では合同式x₁+3x₂≡3 (mod 13)を満たす13点を、2通りの描き方で確かめます。",
       realToMod: "実数から整数、そしてmodへ",
@@ -234,6 +237,8 @@
       coordinatePlane: "選んだシェアの座標平面",
       editCopy: "選んだシェアの写しをいじる",
       editShare: "いじるシェア",
+      editShiftLabel: "右辺c（平行移動）",
+      editDirectionLabel: "係数b（方向を変える）",
       editKeys: "矢印キー: 上下で平行移動、左右で方向を変更",
       shiftMinus: "右辺c −1（平行移動）",
       shiftPlus: "右辺c +1（平行移動）",
@@ -1057,6 +1062,11 @@
       initialGraph: "Coordinate plane for share #1",
       graphTable: "View the figure as a table",
       mathPrimer: "Mathematical background",
+      mathFieldTitle: "Arithmetic used here: GF(p)",
+      mathFieldIntro: "Choose a prime p and use the numbers from 0 to p−1. Reduce calculation results to their remainders modulo p. These "
+        + "numbers and operations form the finite field GF(p). For p=13, 12+2=14≡1 (mod 13).",
+      mathFieldInverse: "An inverse is a number you multiply by to get 1. In GF(13), 3×9=27≡1 (mod 13), so the inverse of 3 is 9. To divide by "
+        + "3, multiply by 9 and reduce modulo 13. With a prime p, every nonzero number has an inverse.",
       mathPrimerIntro: "This fixed GF(13) example compares real numbers, integers and congruences. It is independent of the experiment "
         + "settings and edited shares below.",
       mathPrimerDifference: "Step 2 shows four grid points with coordinates in 0–12 satisfying x₁+3x₂=29. Step 3 uses two plotting methods to show "
@@ -1086,6 +1096,8 @@
       coordinatePlane: "Coordinate plane for selected shares",
       editCopy: "Edit a copy of a selected share",
       editShare: "Share to edit",
+      editShiftLabel: "Right-hand value c (shift)",
+      editDirectionLabel: "Coefficient b (direction)",
       editKeys: "Arrow keys: up/down shift, left/right change direction",
       shiftMinus: "Right side c −1 (shift)",
       shiftPlus: "Right side c +1 (shift)",

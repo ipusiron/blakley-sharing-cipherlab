@@ -152,6 +152,16 @@ dialog::backdrop { background: #101a2ab0; }
 .stage-card { min-width: 0; margin: 1rem 0; padding: .65rem; border: 1px solid var(--line); border-left: 4px solid var(--accent); }
 .stage-card > :first-child { margin-top: 0; }
 .coordinate-plane { display: block; width: 100%; max-width: 360px; height: auto; margin: .5rem auto; background: var(--paper); }
+.share-edit-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; align-items: start; }
+.share-edit-plot { min-width: 0; }
+.share-edit-layout > details { margin: 0; }
+.edit-share-choice { grid-template-columns: minmax(0, 1fr) minmax(4rem, 1fr); align-items: center; gap: .5rem; }
+.edit-actions { display: grid; gap: .5rem; margin: .75rem 0; }
+.edit-step-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .5rem; }
+.edit-step-row > span { font-size: .875rem; }
+@media (min-width: 720px) {
+  .share-edit-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+}
 .grid-line { stroke: var(--grid); stroke-width: 1; }
 .grid-axis { stroke: var(--muted); stroke-width: 1.2; }
 .grid-label { fill: var(--ink); font: 12px system-ui, sans-serif; }

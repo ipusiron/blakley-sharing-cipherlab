@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 const html = read('index.html');
-const scripts = ['gf-core.js', 'pitfalls.js', 'messages.js', 'app.js'];
+const scripts = ['theme-init.js', 'gf-core.js', 'pitfalls.js', 'messages.js', 'app.js'];
 test('F: strict offline CSP, standard scripts and semantic shell', () => {
   const csp = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
     + "base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'";

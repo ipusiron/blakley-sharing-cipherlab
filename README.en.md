@@ -26,6 +26,8 @@ In the tool, this notice and link appear in Help.
 
 Use it in a browser, or open the downloaded `index.html` directly through `file://`. No build is required.
 The controls at the top right switch between Japanese and English, and between light and dark themes.
+A saved theme choice takes priority; without a valid saved value, the theme follows the OS setting when the page opens.
+Each language or theme button stores only its own preference.
 
 During startup, Japanese explanations and bilingual preparation messages appear first, with interactive controls disabled until initialization finishes.
 Successful initialization opens the normal interface and enables the language and theme controls.
@@ -424,6 +426,7 @@ npm test
 - Candidate counts, integers and narrow randomness, Shamir correspondence, tampering and the effect of δ on the secret
 - Agreement between the dictionaries and static Japanese text; prohibited terms, CSP, storage scope, colors and source format
 - README numeric tables, YAML, matching headings, directory coverage and images
+- `theme-init.js`: OS settings, saved values, storage exceptions, no initial writes and synchronous loading in the head
 
 GitHub Actions runs syntax checks and `npm test` with Node.js 22 on pushes and pull requests.
 Browser checks run locally with Python and Playwright. Install Playwright and its Chromium and Firefox browsers before running:
@@ -435,8 +438,9 @@ python test/interface.browser.py --stage 1c
 Checks cover file:// and HTTP, widths of 320, 390 and 1280 px, both languages and themes, tabs, keyboard input, 3D rotation,
 the comparison table, all four cards and help.
 The local browser suite passed 46 cases, with four additional checks for recovery after random-generation failure.
-The following startup suite covers 12 conditions, including delayed loading, disabled JavaScript, script-loading failures and denied storage.
+The following startup suite covers 14 conditions, including delayed loading, disabled JavaScript, script-loading failures and denied storage.
 It checks explanatory content and the disabling and enabling of controls, starts a temporary local HTTP server, and saves results under `.work/`.
+Real language and theme button clicks verify separate preference writes and theme selection after reloading.
 
 ```sh
 python test/startup.browser.py
@@ -496,6 +500,7 @@ blakley-sharing-cipherlab/  # Project root
 ├── test/readme.test.js              # README number, structure and screenshot checks
 ├── test/startup.browser.py          # Content and controls during loading, failure and completion
 ├── test/structure.test.js           # Page structure, CSP and storage-scope checks
+├── test/theme-init.test.js          # Initial theme, storage exceptions and synchronous loading
 ├── test/vectors.json                # Fixed expected values from the reference implementation
 ├── app.js                           # Interface state, figures, tables and interaction
 ├── gf-core.js                       # Finite-field arithmetic, checks, generation and reconstruction
@@ -506,7 +511,8 @@ blakley-sharing-cipherlab/  # Project root
 ├── pitfalls.js                      # Deliberately unchecked educational models
 ├── README.md                        # Japanese documentation
 ├── README.en.md                     # English documentation
-└── style.css                        # Layout, themes and narrow-screen styles
+├── style.css                        # Layout, themes and narrow-screen styles
+└── theme-init.js                    # Theme selection before the first paint
 ```
 
 ## 💻 Requirements

@@ -17,7 +17,16 @@
       primerCoefficientAccept: "実際の#2は(a,b)=(2,5)です。#1を2倍した(2,6)とは一致しません。",
       primerCoefficientAcceptCalculation: "同じX=(s,r)=(5,8)から、a×s+b×r=5a+8b=5×2+8×5=10+40=50と計算します。50=13×3+11より、13で割った余りは11なのでc=11です。#2の式は2x₁+5x₂≡11"
         + " (mod 13)となります。",
-      primerCoefficientAcceptRecovery: "復元も確かめます。#1を2倍した式から#2の式を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
+      primerRecoveryTitle: "2本の式から秘密sを復元する",
+      primerRecoveryEquations: "2本の式は、#1：x₁+3x₂≡3、#2：2x₁+5x₂≡11（どちらもmod 13）です。",
+      primerCoefficientAcceptRecovery: "#1の両辺を2倍すると、2x₁+6x₂≡6 (mod 13)です。ここから#2の式を引くと、x₁の項が消え、x₂≡6−11=−5≡8 (mod 13)となります。−5に13を足すと8なので、x₂=8です。",
+      primerRecoverySecret: "この値を#1に代入すると、x₁+3×8≡3 (mod 13)です。両辺から24を引くと、x₁≡3−24=−21≡5 (mod 13)となります。−21に13を2回足すと5なので、秘密s=x₁=5を復元できます。",
+      primerPrimeTitle: "法を素数にする理由",
+      primerPrimeInverse: "法pが素数なら、0以外の各数に「掛けると1になる数（逆数）」があります。たとえばmod 13では3×9=27≡1なので、3で割る代わりに9を掛けられます。"
+        + "これにより、連立方程式を解く途中で0以外の係数で割る操作ができます。",
+      primerPrimeComposite: "法が合成数だと、0以外でも逆数がない数があります。たとえばmod 12では、3にどの整数を掛けても余りは0,3,6,9のいずれかで、1にはなりません。",
+      primerPrimeExample: "今回の例では、引き算後のx₂の係数も、代入後のx₁の係数も1なので、逆数を求める操作は必要ありません。ただし、法が素数でも、同じ条件を表す2本の式からは点を1つに決められません。"
+        + "係数の組にも、次の条件が必要です。",
       primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
       primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1"
@@ -753,8 +762,21 @@
       primerCoefficientAccept: "The actual #2 pair is (a,b)=(2,5), which differs from twice #1, (2,6).",
       primerCoefficientAcceptCalculation: "Using the same X=(s,r)=(5,8), we calculate a×s+b×r=5a+8b=5×2+8×5=10+40=50. Since 50=13×3+11, the"
         + " remainder when dividing by 13 is 11, so c=11. The #2 equation is 2x₁+5x₂≡11 (mod 13).",
-      primerCoefficientAcceptRecovery: "We can also check recovery. Subtracting the #2 equation from twice the #1 equation gives x₂≡6−11≡8 (mod"
-        + " 13), then x₁=5.",
+      primerRecoveryTitle: "Recover the secret s from two equations",
+      primerRecoveryEquations: "The two equations are #1: x₁+3x₂≡3 and #2: 2x₁+5x₂≡11, both modulo 13.",
+      primerCoefficientAcceptRecovery: "Multiplying both sides of #1 by 2 gives 2x₁+6x₂≡6 (mod 13). Subtracting #2 cancels the x₁ terms, leaving"
+        + " x₂≡6−11=−5≡8 (mod 13). Adding 13 to −5 gives 8, so x₂=8.",
+      primerRecoverySecret: "Substituting this value into #1 gives x₁+3×8≡3 (mod 13). Subtracting 24 from both sides gives"
+        + " x₁≡3−24=−21≡5 (mod 13). Adding 13 twice to −21 gives 5, so we recover the secret s=x₁=5.",
+      primerPrimeTitle: "Why use a prime modulus?",
+      primerPrimeInverse: "When the modulus p is prime, every nonzero number has an inverse: a number that multiplies it to give 1"
+        + " modulo p. For example, 3×9=27≡1 (mod 13), so multiplying by 9 takes the place of dividing by 3. This"
+        + " lets us divide by any nonzero coefficient while solving the equations.",
+      primerPrimeComposite: "With a composite modulus, some nonzero numbers have no inverse. For example, modulo 12, multiplying 3 by"
+        + " any integer gives a remainder of 0, 3, 6, or 9, never 1.",
+      primerPrimeExample: "In this example, the coefficient of x₂ after subtraction and that of x₁ after substitution are both 1,"
+        + " so no inverse calculation is needed. Even with a prime modulus, two equations expressing the same"
+        + " condition cannot determine a unique point. The coefficient pairs must also meet the following condition.",
       primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
         + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
         + "this check.",

@@ -21,11 +21,14 @@
       primerRecoveryEquations: "2本の式は、#1：x₁+3x₂≡3、#2：2x₁+5x₂≡11（どちらもmod 13）です。",
       primerCoefficientAcceptRecovery: "#1の両辺を2倍すると、2x₁+6x₂≡6 (mod 13)です。ここから#2の式を引くと、x₁の項が消え、x₂≡6−11=−5≡8 (mod 13)となります。−5に13を足すと8なので、x₂=8です。",
       primerRecoverySecret: "この値を#1に代入すると、x₁+3×8≡3 (mod 13)です。両辺から24を引くと、x₁≡3−24=−21≡5 (mod 13)となります。−21に13を2回足すと5なので、秘密s=x₁=5を復元できます。",
+      primerRecoveryAlternativeTitle: "#2に代入して「2で割る」求め方",
+      primerRecoveryAlternativeSubstitution: "同じx₂=8を#2に代入すると、11≡2x₁+5×8=2x₁+40 (mod 13)です。両辺から40を引くと、2x₁≡11−40=−29≡−3≡10 (mod 13)となります。",
+      primerRecoveryInverseTwo: "2と13は互いに素（共通の正の約数が1だけ）なので、2にはmod 13での逆数があります。2×7=14≡1 (mod 13)より、その逆数は7です。",
+      primerRecoveryAlternativeSecret: "両辺に7を掛けると、x₁≡7×10=70≡5 (mod 13)となり、同じ秘密s=5を得られます。合同式で「2で割る」とは、このように2の逆数を掛ける操作です。法と互いに素な数であれば、この割り算ができます。",
       primerPrimeTitle: "法を素数にする理由",
-      primerPrimeInverse: "法pが素数なら、0以外の各数に「掛けると1になる数（逆数）」があります。たとえばmod 13では3×9=27≡1なので、3で割る代わりに9を掛けられます。"
-        + "これにより、連立方程式を解く途中で0以外の係数で割る操作ができます。",
+      primerPrimeInverse: "法pが素数なら、1〜p−1のすべての数がpと互いに素で、逆数を持ちます。だから、連立方程式を解く途中で0以外の係数で割る操作ができます。先ほどのmod 13で「2で割る」操作も、この性質を使っています。",
       primerPrimeComposite: "法が合成数だと、0以外でも逆数がない数があります。たとえばmod 12では、3にどの整数を掛けても余りは0,3,6,9のいずれかで、1にはなりません。",
-      primerPrimeExample: "今回の例では、引き算後のx₂の係数も、代入後のx₁の係数も1なので、逆数を求める操作は必要ありません。ただし、法が素数でも、同じ条件を表す2本の式からは点を1つに決められません。"
+      primerPrimeExample: "#1へ代入する最初の求め方では、係数が1なので逆数を求める操作は不要です。#2へ代入する別の求め方では、2の逆数を使いました。ただし、法が素数でも、同じ条件を表す2本の式からは点を1つに決められません。"
         + "係数の組にも、次の条件が必要です。",
       primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
@@ -768,15 +771,24 @@
         + " x₂≡6−11=−5≡8 (mod 13). Adding 13 to −5 gives 8, so x₂=8.",
       primerRecoverySecret: "Substituting this value into #1 gives x₁+3×8≡3 (mod 13). Subtracting 24 from both sides gives"
         + " x₁≡3−24=−21≡5 (mod 13). Adding 13 twice to −21 gives 5, so we recover the secret s=x₁=5.",
+      primerRecoveryAlternativeTitle: "Another route: substitute into #2 and divide by 2",
+      primerRecoveryAlternativeSubstitution: "Substituting the same x₂=8 into #2 gives 11≡2x₁+5×8=2x₁+40 (mod 13). Subtracting 40 from both sides"
+        + " gives 2x₁≡11−40=−29≡−3≡10 (mod 13).",
+      primerRecoveryInverseTwo: "The numbers 2 and 13 are coprime: their only common positive divisor is 1. Thus 2 has an inverse modulo"
+        + " 13. Since 2×7=14≡1 (mod 13), that inverse is 7.",
+      primerRecoveryAlternativeSecret: "Multiplying both sides by 7 gives x₁≡7×10=70≡5 (mod 13), recovering the same secret s=5. Dividing by 2"
+        + " in a congruence means multiplying by its inverse in this way. This division is valid when the divisor"
+        + " is coprime to the modulus.",
       primerPrimeTitle: "Why use a prime modulus?",
-      primerPrimeInverse: "When the modulus p is prime, every nonzero number has an inverse: a number that multiplies it to give 1"
-        + " modulo p. For example, 3×9=27≡1 (mod 13), so multiplying by 9 takes the place of dividing by 3. This"
-        + " lets us divide by any nonzero coefficient while solving the equations.",
+      primerPrimeInverse: "When the modulus p is prime, every number from 1 to p−1 is coprime to p and has an inverse. This lets us"
+        + " divide by any nonzero coefficient while solving the equations. The division by 2 modulo 13 above uses"
+        + " this property.",
       primerPrimeComposite: "With a composite modulus, some nonzero numbers have no inverse. For example, modulo 12, multiplying 3 by"
         + " any integer gives a remainder of 0, 3, 6, or 9, never 1.",
-      primerPrimeExample: "In this example, the coefficient of x₂ after subtraction and that of x₁ after substitution are both 1,"
-        + " so no inverse calculation is needed. Even with a prime modulus, two equations expressing the same"
-        + " condition cannot determine a unique point. The coefficient pairs must also meet the following condition.",
+      primerPrimeExample: "The first route, substituting into #1, has a coefficient of 1 and needs no inverse calculation. The"
+        + " alternative route through #2 uses the inverse of 2. Even with a prime modulus, two equations expressing"
+        + " the same condition cannot determine a unique point. The coefficient pairs must also meet the following"
+        + " condition.",
       primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
         + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
         + "this check.",

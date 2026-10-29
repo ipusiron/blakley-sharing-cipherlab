@@ -273,10 +273,6 @@
       inspectionList: "検査の一覧",
       failuresOnly: "不合格だけ",
       checkPremise: "検査は係数の組だけを見るので、通るまで引き直しても秘密は漏れない。ただし乱数の座標 x₂…x_k が一様であることが前提。",
-      fieldPrimer: "GF(p)の前提知識",
-      fieldText: "GF(p)では0からp−1までを使い、計算結果をpで割った余りにします。13では12+2≡1です。pが素数なので、0以外の要素には逆元があります。",
-      inverseText: "3×9≡1 (mod 13)なので3⁻¹=9です。割り算は逆元を掛ける計算になります。",
-      shamirPrimer: "Day123のGF(p)の前提知識へ",
       columnCount: "{p}列のどれにも点が1つずつ＝秘密の候補{p}個がすべて残る",
       integerCandidatesText: "整数の右辺は{rhs}。範囲内の格子点は{points}の{count}点です。",
       selectedCount: "{count}枚を選択（k={k}）",
@@ -1132,11 +1128,6 @@
       failuresOnly: "Failures only",
       checkPremise: "The checks depend only on the coefficient vectors, so retrying until they pass does not leak the secret, "
         + "provided x₂…x_k are uniform.",
-      fieldPrimer: "GF(p) basics",
-      fieldText: "GF(p) uses 0 through p−1 and reduces results modulo p. For p=13, 12+2≡1. Every nonzero element has an "
-        + "inverse because p is prime.",
-      inverseText: "Since 3×9≡1 (mod 13), 3⁻¹=9. Divide by multiplying by the inverse.",
-      shamirPrimer: "GF(p) basics in Day123",
       columnCount: "One point in every one of the {p} columns: all {p} secret candidates remain",
       integerCandidatesText: "The integer right-hand side is {rhs}. The {count} integer grid points are {points}.",
       selectedCount: "Selected {count} shares (k={k})",

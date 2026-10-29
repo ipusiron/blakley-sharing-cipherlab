@@ -16,8 +16,9 @@
       primerCoefficientAccept: "実際の#2は(2,5)です。#1を2倍すると(2,6)なので一致しません。式でも、#1を2倍した式から#2の式2x₁+5x₂≡11を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
       primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
-      primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。このツールの「乱数＋検査」は、条件を満たす候補から1組ずつランダムに選びます。「ヴァンデルモンド」では、k=2なら0以外の異なる番号iに対して(a,b)=(1,i)と決めます。たとえ"
-        + "ばi=1,2,3,4なら(1,1),(1,2),(1,3),(1,4)となり、同じ2条件を満たします。",
+      primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1"
+        + ",4)となり、同じ2条件を満たします。",
+      primerVandermondeName: "この規則をk=3へ広げると、係数は(1,i,i²)になります。1,i,i²,…を並べた行を集めた表を「ヴァンデルモンド行列」と呼びます。下の設定では、この作り方を「番号から作る（ヴァンデルモンド）」として選べます。",
       primerCoefficientIndependence: "係数は秘密や乱数の値に依存させずに決め、公開したり使い回したりできます。一方、乱数rは秘密を分け直すたびに、秘密とは独立に全範囲から同じ確率で選び直します。係数を固定することと、乱数rを固定することは別です。",
       comparePublicCoefficients: "一般の番号iでは、シェア(i,f(i))からx₁+i x₂+i²x₃≡f(i) (mod "
         + "13)という式がわかります。この比較では係数(1,i,i²)を番号iから計算できるため、シェア(i,f(i))から平面の式を組み立てられます。",
@@ -47,24 +48,34 @@
       pitBSliceStatus: "いま残る点は全部で{points}個です。{p}枚の札のうち{secrets}枚に点があり、秘密sの候補も{secrets}種類あります。",
       k3RealIntro: "まず、実数の3D図で平面の交わり方を見ます。これは形をつかむための導入図です。実際の候補は、合同式を使う下の切り口で数えます。",
       k3SliceReading: "秘密sを1つ仮定すると、残る座標はx₂とx₃の2つです。この2座標を描いたものを「切り口」と呼びます。点がある札のsは、集めたシェアと矛盾しない候補です。",
-      k3SliceChoice: "札を選ぶと、そのsの切り口を下に大きく表示します。候補を見比べる操作で、秘密や配ったシェアの値は変わりません。",
+      k3SliceChoice: "札には、選んだすべての式を満たす共通候補だけを描きます。札を選ぶと、そのsを下の図で調べられます。秘密や配ったシェアの値は変わりません。",
+      k3SliceGraphReading: "下の大きな図には、各シェアの式を満たす点を形で描き分けます。2枚以上を選んだとき、全式の共通候補は二重丸と重なる枚数で示します。札が「点なし」でも、各式だけを満たす点は図に残ります。",
       dimensions: "平面で追う（k=3）",
-      dimensionsIntro: "k=3では、配る人が秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。k=4・5の実験は、下のディーラー設定の「詳しく」から開けます。",
+      dimensionsIntro: "このタブではk=3に固定し、秘密sと2個の乱数から点X=(s,x₂,x₃)を作ります。1枚のシェアはこの点を通る平面の式です。正しく作ったシェアなら、任意の3枚以上で秘密を復元できます。",
       dimensionsCurrent: "現在の実験：GF({p})、k={k}、n={n}。",
       learningRoute: "まず数学の前提を必要に応じて開き、k=2の交点を試します。3つの座標へ進むときは「平面で追う（k=3）」を開きます。その後、「Shamirの秘密分散法と比較する」「確かめる」へ進めます。",
       primerRoles: "この例には、秘密を持ち、シェアを作って配る人（ディーラー）と、4人の受取人が登場します。",
       primerRandom: "ディーラーは秘密s=5を持っています。秘密とは別に、0〜12から同じ確率で乱数rを選びます。この固定例ではr=8です。",
       exploreInstruction: "シェアのボタンを押すと、集めた式に追加したり、外したりできます。1枚ずつ増やし、すべての式を満たす点がどう減るかを見てください。図の点に付いた数字は、そこで重なる式の数です。",
       editIntro: "右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。",
-      dealerIntro: "ここはシェアを作る側の画面です。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、係数と乱数の座標を作り直します。下には配る側の答えも表示します。",
+      dealerIntro: "ここはシェアを作る側の画面です。kは交点のタブで2、平面のタブで3に固定しています。p・n・sを変えるとシェアを作り直します。「新しい乱数で作る」はsを保ち、乱数の座標を選び直します。下には配る側の答えも表示します。",
+      shareRecipient: "受取人",
+      distributedShare: "渡すシェア（係数と右辺）",
+      dealerShareContents: "各行が1人に渡す1枚です。括弧には式の係数を順に並べ、最後に右辺cを入れます。法pは全員で共通です。",
+      adjustedSecret: "pを{p}に変えたため、秘密sを{before}から{after}へ調整しました（0〜{max}の範囲）。",
+      adjustedShareCount: "p={p}で、このツールが扱う上限に合わせ、総数nを{before}から{after}へ調整しました。",
       primeLabel: "計算に使う素数 p",
       shareCountLabel: "配る総数 n",
-      coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。手入力は計算を試すための操作で、乱数の選び方の保証にはなりません。",
+      coordinatesIntro: "点Xの第1座標が秘密s、残りの座標が乱数です。ここで乱数の座標を手入力すると、sと係数を保って各シェアの右辺cを計算し直します。"
+        + "下の配布表でcの変化を比べてください。手入力では、一様な乱数を選んだ保証にはなりません。",
       randomnessPlain: "秘密を分け直すたびに、補助の数を0〜p−1から同じ確率で選び直します。狭い範囲に限ったり、前の値を使い回したりすると、情報が漏れる場合があります。",
       checkPlain: "(i)はどのk枚も1点に決まるか、(ii)はk−1枚からsを絞らない係数かを調べます。(ii)に加えて、乱数を全体から一様に選ぶ前提も必要です。",
-      methodIntro: "「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。「ヴァンデルモンド」は番号から決まる規則で係数を作ります。どちらも、点Xの乱数は別に選びます。",
+      methodIntro: "係数の作り方を2種類から選べます。「乱数＋検査」は、条件を満たす候補から係数の組を1組ずつランダムに選びます。途中で候補がなくなれば最初から選び直します。",
+      methodVandermonde: "「番号から作る」は、各人に0以外の異なる番号iを割り当て、1,i,i²,…をk個並べて係数にします。k=2なら(1,i)、k=3なら(1,i,i²)です。各人の係数を行として集めた表がヴァンデルモンド行列です。計算はmod "
+        + "pで行います。",
+      methodRandomCoordinates: "どちらの方法でも、点Xの乱数の座標は、係数とは別に選びます。",
       helpLearningTitle: "初めて読むとき",
-      helpLearningRoute: "最初は「交点で追う」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。",
+      helpLearningRoute: "最初は「交点で追う（k=2）」で、1枚では候補が残り、必要な枚数で1点になることを試してください。用語は下の一覧、計算の前提は画面冒頭の「知っておくべき数学的概念」で確認できます。",
       helpTerms: "この教材の用語",
       helpTheoryRoute: "座学は1→4→7の順で、方式・候補数・乱数の範囲を読むと進めやすくなります。2は証明、3は原論文、5・6・8は発展事項です。9は改ざん検査の限界、10は関連ツールを扱います。",
       termShareName: "シェア",
@@ -81,10 +92,12 @@
       termFieldDefinition: "この教材ではpを素数とし、0〜p−1を使って、pで割った余りで計算します。0以外の数での割り算も定義できます。",
       termEquationName: "式と係数",
       termEquationDefinition: "式は座標が満たす条件です。a x₁+b x₂≡cでは、a,bが座標に掛ける係数、cが右辺の値です。",
+      termNormalName: "法線（係数の組）",
+      termNormalDefinition: "式の係数を並べた組です。x₁+3x₂≡3なら(1,3)が法線です。右辺cも付けた(1,3,3)が、この教材で配るシェアになります。",
       termHyperplaneName: "超平面",
       termHyperplaneDefinition: "2座標では直線、3座標では平面に当たる、1本の一次式が表す点の集まりです。有限体では飛び飛びの点として扱います。",
       compareBasics: "Shamir方式では、たとえばf(x)=s+a₁xを作ります。秘密sはf(0)の値、a₁は乱数です。各人には、0以外の番号iと計算値f(i)の組(i,f(i))を1枚のシェアとして渡します。",
-      compareRandomRoles: "f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。",
+      compareRandomRoles: "f(i)は秘密sと乱数a₁を混ぜた計算結果です。sやa₁そのものは渡しません。「交点で追う（k=2）」のa,bは各人に渡す式の係数で、ここでの乱数a₁とは役割が違います。",
       compareCandidateMeaning: "候補は、相手が知るシェアと選んだ生成条件に合う秘密と乱数の組です。配布側の答えは確認用に別に示します。候補を選んでも、シェアは変わりません。",
       compareK2Task: "相手が知るのは(1,9)の1枚だけです。候補を送り、sを変えてもf(1)=9となる式が残ることを確かめてください。",
       compareK3Task: "相手が知るのは(1,11)と(2,8)の2枚だけです。必要な3枚には足りません。sの行を選び、同じ2枚に合う候補を比べてください。",
@@ -106,13 +119,13 @@
       dimensionIntroK2: "k=3では、秘密と乱数2個で3つの座標を作ります。1枚のシェアは直線から平面になり、3枚の交わりを調べます。",
       dimensionIntroK3: "現在はGF({p})、k=3、n={n}です。点X=(s,x₂,x₃)の後ろ2座標が乱数で、1枚のシェアはこの点を通る平面です。",
       dimensionIntroHigher: "現在はGF({p})、k={k}、n={n}です。点には{k}個の座標があるため、式と計算の表で候補や復元を追います。",
-      selectionNone: "0枚なので、条件はまだありません。GF({p})の点{points}個がすべて候補です。図にはシェアの点をまだ描いていないため、空欄になっています。",
+      selectionNone: "0枚なので、条件はまだありません。GF({p})の点{points}個がすべて候補です。シェアを選ぶと、その式を満たす候補を調べられます。",
       selectionPartial: "選んだ式をすべて満たす点が{points}個あります。その第1座標には{secrets}種類の値があり、これが秘密sの候補です。",
       selectionUnique: "選んだ式をすべて満たす点は1個です。その第1座標から計算値s={s}を読み取ります。",
       selectionExtra: "任意の{k}枚の組から求めた結果も、下の表で比べてください。",
       selectionNoSolution: "選んだ式をすべて満たす点がありません。式の条件が食い違っています。",
       selectionEdited: "変更した写しから計算した結果です。元の配布時の秘密と一致する保証はありません。",
-      selectionReset: "「元に戻す」で、編集した写しを元の配布値へ戻せます。",
+      selectionReset: "「すべての写しを元に戻す」で、全シェアの写しを元の配布値へ戻せます。",
       editedOnePoint: "変更した写しの交点X=({point})、計算された値s={s}。元の秘密と一致する保証はありません。",
       candidateColumnCount: "s={s}と仮定した列には、条件を満たす点が{count}個あります。候補を変えても、配布値は変わりません。",
       candidateTry2: "いま試している候補はs={s}です。対応するx₂={x2}を調べます。候補を変えても、配布値は変わりません。",
@@ -150,7 +163,7 @@
       help: "ヘルプと座学",
       close: "閉じる",
       tablist: "学ぶ順番",
-      intersections: "交点で追う",
+      intersections: "交点で追う（k=2）",
       compare: "Shamirの秘密分散法と比較する",
       pitfalls: "確かめる",
       source: "ソースコード",
@@ -206,11 +219,9 @@
       shiftPlus: "右辺c +1（平行移動）",
       directionMinus: "係数b −1（方向を変える）",
       directionPlus: "係数b +1（方向を変える）",
-      undoEdit: "元に戻す",
+      undoEdit: "すべての写しを元に戻す",
       nextDimension: "k=3では、直線が平面になる",
       columnsToSlices: "k=2の列が、k=3では切り口になります。",
-      back2: "k=2の既定の例",
-      start3: "k=3の切り口を見る",
       real3d: "実数の導入図",
       sceneLabel: "実数の3D図。矢印キーで回転。",
       yawLeft: "左へ10°回す",
@@ -229,13 +240,12 @@
       dealer: "ディーラーの設定・計算・配布（答えを含む）",
       secretLabel: "秘密情報 s",
       generate: "新しい乱数で作る",
-      resetDefault: "既定の例に戻す",
+      resetDefault: "このタブの既定の例に戻す",
       manualNote: "手入力の値では、乱数を全体から同じ確率で選ぶ前提を確認できません。",
       advanced: "詳しく",
       normalMethod: "法線の作り方",
       randomMethod: "乱数＋検査",
-      vandermonde: "ヴァンデルモンド",
-      higherDimensions: "もっと大きなk（表だけ）",
+      vandermonde: "番号から作る（ヴァンデルモンド）",
       checks: "係数の組を検査する",
       normalName: "係数の組を「法線」と呼びます。検査は係数の組だけを見ます。",
       checkI: "検査 (i)：k 本の式で点が1つに決まる",
@@ -261,8 +271,9 @@
       fixedExample: "既定の例（手で選んだ値）",
       randomExample: "乱数で作った例",
       manualExample: "手で座標を入れた例",
-      primeChanged: "kを{k}に変え、既定の例のp={p}に戻しました。",
-      generated: "新しい法線と座標を作りました。やり直しの回数：{attempts}。",
+      primeChanged: "k={k}の既定の例（p={p}）に戻しました。",
+      generated: "シェアを作り直しました。係数を選ぶ試行回数：{attempts}。",
+      generatedNumbered: "シェアを作り直しました。係数はp・k・nと番号から決まり、同じp・k・nなら変わりません。乱数の座標を選び直しました。",
       working: "計算中…",
       generationFailed: "生成できませんでした。もう一度試してください。",
       invalidCoordinate: "0から{max}までの整数を入れてください。",
@@ -283,7 +294,7 @@
       point: "点",
       equation: "式",
       columns: "列ごとの点の数",
-      custodian: "管理人 #{i}",
+      custodian: "受取人 #{i}",
       coordinates: "座標",
       matrixStart: "最初の拡大係数行列",
       matrixSwap: "R{a}とR{b}を交換する",
@@ -406,7 +417,8 @@
       compareK2Correspondence: "「シェア(1,9)を通る13本の候補の直線」と「条件s+a₁≡9を満たす13点(s,9−s)」が1対1に対応します。",
       compareK3Title: "② k=3：多項式の係数が、そのまま点になる",
       compareK3Intro: "k=3ではf(x)=s+a₁x+a₂x²を使います。a₁,a₂は乱数です。3つの係数を座標として並べ、点X=(s,a₁,a₂)と定義します。この定義により、a₁,a₂がXの第2・第3座標になります。",
-      compareVandermonde: "番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)はヴァンデルモンドの行で、この構成は検査(i)(ii)を満たします。",
+      compareVandermonde: "番号iを代入すると、s+i a₁+i² a₂≡f(i)という平面の式になります。係数の組(1,i,i²)を各行に並べた表が、ヴァンデルモンド行列です。この構成は検査(i)(ii)を満たします。",
+      compareChecks: "検査(i)は、どの3枚の式からも点が1つに決まるかを確認します。検査(ii)は、どの2枚の式でも、sを1つ仮定すると乱数の組がちょうど1つ求まるかを確認します。情報を漏らさないためには、乱数を0も含む全範囲から同じ確率で選びます。",
       compareNonzero: "乱数の座標を0以外に限る",
       compareNonzeroExplanation: "この切り替えはa₁とa₂の両方を0以外に限ります。0を含むGF(13)全体から選ぶ前提を壊すと、秘密の候補が消えます。",
       comparePolynomialGraph: "Shamir：候補の多項式",
@@ -527,7 +539,7 @@
       lesson5Title: "5. シェアの大きさとShamirとの対応",
       lesson5Polynomial: "多項式f(i)＝s+a₁i+…+aₖ₋₁i^(k−1) の係数を点X＝(s,a₁,…,aₖ₋₁) とします。シェアyᵢ＝f(i) は、次の超平面の式になります。",
       lesson5Equation: "(1,i,i²,…,i^(k−1))·X＝yᵢ",
-      lesson5Vandermonde: "法線はヴァンデルモンドの行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。",
+      lesson5Vandermonde: "法線はヴァンデルモンド行列の1行です。e₁ はi＝0の行に当たり、シェアの番号iを0以外で互いに異なる値にすれば、検査 (i)(ii) を満たします。",
       lesson5Derivation: "この式でShamirとBlakleyを対応づけることを明示した一次資料は、今回の調査では見つかっていません。ここはこのツールでの整理です。",
       lesson5SizesCaption: "m個の体の要素を分けるときの1人ぶんのシェア",
       lesson5SizesH1: "法線の扱い",
@@ -732,9 +744,11 @@
       primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
         + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
         + "this check.",
-      primerCoefficientMethods: "Coefficients need not be random. This tool’s “Randomness + checks” chooses each pair randomly from candidates "
-        + "meeting the conditions. For k=2, “Vandermonde” uses (a,b)=(1,i) for distinct nonzero indices i. Indices "
-        + "1,2,3,4 give (1,1),(1,2),(1,3),(1,4), satisfying the same two conditions.",
+      primerCoefficientMethods: "Coefficients need not be random. Another construction uses distinct nonzero indices i to set (a,b)=(1,i) for "
+        + "k=2. For i=1,2,3,4, the pairs are (1,1),(1,2),(1,3),(1,4), satisfying the same two conditions. These are "
+        + "different from the four fixed pairs above.",
+      primerVandermondeName: "For k=3, the rule extends to (1,i,i²). A table formed by rows of powers 1,i,i²,… is called a Vandermonde matrix."
+        + " The settings below offer this construction as “From indices (Vandermonde)”.",
       primerCoefficientIndependence: "Choose coefficients without depending on the secret or random coordinates; they may be public and reused. Each"
         + " new sharing still needs a fresh r, chosen independently of the secret and uniformly over the entire field. "
         + "Fixed coefficients do not mean a fixed r.",
@@ -792,12 +806,14 @@
         + "candidates in the slices below, which use modular equations.",
       k3SliceReading: "Assuming one value of s leaves two coordinates, x₂ and x₃. A plot of these two coordinates is called a "
         + "slice. If a tile contains a point, its s remains consistent with the collected shares.",
-      k3SliceChoice: "Select a tile to display its slice at a larger size below. This compares candidates without changing the "
-        + "secret or the distributed shares.",
+      k3SliceChoice: "Tiles show only the candidates satisfying every selected equation. Select a tile to examine that value of s below. "
+        + "This changes neither the secret nor the distributed shares.",
+      k3SliceGraphReading: "The large graph distinguishes points from each share’s equation by shape. With two or more shares selected, "
+        + "double circles and the overlap count mark candidates common to all equations. A tile can say “No points” "
+        + "while the graph still shows points satisfying individual equations.",
       dimensions: "Planes (k=3)",
-      dimensionsIntro: "For k=3, the dealer forms X=(s,x₂,x₃) from the secret s and two random values. Each share is an equation for"
-        + " a plane through this point. With correctly generated shares, any three or more recover the secret. Open "
-        + "More in the dealer settings below to try k=4 or 5.",
+      dimensionsIntro: "This tab fixes k at 3. The dealer forms X=(s,x₂,x₃) from the secret s and two random values. Each share is an eq"
+        + "uation for a plane through this point. With correctly generated shares, any three or more recover the secret.",
       dimensionsCurrent: "Current experiment: GF({p}), k={k}, n={n}.",
       learningRoute: "Open the mathematical background as needed, then try k=2 intersections. Open “Planes (k=3)” to work with "
         + "three coordinates. Continue to “Compare with Shamir secret sharing” and then “Pitfalls”.",
@@ -808,21 +824,32 @@
         + "every equation change. A number on a plotted point counts the equations that meet there.",
       editIntro: "Change the right-hand value c by ±1 or edit coefficient b to try an altered equation. Only the experimental copy changes; the "
         + "distribution table keeps its values. The result may differ from the original secret.",
-      dealerIntro: "This is the dealer’s view. Changing p, n or s regenerates the shares. “Generate with fresh randomness” keeps s and rebuilds the "
-        + "coefficients and random coordinates. The dealer’s answer is also shown below.",
+      dealerIntro: "This is the share-creation view. The lines tab fixes k at 2 and the planes tab fixes it at 3. Changing p, n or s"
+        + " rebuilds the shares. “Generate with fresh randomness” keeps s and samples the random coordinates again."
+        + " The dealer’s answer is also shown below.",
+      shareRecipient: "Recipient",
+      distributedShare: "Share to distribute (coefficients and right-hand value)",
+      dealerShareContents: "Each row is one share for one recipient. The tuple lists the equation’s coefficients in order, followed by c. "
+        + "Everyone uses the same modulus p.",
+      adjustedSecret: "Changing p to {p} adjusted secret s from {before} to {after}, within the range 0–{max}.",
+      adjustedShareCount: "To stay within this tool’s limit for p={p}, the total number of shares n was adjusted from {before} to {after}.",
       primeLabel: "Prime modulus p",
       shareCountLabel: "Total shares n",
-      coordinatesIntro: "The first coordinate of X is the secret s; the remaining coordinates are random values. Manual input lets you try a "
-        + "calculation, but does not meet the random-sampling requirement.",
+      coordinatesIntro: "The first coordinate of X is the secret s; the remaining coordinates are random values. Editing a random coordinate "
+        + "keeps s and the coefficients, and recalculates c for every share. Compare the changed c values in the distribution table below. "
+        + "Manual input does not establish uniform random sampling.",
       randomnessPlain: "Each new sharing uses fresh extra numbers, with every value from 0 to p−1 equally likely. Restricting their range or reusing "
         + "earlier values can reveal information.",
       checkPlain: "Check (i) asks whether any k equations determine one point. Check (ii) tests the coefficients needed to keep k−1 shares from "
         + "narrowing s. Uniform randomness over the whole field is also required.",
-      methodIntro: "“Randomness + checks” chooses coefficient rows one at a time from eligible candidates and restarts if none "
-        + "remain. “Vandermonde” derives coefficients from share indices. Both choose the random coordinates of X "
-        + "separately.",
+      methodIntro: "There are two ways to construct coefficients. “Randomness + checks” chooses each coefficient row randomly from e"
+        + "ligible candidates. It starts over if no candidates remain.",
+      methodVandermonde: "“From indices” assigns a distinct nonzero index i to each recipient and takes the first k entries of 1,i,i²,… as"
+        + " the coefficients: (1,i) for k=2 and (1,i,i²) for k=3. Arranging these coefficient rows forms a Vandermonde matr"
+        + "ix. All calculations are modulo p.",
+      methodRandomCoordinates: "Both methods choose the random coordinates of X separately from the coefficients.",
       helpLearningTitle: "Where to start",
-      helpLearningRoute: "Start in “Follow intersections”: one share leaves candidates, and enough shares determine one point. Use the glossary below "
+      helpLearningRoute: "Start in “Intersections (k=2)”: one share leaves candidates, and enough shares determine one point. Use the glossary below "
         + "for terms and the page’s opening mathematical background for the arithmetic.",
       helpTerms: "Terms used in this tool",
       helpTheoryRoute: "Read Sections 1, 4 and 7 first for the scheme, candidate counts and randomness. Section 2 proves the conditions; 3 examines "
@@ -846,13 +873,16 @@
       termEquationName: "Equation and coefficients",
       termEquationDefinition: "An equation gives a condition on the coordinates. In a x₁+b x₂≡c, a and b multiply the coordinates and c is the "
         + "right-hand value.",
+      termNormalName: "Normal (coefficient vector)",
+      termNormalDefinition: "The equation’s coefficients in order. For x₁+3x₂≡3, the normal is (1,3). Appending the right-hand value c "
+        + "gives the share (1,3,3) distributed in this tool.",
       termHyperplaneName: "Hyperplane",
       termHyperplaneDefinition: "The points satisfying one linear equation: a line in two coordinates or a plane in three. Over a finite field, these "
         + "are discrete points.",
       compareBasics: "For example, Shamir’s scheme uses f(x)=s+a₁x. The secret s is f(0), and a₁ is random. Each recipient gets "
         + "one share: a nonzero index i and the calculated value f(i), written (i,f(i)).",
       compareRandomRoles: "The value f(i) mixes the secret s with the random value a₁. Neither s nor a₁ is given out directly. In "
-        + "“Intersections”, a,b are coefficients of the distributed equations; they have a different role from this "
+        + "“Intersections (k=2)”, a,b are coefficients of the distributed equations; they have a different role from this "
         + "random a₁.",
       compareCandidateMeaning: "A candidate is a secret and random values consistent with the shares known to the observer and the selected generation "
         + "rule. The dealer’s answer is shown separately for reference. Selecting candidates does not change the shares.",
@@ -887,15 +917,15 @@
         + "through this point.",
       dimensionIntroHigher: "Current settings: GF({p}), k={k}, n={n}. The point has {k} coordinates, so equations and calculation tables show the "
         + "candidates and recovery.",
-      selectionNone: "No shares are selected, so all {points} points over GF({p}) remain candidates. The graph is blank because no share’s points have "
-        + "been drawn yet.",
+      selectionNone: "No shares are selected, so all {points} points over GF({p}) remain candidates. Select a share to examine the points "
+        + "satisfying its equation.",
       selectionPartial: "{points} points satisfy every selected equation. Their first coordinates contain {secrets} different values: the candidates "
         + "for secret s.",
       selectionUnique: "Exactly one point satisfies every selected equation. Its first coordinate gives calculated value s={s}.",
       selectionExtra: "Also compare the results from every group of {k} shares in the table below.",
       selectionNoSolution: "No point satisfies every selected equation. The conditions are inconsistent.",
       selectionEdited: "This result uses the altered copies. It is not guaranteed to match the secret used for the original distribution.",
-      selectionReset: "Use “Undo edits” to restore the copies to their originally distributed values.",
+      selectionReset: "Use “Restore all edited copies” to return every share’s copy to its originally distributed value.",
       editedOnePoint: "The altered copies intersect at X=({point}), giving calculated value s={s}. It is not guaranteed to be the original secret.",
       candidateColumnCount: "Assuming s={s}, this column contains {count} points satisfying the conditions. Changing candidates does not change the "
         + "distributed values.",
@@ -945,7 +975,7 @@
       help: "Help and theory",
       close: "Close",
       tablist: "Learning steps",
-      intersections: "Intersections",
+      intersections: "Intersections (k=2)",
       compare: "Compare with Shamir secret sharing",
       pitfalls: "Pitfalls",
       source: "Source code",
@@ -1013,11 +1043,9 @@
       shiftPlus: "Right side c +1 (shift)",
       directionMinus: "Coefficient b −1 (change direction)",
       directionPlus: "Coefficient b +1 (change direction)",
-      undoEdit: "Undo edits",
+      undoEdit: "Restore all edited copies",
       nextDimension: "At k=3, lines become planes",
       columnsToSlices: "Columns at k=2 become slices at k=3.",
-      back2: "Default k=2 example",
-      start3: "Explore k=3 slices",
       real3d: "A real-number introduction",
       sceneLabel: "Real 3D diagram. Rotate with arrow keys.",
       yawLeft: "Rotate left 10°",
@@ -1037,13 +1065,12 @@
       dealer: "Dealer settings, calculation and distribution (includes the answer)",
       secretLabel: "Secret s",
       generate: "Generate with fresh randomness",
-      resetDefault: "Restore default example",
+      resetDefault: "Restore this tab’s default example",
       manualNote: "Manually entered values do not establish that randomness was sampled with equal probability from the entire field.",
       advanced: "More details",
       normalMethod: "Constructing normals",
       randomMethod: "Randomness + checks",
-      vandermonde: "Vandermonde",
-      higherDimensions: "Larger k (tables only)",
+      vandermonde: "From indices (Vandermonde)",
       checks: "Check the coefficient vectors",
       normalName: "A coefficient vector is called a normal. These checks use only the coefficient vectors.",
       checkI: "Check (i): k equations determine exactly one point",
@@ -1072,8 +1099,10 @@
       fixedExample: "Default example (hand-picked values)",
       randomExample: "Randomly generated example",
       manualExample: "Manually entered coordinates",
-      primeChanged: "Changed k to {k} and restored its default p={p}.",
-      generated: "Generated fresh normals and coordinates. Attempts: {attempts}.",
+      primeChanged: "Restored the default example for k={k} with p={p}.",
+      generated: "Rebuilt the shares. Attempts to choose coefficients: {attempts}.",
+      generatedNumbered: "Rebuilt the shares. The coefficients follow from p, k, n and the recipient indices; the same p, k and n give the same "
+        + "coefficients. The random coordinates have been sampled again.",
       working: "Calculating…",
       generationFailed: "Generation failed. Please try again.",
       invalidCoordinate: "Enter an integer from 0 through {max}.",
@@ -1094,7 +1123,7 @@
       point: "Point",
       equation: "Equation",
       columns: "Points per column",
-      custodian: "Custodian #{i}",
+      custodian: "Recipient #{i}",
       coordinates: "Coordinates",
       matrixStart: "Initial augmented matrix",
       matrixSwap: "Swap R{a} and R{b}",
@@ -1242,8 +1271,11 @@
       compareK3Title: "② k=3: polynomial coefficients become a point",
       compareK3Intro: "For k=3, use f(x)=s+a₁x+a₂x², where a₁,a₂ are random. Arrange the three coefficients as coordinates to "
         + "define X=(s,a₁,a₂). By this definition, a₁,a₂ are its second and third coordinates.",
-      compareVandermonde: "Substituting index i gives the plane equation s+i a₁+i² a₂≡f(i). Its coefficients (1,i,i²) form a Vandermonde row. This "
-        + "construction satisfies checks (i) and (ii).",
+      compareVandermonde: "Substituting index i gives the plane equation s+i a₁+i² a₂≡f(i). Arranging the coefficient rows (1,i,i²) forms a"
+        + " Vandermonde matrix. This construction passes checks (i) and (ii).",
+      compareChecks: "Check (i) asks whether any three equations determine one point. Check (ii) asks whether any two equations give "
+        + "exactly one pair of random coordinates for each assumed s. Hiding the secret also requires choosing random "
+        + "coordinates uniformly from the whole field, including zero.",
       compareNonzero: "Restrict random coordinates to nonzero values",
       compareNonzeroExplanation: "Excluding zero from both a₁ and a₂ removes secret candidates. Uniform sampling must include all of "
         + "GF(13).",
@@ -1398,8 +1430,8 @@
       lesson5Polynomial: "Treat the coefficients of f(i) = s+a₁i+…+aₖ₋₁i^(k−1) as X = (s,a₁,…,aₖ₋₁). A Shamir share yᵢ = f(i) gives "
         + "this hyperplane equation:",
       lesson5Equation: "(1,i,i²,…,i^(k−1))·X = yᵢ",
-      lesson5Vandermonde: "The normals are Vandermonde rows, with e₁ at i = 0. Distinct nonzero share indices satisfy checks (i) and "
-        + "(ii).",
+      lesson5Vandermonde: "Each normal is a row of a Vandermonde matrix, with e₁ at i = 0. Distinct nonzero share indices satisfy checks (i"
+        + ") and (ii).",
       lesson5Derivation: "No primary source explicitly stating this Vandermonde-normal correspondence was found in the research. "
         + "This equation-based account is this tool’s derivation.",
       lesson5SizesCaption: "One participant’s share for a secret of m field elements",

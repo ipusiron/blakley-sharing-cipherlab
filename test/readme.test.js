@@ -312,7 +312,7 @@ test('README: six localized PNG screenshots exist, have dimensions and stay belo
 test('README: related tool names and URLs agree and wording remains within the learning scope', () => {
   const related = [
     ['ShamirSharing CipherLab', 'shamir-sharing-cipherlab'], ['VisualCryptography CipherLab', 'visual-cryptography-cipherlab'],
-    ['Scatter Seeds', 'scatter-seeds'], ['Overlay QR Shares', 'overlay-qr-shares']
+    ['Scatter Seeds', 'scatter-seeds'], ['Overlay QR Shares', 'overlay-qr-shares'], ['OTP Animation', 'otp-animation']
   ];
   for (const text of Object.values(docs)) for (const [name, route] of related) {
     assert.ok(text.includes(name), name);

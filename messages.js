@@ -11,9 +11,13 @@
       primerCoefficientPrivacy: "各組のbを0以外にする：どの秘密候補sにも、式を満たすrが1個ずつ残ります。秘密sの値によって選び方を変えず、rを0〜12から同じ確率で選びます（rを一様ランダムに選ぶ）。これにより、1枚のシェアから秘密sを絞れなくなります。",
       primerCoefficientRecovery: "どの2組も、一方に同じ数を掛けただけの組にしない：13で割った余りで比べます。こうすると2本の式が異なる条件になり、両方を満たす点が1つに決まります。",
       primerCoefficientDetails: "係数の選び方を具体例と式で確かめる",
-      primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。X=(5,8)から右辺を計算するとc=6で、式は2x₁+6x₂≡6 (mod "
-        + "13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。",
-      primerCoefficientAccept: "実際の#2は(2,5)です。#1を2倍すると(2,6)なので一致しません。式でも、#1を2倍した式から#2の式2x₁+5x₂≡11を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
+      primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。右辺cを実際に計算してみます。",
+      primerCoefficientCalculation: "点X=(s,r)=(5,8)、係数(a,b)=(2,6)なので、a×s+b×r=5a+8b=5×2+8×6=10+48=58です。58=13×4+6より、13で割った余りは6です。したがってc=6となります。",
+      primerCoefficientRejectResult: "式は2x₁+6x₂≡6 (mod 13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。",
+      primerCoefficientAccept: "実際の#2は(a,b)=(2,5)です。#1を2倍した(2,6)とは一致しません。",
+      primerCoefficientAcceptCalculation: "同じX=(s,r)=(5,8)から、a×s+b×r=5a+8b=5×2+8×5=10+40=50と計算します。50=13×3+11より、13で割った余りは11なのでc=11です。#2の式は2x₁+5x₂≡11"
+        + " (mod 13)となります。",
+      primerCoefficientAcceptRecovery: "復元も確かめます。#1を2倍した式から#2の式を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
       primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
       primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1"
@@ -740,11 +744,17 @@
       primerCoefficientRecovery: "Keep every two pairs from being multiples of each other: compare the results modulo 13. The two equations then"
         + " impose independent conditions, so exactly one point satisfies both.",
       primerCoefficientDetails: "Check coefficient choices with examples and a formula",
-      primerCoefficientReject: "After choosing (1,3) for #1, choosing (2,6) would just double that pair. Computing the right-hand value from "
-        + "X=(5,8) gives c=6, hence 2x₁+6x₂≡6 (mod 13). This doubles the entire #1 equation, so collecting both shares "
-        + "adds no new constraint.",
-      primerCoefficientAccept: "The actual #2 pair is (2,5), which differs from twice #1, (2,6). Subtracting the #2 equation 2x₁+5x₂≡11 from "
-        + "twice the #1 equation gives x₂≡6−11≡8 (mod 13), then x₁=5.",
+      primerCoefficientReject: "After choosing (1,3) for #1, choosing (2,6) would just double that pair. Let's calculate the right-hand"
+        + " value c.",
+      primerCoefficientCalculation: "Given X=(s,r)=(5,8) and (a,b)=(2,6), we calculate a×s+b×r=5a+8b=5×2+8×6=10+48=58. Since 58=13×4+6, the"
+        + " remainder when dividing by 13 is 6. Thus c=6.",
+      primerCoefficientRejectResult: "The equation is 2x₁+6x₂≡6 (mod 13). This doubles the entire #1 equation, so collecting both shares adds"
+        + " no new constraint.",
+      primerCoefficientAccept: "The actual #2 pair is (a,b)=(2,5), which differs from twice #1, (2,6).",
+      primerCoefficientAcceptCalculation: "Using the same X=(s,r)=(5,8), we calculate a×s+b×r=5a+8b=5×2+8×5=10+40=50. Since 50=13×3+11, the"
+        + " remainder when dividing by 13 is 11, so c=11. The #2 equation is 2x₁+5x₂≡11 (mod 13).",
+      primerCoefficientAcceptRecovery: "We can also check recovery. Subtracting the #2 equation from twice the #1 equation gives x₂≡6−11≡8 (mod"
+        + " 13), then x₁=5.",
       primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
         + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
         + "this check.",

@@ -34,7 +34,8 @@
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
       primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1"
         + ",4)となり、同じ2条件を満たします。",
-      primerVandermondeName: "この規則をk=3へ広げると、係数は(1,i,i²)になります。1,i,i²,…を並べた行を集めた表を「ヴァンデルモンド行列」と呼びます。下の設定では、この作り方を「番号から作る（ヴァンデルモンド）」として選べます。",
+      primerVandermondeName: "この規則をk=3へ広げると、係数は(1,i,i²)になります。1,i,i²,…を並べた行を集めた表を「ヴァンデルモンド行列」と呼びます。"
+        + "以降の設定において、この係数の作り方を採用する場合は「番号から作る（ヴァンデルモンド）」を選んでください。",
       primerCoefficientIndependence: "係数は秘密や乱数の値に依存させずに決め、公開したり使い回したりできます。一方、乱数rは秘密を分け直すたびに、秘密とは独立に全範囲から同じ確率で選び直します。係数を固定することと、乱数rを固定することは別です。",
       comparePublicCoefficients: "一般の番号iでは、シェア(i,f(i))からx₁+i x₂+i²x₃≡f(i) (mod "
         + "13)という式がわかります。この比較では係数(1,i,i²)を番号iから計算できるため、シェア(i,f(i))から平面の式を組み立てられます。",
@@ -796,7 +797,7 @@
         + "k=2. For i=1,2,3,4, the pairs are (1,1),(1,2),(1,3),(1,4), satisfying the same two conditions. These are "
         + "different from the four fixed pairs above.",
       primerVandermondeName: "For k=3, the rule extends to (1,i,i²). A table formed by rows of powers 1,i,i²,… is called a Vandermonde matrix."
-        + " The settings below offer this construction as “From indices (Vandermonde)”.",
+        + " In the settings that follow, select “From indices (Vandermonde)” to use this coefficient construction.",
       primerCoefficientIndependence: "Choose coefficients without depending on the secret or random coordinates; they may be public and reused. Each"
         + " new sharing still needs a fresh r, chosen independently of the secret and uniformly over the entire field. "
         + "Fixed coefficients do not mean a fixed r.",

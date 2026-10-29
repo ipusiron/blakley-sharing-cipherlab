@@ -11,9 +11,25 @@
       primerCoefficientPrivacy: "各組のbを0以外にする：どの秘密候補sにも、式を満たすrが1個ずつ残ります。秘密sの値によって選び方を変えず、rを0〜12から同じ確率で選びます（rを一様ランダムに選ぶ）。これにより、1枚のシェアから秘密sを絞れなくなります。",
       primerCoefficientRecovery: "どの2組も、一方に同じ数を掛けただけの組にしない：13で割った余りで比べます。こうすると2本の式が異なる条件になり、両方を満たす点が1つに決まります。",
       primerCoefficientDetails: "係数の選び方を具体例と式で確かめる",
-      primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。X=(5,8)から右辺を計算するとc=6で、式は2x₁+6x₂≡6 (mod "
-        + "13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。",
-      primerCoefficientAccept: "実際の#2は(2,5)です。#1を2倍すると(2,6)なので一致しません。式でも、#1を2倍した式から#2の式2x₁+5x₂≡11を引くと、x₂≡6−11≡8 (mod 13)となり、続けてx₁=5を求められます。",
+      primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。右辺cを実際に計算してみます。",
+      primerCoefficientCalculation: "点X=(s,r)=(5,8)、係数(a,b)=(2,6)なので、a×s+b×r=5a+8b=5×2+8×6=10+48=58です。58=13×4+6より、13で割った余りは6です。したがってc=6となります。",
+      primerCoefficientRejectResult: "式は2x₁+6x₂≡6 (mod 13)です。これは#1の式全体を2倍しただけなので、2枚集めても新しい条件が増えません。",
+      primerCoefficientAccept: "実際の#2は(a,b)=(2,5)です。#1を2倍した(2,6)とは一致しません。",
+      primerCoefficientAcceptCalculation: "同じX=(s,r)=(5,8)から、a×s+b×r=5a+8b=5×2+8×5=10+40=50と計算します。50=13×3+11より、13で割った余りは11なのでc=11です。#2の式は2x₁+5x₂≡11"
+        + " (mod 13)となります。",
+      primerRecoveryTitle: "2本の式から秘密sを復元する",
+      primerRecoveryEquations: "2本の式は、#1：x₁+3x₂≡3、#2：2x₁+5x₂≡11（どちらもmod 13）です。",
+      primerCoefficientAcceptRecovery: "#1の両辺を2倍すると、2x₁+6x₂≡6 (mod 13)です。ここから#2の式を引くと、x₁の項が消え、x₂≡6−11=−5≡8 (mod 13)となります。−5に13を足すと8なので、x₂=8です。",
+      primerRecoverySecret: "この値を#1に代入すると、x₁+3×8≡3 (mod 13)です。両辺から24を引くと、x₁≡3−24=−21≡5 (mod 13)となります。−21に13を2回足すと5なので、秘密s=x₁=5を復元できます。",
+      primerRecoveryAlternativeTitle: "#2に代入して「2で割る」求め方",
+      primerRecoveryAlternativeSubstitution: "同じx₂=8を#2に代入すると、11≡2x₁+5×8=2x₁+40 (mod 13)です。両辺から40を引くと、2x₁≡11−40=−29≡−3≡10 (mod 13)となります。",
+      primerRecoveryInverseTwo: "2と13は互いに素（共通の正の約数が1だけ）なので、2にはmod 13での逆数があります。2×7=14≡1 (mod 13)より、その逆数は7です。",
+      primerRecoveryAlternativeSecret: "両辺に7を掛けると、x₁≡7×10=70≡5 (mod 13)となり、同じ秘密s=5を得られます。合同式で「2で割る」とは、このように2の逆数を掛ける操作です。法と互いに素な数であれば、この割り算ができます。",
+      primerPrimeTitle: "法を素数にする理由",
+      primerPrimeInverse: "法pが素数なら、1〜p−1のすべての数がpと互いに素で、逆数を持ちます。だから、連立方程式を解く途中で0以外の係数で割る操作ができます。先ほどのmod 13で「2で割る」操作も、この性質を使っています。",
+      primerPrimeComposite: "法が合成数だと、0以外でも逆数がない数があります。たとえばmod 12では、3にどの整数を掛けても余りは0,3,6,9のいずれかで、1にはなりません。",
+      primerPrimeExample: "#1へ代入する最初の求め方では、係数が1なので逆数を求める操作は不要です。#2へ代入する別の求め方では、2の逆数を使いました。ただし、法が素数でも、同じ条件を表す2本の式からは点を1つに決められません。"
+        + "係数の組にも、次の条件が必要です。",
       primerCoefficientFormula: "一般に、2組を(a,b)と(d,e)と書くと、a e−d bがmod "
         + "13で0以外なら、2本の式から点が1つに決まります。#1と#2では1×5−2×3=−1≡12なので条件を満たします。固定例の4組では、どの2組を選んでもこの値は0以外です。",
       primerCoefficientMethods: "係数をランダムに選ぶ必要はありません。固定例とは別に、番号から係数を決める方法もあります。k=2なら、0以外の異なる番号iに対して(a,b)=(1,i)とします。i=1,2,3,4なら(1,1),(1,2),(1,3),(1"
@@ -740,11 +756,39 @@
       primerCoefficientRecovery: "Keep every two pairs from being multiples of each other: compare the results modulo 13. The two equations then"
         + " impose independent conditions, so exactly one point satisfies both.",
       primerCoefficientDetails: "Check coefficient choices with examples and a formula",
-      primerCoefficientReject: "After choosing (1,3) for #1, choosing (2,6) would just double that pair. Computing the right-hand value from "
-        + "X=(5,8) gives c=6, hence 2x₁+6x₂≡6 (mod 13). This doubles the entire #1 equation, so collecting both shares "
-        + "adds no new constraint.",
-      primerCoefficientAccept: "The actual #2 pair is (2,5), which differs from twice #1, (2,6). Subtracting the #2 equation 2x₁+5x₂≡11 from "
-        + "twice the #1 equation gives x₂≡6−11≡8 (mod 13), then x₁=5.",
+      primerCoefficientReject: "After choosing (1,3) for #1, choosing (2,6) would just double that pair. Let's calculate the right-hand"
+        + " value c.",
+      primerCoefficientCalculation: "Given X=(s,r)=(5,8) and (a,b)=(2,6), we calculate a×s+b×r=5a+8b=5×2+8×6=10+48=58. Since 58=13×4+6, the"
+        + " remainder when dividing by 13 is 6. Thus c=6.",
+      primerCoefficientRejectResult: "The equation is 2x₁+6x₂≡6 (mod 13). This doubles the entire #1 equation, so collecting both shares adds"
+        + " no new constraint.",
+      primerCoefficientAccept: "The actual #2 pair is (a,b)=(2,5), which differs from twice #1, (2,6).",
+      primerCoefficientAcceptCalculation: "Using the same X=(s,r)=(5,8), we calculate a×s+b×r=5a+8b=5×2+8×5=10+40=50. Since 50=13×3+11, the"
+        + " remainder when dividing by 13 is 11, so c=11. The #2 equation is 2x₁+5x₂≡11 (mod 13).",
+      primerRecoveryTitle: "Recover the secret s from two equations",
+      primerRecoveryEquations: "The two equations are #1: x₁+3x₂≡3 and #2: 2x₁+5x₂≡11, both modulo 13.",
+      primerCoefficientAcceptRecovery: "Multiplying both sides of #1 by 2 gives 2x₁+6x₂≡6 (mod 13). Subtracting #2 cancels the x₁ terms, leaving"
+        + " x₂≡6−11=−5≡8 (mod 13). Adding 13 to −5 gives 8, so x₂=8.",
+      primerRecoverySecret: "Substituting this value into #1 gives x₁+3×8≡3 (mod 13). Subtracting 24 from both sides gives"
+        + " x₁≡3−24=−21≡5 (mod 13). Adding 13 twice to −21 gives 5, so we recover the secret s=x₁=5.",
+      primerRecoveryAlternativeTitle: "Another route: substitute into #2 and divide by 2",
+      primerRecoveryAlternativeSubstitution: "Substituting the same x₂=8 into #2 gives 11≡2x₁+5×8=2x₁+40 (mod 13). Subtracting 40 from both sides"
+        + " gives 2x₁≡11−40=−29≡−3≡10 (mod 13).",
+      primerRecoveryInverseTwo: "The numbers 2 and 13 are coprime: their only common positive divisor is 1. Thus 2 has an inverse modulo"
+        + " 13. Since 2×7=14≡1 (mod 13), that inverse is 7.",
+      primerRecoveryAlternativeSecret: "Multiplying both sides by 7 gives x₁≡7×10=70≡5 (mod 13), recovering the same secret s=5. Dividing by 2"
+        + " in a congruence means multiplying by its inverse in this way. This division is valid when the divisor"
+        + " is coprime to the modulus.",
+      primerPrimeTitle: "Why use a prime modulus?",
+      primerPrimeInverse: "When the modulus p is prime, every number from 1 to p−1 is coprime to p and has an inverse. This lets us"
+        + " divide by any nonzero coefficient while solving the equations. The division by 2 modulo 13 above uses"
+        + " this property.",
+      primerPrimeComposite: "With a composite modulus, some nonzero numbers have no inverse. For example, modulo 12, multiplying 3 by"
+        + " any integer gives a remainder of 0, 3, 6, or 9, never 1.",
+      primerPrimeExample: "The first route, substituting into #1, has a coefficient of 1 and needs no inverse calculation. The"
+        + " alternative route through #2 uses the inverse of 2. Even with a prime modulus, two equations expressing"
+        + " the same condition cannot determine a unique point. The coefficient pairs must also meet the following"
+        + " condition.",
       primerCoefficientFormula: "For any two pairs (a,b) and (d,e), a nonzero a e−d b modulo 13 means the two equations determine exactly one "
         + "point. For #1 and #2, 1×5−2×3=−1≡12, so they pass. Every pair among the four fixed coefficient pairs passes "
         + "this check.",

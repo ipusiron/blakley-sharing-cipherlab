@@ -8,7 +8,7 @@
     ja: {
       primerCoefficientOrigin: "この固定例では、係数(a,b)を#1:(1,3)、#2:(2,5)、#3:(4,2)、#4:(5,1)と決めています。#1などはシェアの識別番号で、aやbを計算するための数ではありません。",
       primerCoefficientChoice: "#1のb=3は、次の2条件を4組全体で満たすように、あらかじめ選んだ値です。3だけが正解というわけではありません。ここではk=2、法p=13の場合を説明します。",
-      primerCoefficientPrivacy: "各組のbを0以外にする：どの秘密候補sにも、式を満たすrが1個ずつ残ります。rを秘密とは独立に0〜12から同じ確率で選ぶことで、1枚からsを絞れなくなります。",
+      primerCoefficientPrivacy: "各組のbを0以外にする：どの秘密候補sにも、式を満たすrが1個ずつ残ります。秘密sの値によって選び方を変えず、rを0〜12から同じ確率で選びます（rを一様ランダムに選ぶ）。これにより、1枚のシェアから秘密sを絞れなくなります。",
       primerCoefficientRecovery: "どの2組も、一方に同じ数を掛けただけの組にしない：13で割った余りで比べます。こうすると2本の式が異なる条件になり、両方を満たす点が1つに決まります。",
       primerCoefficientDetails: "係数の選び方を具体例と式で確かめる",
       primerCoefficientReject: "たとえば#1の(1,3)に対し、次の組に(2,6)を選ぶと2倍になってしまいます。X=(5,8)から右辺を計算するとc=6で、式は2x₁+6x₂≡6 (mod "
@@ -734,8 +734,9 @@
         + "identify shares; they are not inputs used to calculate a or b.",
       primerCoefficientChoice: "For #1, b=3 is a preselected value that lets the four pairs satisfy both conditions below. It is not the only "
         + "possible choice. These conditions describe k=2 with modulus p=13.",
-      primerCoefficientPrivacy: "Keep b nonzero in every pair: each possible secret s has exactly one r satisfying the equation. Choosing r "
-        + "independently of the secret, with equal probability over 0–12, prevents one share from narrowing down s.",
+      primerCoefficientPrivacy: "Keep b nonzero in every pair: each possible secret s has exactly one r satisfying the equation. "
+        + "Choose r from 0–12 with equal probability, without changing how you choose it based on the value of secret s "
+        + "(choose r uniformly at random). This prevents one share from narrowing down the secret s.",
       primerCoefficientRecovery: "Keep every two pairs from being multiples of each other: compare the results modulo 13. The two equations then"
         + " impose independent conditions, so exactly one point satisfies both.",
       primerCoefficientDetails: "Check coefficient choices with examples and a formula",

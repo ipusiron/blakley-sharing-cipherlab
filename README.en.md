@@ -96,7 +96,7 @@ Accordion headers and expanded content have distinct backgrounds and borders tha
 Although the page also shows the dealer’s answer, candidate counts describe what follows from only the collected shares and known generation rules.
 
 The fixed coefficient pairs are #1:(1,3), #2:(2,5), #3:(4,2), and #4:(5,1). The # labels identify shares and are not used to calculate a or b.
-For k=2, every b must be nonzero and no two pairs may be multiples modulo 13. Together with independent, uniform r, these conditions protect s with one share and determine the point with two.
+For k=2, every b must be nonzero and no two pairs may be multiples modulo 13. Choose r from 0–12 with equal probability, without changing how you choose it based on the value of secret s (choose r uniformly at random). Combined with the coefficient conditions, this protects s with one share and determines the point with two.
 “Check coefficient choices with examples and a formula” explains why twice #1, (2,6), adds no new constraint and shows the calculation using the actual #2=(2,5).
 Coefficients are chosen independently of secret and random-coordinate values; they may be fixed, public and reused. Each new sharing needs a fresh, independent, uniform r.
 The same accordion introduces random selection from eligible candidates and the Vandermonde rule (a,b)=(1,i) for k=2.

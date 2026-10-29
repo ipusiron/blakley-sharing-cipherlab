@@ -66,7 +66,6 @@ h1 span, h2, h3 { color: var(--accent); }
 .graph-loading { fill: var(--muted); font: 20px system-ui, sans-serif; }
 
 .icon-button { width: 44px; height: 44px; padding: 0; border-radius: 50%; font-weight: 700; }
-.eyebrow { font-size: .875rem; text-align: center; color: var(--muted); }
 .tabs, .panel { background: var(--paper); border: 1px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); }
 .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .2rem; padding: .3rem; }
 .tabs button { border: 0; min-width: 0; padding: .3rem .15rem; font-size: .875rem; line-height: 1.4; }

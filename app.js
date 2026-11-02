@@ -229,6 +229,8 @@
     compareGuides: true
   };
   const tabs = ['intersections', 'dimensions', 'compare', 'pitfalls'];
+  // Live regions (role="status") are announced on every write; write only when the sentence changes.
+  const setLiveText = (element, text) => { if (element.textContent !== text) element.textContent = text; };
   const t = (key, values = {}) => (BlakleyMessages[state.language][key] || key)
     .replace(/\{([a-zA-Z0-9_]+)\}/g, (_, name) => String(values[name] ?? '{' + name + '}'));
   function saveLanguage() {
@@ -602,6 +604,12 @@
     if (!options.includes(state.editShare)) state.editShare = options[0];
     optionList($('edit-share'), options.map(i => i + 1), state.editShare + 1);
     for (const id of ['shift-minus', 'shift-plus', 'direction-minus', 'direction-plus']) $(id).disabled = !state.selected.length;
+    // Explain next to the disabled −1/+1 why they cannot be pressed; remove the link once a share is selected.
+    $('edit-disabled-note').hidden = state.selected.length > 0;
+    for (const id of ['edit-actions', 'shift-minus', 'shift-plus', 'direction-minus', 'direction-plus']) {
+      if (state.selected.length) $(id).removeAttribute('aria-describedby');
+      else $(id).setAttribute('aria-describedby', 'edit-disabled-note');
+    }
     let warnings = '';
     if (example.k === 2 && state.edits) {
       const row = example.A[state.editShare];
@@ -613,7 +621,7 @@
         warnings += t(space.consistent ? 'sameLine' : 'parallelDisjoint', { i: i + 1 }) + ' ';
       }
     }
-    $('edit-warning').textContent = warnings;
+    setLiveText($('edit-warning'), warnings);
   }
   function renderRecovery(example) {
     const chosen = chosenSystem(), { p, k } = example;
@@ -627,7 +635,7 @@
       result = t(state.edits ? 'editedOnePoint' : 'onePoint', { point: point.join(','), s: point[0] });
     }
     if (count === 0) result = t('noSolution');
-    $('recovery-result').textContent = result;
+    setLiveText($('recovery-result'), result);
     $('recovery-result').dataset.source = state.edits ? 'edited' : 'distributed';
     const explanationKey = !state.selected.length ? 'selectionNone' : !count ? 'selectionNoSolution'
       : point ? 'selectionUnique' : 'selectionPartial';
@@ -713,11 +721,9 @@
     $('slice-recovered').dataset.s = String(recoveredPoint?.[0] ?? state.candidate);
     const equations = chosen.A.map((a, i) => `${a[1]}x₂+${a[2]}x₃≡${G.mod(chosen.c[i] - a[0] * state.candidate, p)}`).join('; ');
     $('slice-equation').textContent = equations ? equations + ` (mod ${p})` + (points.length === 1 ? ' → ' + fmtPoint(points[0]) : '') : '';
-    $('slice-result').textContent = points.length > 1 ? t('sliceCurrent', { s: state.candidate, count: points.length }) : t('sliceStatus', {
+    setLiveText($('slice-result'), points.length > 1 ? t('sliceCurrent', { s: state.candidate, count: points.length }) : t('sliceStatus', {
       s: state.candidate, points: points.length ? fmtPoint(points[0]) : t('noPoint'), count: points.length
-    });
-    $('scene').dataset.yaw = String(state.yaw); $('scene').dataset.pitch = String(state.pitch); $('scene').dataset.slice = String(state.candidate);
-    $('camera-description').textContent = t('cameraAngles', { yaw: state.yaw, pitch: state.pitch });
+    }));
     $('plane-toggles').replaceChildren(...state.selected.map(i => {
       const container = E('label', undefined, 'choice'), input = E('input'); input.type = 'checkbox';
       input.id = 'plane-' + i; input.dataset.plane = String(i); input.checked = state.visible[i];
@@ -727,8 +733,8 @@
       '#' + (i + 1), example.A[i].map((a, j) => `${a}x${'₁₂₃'[j]}`).join('+') + '=' + example.A[i].reduce((sum, a, j) => sum + a * example.X[j], 0)
     ]);
 
-    if (typeof renderThreeD === 'function') {
-      const real = renderThreeD($('scene'), example, state.selected, state.candidate, state.yaw, state.pitch, state.visible);
+    const real = renderCamera(example);
+    if (real) {
       if (real.rank === 3) sceneRows.push(['X', fmtPoint(example.X)]);
       else if (real.realSlice) sceneRows.push(['x₁=' + state.candidate, fmtPoint(real.realSlice.map(x => Number(x.toFixed(3))))]);
       table($('scene-table'), [t('chooseShares'), t('equation')], sceneRows);
@@ -736,6 +742,13 @@
         ? t('realSlice', { point: real.realSlice.map(x => Number(x.toFixed(3))).join(',') }) + (real.outside ? ' · ' + t('outsideBox') : '')
         : t(real.sliceConsistent ? 'realUndetermined' : 'realNoPoint');
     }
+  }
+  // Redraws only the 3D diagram and its (non-live) angle description, for example while it is dragged.
+  function renderCamera(example) {
+    $('scene').dataset.yaw = String(state.yaw); $('scene').dataset.pitch = String(state.pitch); $('scene').dataset.slice = String(state.candidate);
+    $('camera-description').textContent = t('cameraAngles', { yaw: state.yaw, pitch: state.pitch });
+    if (typeof renderThreeD !== 'function') return null;
+    return renderThreeD($('scene'), example, state.selected, state.candidate, state.yaw, state.pitch, state.visible);
   }
   function matrixTable(target, matrix, k) {
     const grid = E('table'), head = E('thead'), hr = E('tr'), body = E('tbody');
@@ -825,7 +838,7 @@
     ]));
     $('inspection-list').dataset.failed = String(checks.filter(row => !row.ok).length);
     const notice = state.notice ? [state.notice, ...(state.notice.adjustments || [])] : [];
-    $('status').textContent = state.busy ? t('working') : notice.map(item => t(item.key, item.values)).join(' ');
+    setLiveText($('status'), state.busy ? t('working') : notice.map(item => t(item.key, item.values)).join(' '));
   }
   function renderIntersections(preserveInputDraft = false) {
     const example = effective();
@@ -994,12 +1007,18 @@
     });
     $('scene').addEventListener('pointerdown', event => { state.drag = { x: event.clientX, yaw: state.yaw }; $('scene').setPointerCapture(event.pointerId); });
     $('scene').addEventListener('pointermove', event => {
-      if (!state.drag) return; state.yaw = Math.round((state.drag.yaw + (event.clientX - state.drag.x) * .5 + 720) % 360); render();
+      if (!state.drag) return; state.yaw = Math.round((state.drag.yaw + (event.clientX - state.drag.x) * .5 + 720) % 360);
+      const example = effective(); if (example.k === 3) renderCamera(example);
     });
     for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) $('scene').addEventListener(name, () => { state.drag = null; });
     $('matrix-prev').addEventListener('click', () => { state.matrixStep--; render(); });
     $('matrix-next').addEventListener('click', () => { state.matrixStep++; render(); });
-    window.addEventListener('resize', () => render(true));
+    // Resizing redraws the diagrams at the new width; live regions keep their text because setLiveText skips equal sentences.
+    let resizeFrame = 0;
+    window.addEventListener('resize', () => {
+      if (resizeFrame) return;
+      resizeFrame = requestAnimationFrame(() => { resizeFrame = 0; render(true); });
+    });
   }
 
   const threeDEpsilon = 1e-8;
@@ -1414,7 +1433,7 @@
       G.sCandidates(A.slice(0, i), c.slice(0, i), p, k).filter(Boolean).length]);
     const whole = count ? P.restoreWholePoint(A.slice(0, count), c.slice(0, count), p) : { count: p ** k, point: null };
     $('pit-b-input').textContent = `GF(${p}), k=${k}, ` + t('pitShareCount', { count });
-    $('pit-b-unsafe').textContent = t('pitWholeResult', { count: whole.count }) + (whole.point ? ' X=' + fmtPoint(whole.point) : '');
+    setLiveText($('pit-b-unsafe'), t('pitWholeResult', { count: whole.count }) + (whole.point ? ' X=' + fmtPoint(whole.point) : ''));
     $('pit-b-result').textContent = t('pitCoordinateResult', { count: rows[count][2] });
     table($('pit-b-table'), [t('pitShares'), t('pitWhole'), t('pitFirst')], rows);
     $('pit-b-grid').toggleAttribute('hidden', k !== 2); $('pit-b-slices').hidden = k !== 3;
@@ -1450,7 +1469,7 @@
     const secrets = narrow ? points.map(point => point[0]) : P.integerCandidates(a, rhs, p);
     $('pit-c-equation').textContent = `${a[0]}x₁+${a[1]}x₂${narrow ? '≡' : '='}${rhs}` + (narrow ? ` (mod ${p})` : '');
     $('pit-c-input').textContent = t(narrow ? 'pitNarrowInput' : 'pitIntegerInput');
-    $('pit-c-unsafe').textContent = t('pitRestrictedResult', { count: secrets.length, secrets: secrets.join(', ') });
+    setLiveText($('pit-c-unsafe'), t('pitRestrictedResult', { count: secrets.length, secrets: secrets.join(', ') }));
     const full = G.sCandidates([a], [G.mod(rhs, p)], p, 2).filter(Boolean).length;
     $('pit-c-result').textContent = t('pitFullResult', { count: full });
     $('pit-c-lesson').textContent = t(narrow ? 'pitNarrowLesson' : 'pitIntegerLesson');
@@ -1463,9 +1482,9 @@
     const secrets = G.sCandidates(A, c, p, k).map((n, s) => n ? s : null).filter(s => s !== null);
     $('pit-a-mode').value = mode; $('pit-a-s-wrap').hidden = !is3; $('pit-a-s').value = String(state.pitASlice);
     $('pit-a-input').textContent = A.map((row, i) => `#${i + 1}: ${fmtEquation(row, c[i], p)}`).join('; ');
-    if (mode === 'parallel') $('pit-a-unsafe').textContent = t('pitCramerResult', { point: fmtPoint(P.cramerUnchecked(A, c, p)) });
-    else if (short) $('pit-a-unsafe').textContent = t('pitFreeZeroResult', { point: fmtPoint(P.freeVariablesZero(A, c, p)) });
-    else $('pit-a-unsafe').textContent = t('pitLeakedResult', { secrets: secrets.join(', '), count });
+    if (mode === 'parallel') setLiveText($('pit-a-unsafe'), t('pitCramerResult', { point: fmtPoint(P.cramerUnchecked(A, c, p)) }));
+    else if (short) setLiveText($('pit-a-unsafe'), t('pitFreeZeroResult', { point: fmtPoint(P.freeVariablesZero(A, c, p)) }));
+    else setLiveText($('pit-a-unsafe'), t('pitLeakedResult', { secrets: secrets.join(', '), count }));
     $('pit-a-result').textContent = t(mode === 'parallel' ? 'pitParallelCheck' : short ? 'pitShortCheck' : 'pitLeakCheck');
     $('pit-a-lesson').textContent = t({ vertical: 'pitVerticalLesson', leak3: 'pitLeak3Lesson', parallel: 'pitParallelLesson', short: 'pitShortLesson' }[mode]);
     const checks = G.checkRows(A, p);
@@ -1496,7 +1515,7 @@
     $('pit-d-count').value = String(count); $('pit-d-delta').value = String(delta);
     $('pit-d-input').textContent = t('pitTamperInput', { delta, before: D.c[1], after: c[1], count });
     const unchecked = P.restoreFirstK(A, c, p), recovery = G.reconstruction(A, c, p);
-    $('pit-d-unsafe').textContent = t('pitFirstKResult', { point: fmtPoint(unchecked), s: unchecked[0] });
+    setLiveText($('pit-d-unsafe'), t('pitFirstKResult', { point: fmtPoint(unchecked), s: unchecked[0] }));
     let key = 'pitTamperK', values = { point: fmtPoint(unchecked), s: unchecked[0] };
     if (delta === 0) key = 'pitTamperUnchanged';
     else if (count === 3) key = 'pitTamperK1';
@@ -1632,9 +1651,9 @@
     const selectedLinear = linearPoints.find(point => point[0] === state.compareK2Candidate) || linearPoints[0];
     state.compareK2Candidate = selectedLinear[0];
     $('compare-k2-value').textContent = 's=' + selectedLinear[0];
-    $('compare-k2-caption').textContent = t('compareK2Candidate', {
+    setLiveText($('compare-k2-caption'), t('compareK2Candidate', {
       point: fmtPoint(selectedLinear), polynomial: comparePolynomial(selectedLinear), value: compareValue(selectedLinear, 1, L.p)
-    });
+    }));
     $('compare-k2-shares').textContent = t('compareKnownShares', { count: 1, values: fmtPoint([1, L.c[0]]) });
     $('compare-k2-all-shares').textContent = t('compareAllShares', { values: L.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
     $('compare-k2-answer').textContent = t('compareDealerAnswer', { polynomial: comparePolynomial(L.X), p: L.p, point: fmtPoint(L.X) });
@@ -1653,7 +1672,7 @@
     $('compare-nonzero').checked = state.compareNonzero;
     $('compare-guides').checked = state.compareGuides;
     $('compare-current').textContent = 's=' + point[0];
-    $('compare-count').textContent = t(state.compareNonzero ? 'compareRestrictedCount' : 'compareCompleteCount', { count: points.length });
+    setLiveText($('compare-count'), t(state.compareNonzero ? 'compareRestrictedCount' : 'compareCompleteCount', { count: points.length }));
     $('compare-k3-shares').textContent = t('compareKnownShares', { count: 2, values: D.c.slice(0, 2).map((value, i) => fmtPoint([i + 1, value])).join(' ') });
     $('compare-k3-all-shares').textContent = t('compareAllShares', { values: D.c.map((value, i) => fmtPoint([i + 1, value])).join(' ') });
     $('compare-fixed-polynomial').textContent = t('compareDealerAnswer', { polynomial: comparePolynomial(D.X), p: D.p, point: fmtPoint(D.X) });

@@ -455,7 +455,8 @@
       compareSizeIntro: "秘密を0〜p−1の数m個で表し、k=3とした例です。「要素」はその数1個です。式全体に0以外の数を掛け、係数の1つを1にそろえて（正規化して）、その1は省いて数えます。公開番号や省いた位置の情報は含まず、バイト数でもありません。",
       compareSizeNote: "公開の番号iから (1,i,i²) を決めれば、渡す値は多項式の値だけになり、Shamirと同じ大きさです。",
       compareLinearGeneralization: "集まったシェアから秘密の座標を求められるかを行列で決める考え方は、線形秘密分散につながります。",
-      compareLesson: "座学8：線形秘密分散への橋",
+      compareLesson: "座学8：線形秘密分散への橋（ヘルプと座学を開く）",
+      editNeedsShare: "シェアを1枚も選んでいないため、−1／+1は押せません。上の「シェアを選ぶ」で1枚以上選ぶと押せます。",
       lesson1Title: "1. しきい値法と1979年の2つの提案",
       lesson1Intro: "秘密分散では、秘密から複数のシェアを作ります。(k,n) しきい値法では、n枚のうち任意のk枚以上で秘密を戻せます。",
       lesson1Privacy: "完全な秘密分散では、k枚未満を見ても秘密についての確率は変わりません。候補が複数残るだけでは、この性質を示したことにはなりません。",
@@ -1352,7 +1353,8 @@
         + "share size as Shamir.",
       compareLinearGeneralization: "Deciding with a matrix whether the collected shares determine the secret coordinate leads to linear "
         + "secret sharing.",
-      compareLesson: "Theory 8: a bridge to linear secret sharing",
+      compareLesson: "Theory 8: a bridge to linear secret sharing (opens Help and theory)",
+      editNeedsShare: "−1/+1 are unavailable because no share is selected. Select at least one share under “Choose shares” above to use them.",
       lesson1Title: "1. Threshold schemes and the two proposals of 1979",
       lesson1Intro: "Secret sharing creates several shares from a secret. In a (k,n) threshold scheme, any set of at least k of the"
         + " n shares can recover the secret.",

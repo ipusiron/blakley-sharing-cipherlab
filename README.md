@@ -523,6 +523,7 @@ blakley-sharing-cipherlab/  # プロジェクトのルート
 ├── assets/en/screenshot2.png        # 英語のShamir比較表
 ├── assets/en/screenshot3.png        # 英語の検査なしカードA
 ├── test/                            # 自動テストと固定値
+├── test/a11y.test.js                # 読み上げ領域の更新・押せない理由・ダイアログを開くボタンの検査
 ├── test/contrast.test.js            # 文字と背景の配色検査
 ├── test/core.test.js                # 計算・生成・復元・危ない模型の検査
 ├── test/format.test.js              # 公開ソースの形式検査

@@ -53,6 +53,11 @@ button, input, select { font: inherit; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 a { color: var(--accent); overflow-wrap: anywhere; }
 button:disabled { cursor: wait; opacity: .7; }
+/* A button that opens another view (dialog or tab): link-like text with an arrow, unlike operation buttons. */
+.nav-button { border-color: transparent; background: transparent; color: var(--accent); text-align: start;
+  text-decoration: underline; text-underline-offset: .2em; font-weight: 600; }
+.nav-button::after { content: "→"; content: "→" / ""; display: inline-block; margin-inline-start: .3em; text-decoration: none; }
+@media (hover: hover) { .nav-button:hover { border-color: var(--accent); } }
 .page-header, main, footer { width: min(100% - 2rem, 1000px); margin-inline: auto; }
 .page-header { padding: 1.4rem 0 .6rem; }
 .masthead { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
@@ -159,6 +164,7 @@ dialog::backdrop { background: #101a2ab0; }
 .edit-actions { display: grid; gap: .5rem; margin: .75rem 0; }
 .edit-step-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .5rem; }
 .edit-step-row > span { font-size: .875rem; }
+.edit-disabled-note { margin: 0 0 .75rem; font-size: .875rem; }
 @media (min-width: 720px) {
   .share-edit-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
 }

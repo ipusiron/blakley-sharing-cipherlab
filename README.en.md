@@ -493,6 +493,7 @@ blakley-sharing-cipherlab/  # Project root
 ├── assets/en/screenshot2.png        # English Shamir comparison screenshot
 ├── assets/en/screenshot3.png        # English missing-checks card A screenshot
 ├── test/                            # Automated tests and reference values
+├── test/a11y.test.js                # Live-region updates, disabled-control notes and dialog-opening button checks
 ├── test/contrast.test.js            # Text and background contrast checks
 ├── test/core.test.js                # Arithmetic, generation, reconstruction and unsafe-model tests
 ├── test/format.test.js              # Public-source format checks

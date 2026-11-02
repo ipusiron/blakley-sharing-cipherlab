@@ -220,6 +220,7 @@
               <button id="direction-plus" type="button" data-label="directionPlus" aria-label="係数b +1（方向を変える）">+1</button>
             </div>
           </div>
+          <p id="edit-disabled-note" class="edit-disabled-note" hidden data-i18n="editNeedsShare">シェアを1枚も選んでいないため、−1／+1は押せません。上の「シェアを選ぶ」で1枚以上選ぶと押せます。</p>
           <button id="reset-edit" type="button" data-i18n="undoEdit">すべての写しを元に戻す</button>
           <p data-i18n="editIntro">右辺cを±1したり、係数bを変えたりして、式を書き換えた場合を試します。変えるのは実験用の写しで、配布表の値は保ちます。結果が元の秘密と同じになるとは限りません。</p>
           <p id="edit-warning" class="danger-text" role="status"></p>
@@ -417,7 +418,7 @@
         <p data-i18n="compareSizeNote">公開の番号iから (1,i,i²) を決めれば、渡す値は多項式の値だけになり、Shamirと同じ大きさです。</p>
       </section>
       <p data-i18n="compareLinearGeneralization">集まったシェアから秘密の座標を求められるかを行列で決める考え方は、線形秘密分散につながります。</p>
-      <button id="compare-lesson" type="button" data-i18n="compareLesson">座学8：線形秘密分散への橋</button>    </section>
+      <button id="compare-lesson" class="nav-button" type="button" aria-haspopup="dialog" data-i18n="compareLesson">座学8：線形秘密分散への橋（ヘルプと座学を開く）</button>    </section>
     <section id="panel-pitfalls" class="panel" role="tabpanel" aria-labelledby="tab-pitfalls" hidden>
       <h2 data-i18n="pitfalls">確かめる</h2><p data-i18n="pitfallsIntro">正しく作るための条件を1つずつ変え、何がわかってしまうか、復元器がどこで間違うかを試します。各カードで操作し、結果と理由を読んでください。</p>
       <section id="pit-card-b" class="stage-card" aria-labelledby="pit-b-title">
